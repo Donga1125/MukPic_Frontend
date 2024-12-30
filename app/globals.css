@@ -1,21 +1,41 @@
+/* app/globals.css */
+
+/* Tailwind 기본 스타일 적용 */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  display : flex;
+  max-width: 480px;
+  flex-direction: column;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto; 
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+
+.container {
+  max-width: 100%;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+a {
+  text-decoration: none;
+}
+
+.nav-wrapper {
+  max-width: 480px;
+  flex-direction: row;  
+}
+
+/* 웹뷰 및 모바일 최적화 */
+@media {
+  body {
+    font-size: 16px;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-}
