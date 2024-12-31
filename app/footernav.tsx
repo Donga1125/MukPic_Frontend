@@ -1,5 +1,5 @@
 // app/navigation.js
-export default function Navigation() {
+export default function botNav() {
     return (
         <nav className="main-container bg-white shadow fixed bottom-0 left-0 right-0 flex justify-around items-center p-2 rounded-t-lg">
             <div className="nav-wrapper">

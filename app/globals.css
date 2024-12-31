@@ -5,7 +5,7 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
+.root-container {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   display : flex;
   max-width: 480px;
@@ -17,20 +17,7 @@ body {
 }
 
 
-.container {
-  max-width: 100%;
-  padding-left: 16px;
-  padding-right: 16px;
-}
 
-a {
-  text-decoration: none;
-}
-
-.nav-wrapper {
-  max-width: 480px;
-  flex-direction: row;  
-}
 
 /* 웹뷰 및 모바일 최적화 */
 @media {

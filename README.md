@@ -10,4 +10,7 @@ feat(features) -기능 개발
 예시 
 
 main-dev-loginFeat(완성 시 dev로 머지지)
-        -communityFeat
+        -communityFeat\  
+
+        
+tailwind css daisy UI
