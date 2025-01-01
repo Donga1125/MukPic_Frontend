@@ -87,7 +87,7 @@ return (
         <Link href="" >Forgot Password?</Link>
       </div>
       <div>
-        <Link href="" >sign up</Link>
+        <Link href="signup" >sign up</Link>
       </div>
     </div >
   </>
