@@ -1,0 +1,66 @@
+.food-info-page {
+    font-family: "Arial", sans-serif;
+    background-color: #f9fafb;
+    color: #333;
+    padding: 20px;
+  }
+  
+  .image-uploader input {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 16px;
+  }
+  
+  .image-uploader button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .image-uploader button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  
+  .image-preview img {
+    max-width: 100%;
+    max-height: 250px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+  }
+  
+  .analysis-result {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .result-section {
+    margin-bottom: 16px;
+  }
+  
+  .result-section h3 {
+    font-size: 1.25rem;
+    margin-bottom: 8px;
+    color: #2d3748;
+  }
+  
+  .result-section p,
+  .result-section ul,
+  .result-section ol {
+    font-size: 1rem;
+    color: #4a5568;
+  }
+  
+  .result-section ul,
+  .result-section ol {
+    padding-left: 20px;
+  }
+  

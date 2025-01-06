@@ -1,9 +1,10 @@
 import axios from "axios";
 
+const API_URL = 'http://localhost:8080';
 
 const instance = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_ROOT_API,
-    timeout: 5000,
+    baseURL: API_URL, // process.env.NEXT_PUBLIC_ROOT_API,
+    timeout: 25000,
     headers: {
         'Content-Type': 'application/json',
     },
