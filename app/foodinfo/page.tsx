@@ -40,7 +40,7 @@ const FoodInfoPage: React.FC = () => {
         { imageUrl },
         {
           headers: {
-            Authorization: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwYWFuMjMiLCJyb2xlIjoiUk9MRV9VU0VSIiwiaWF0IjoxNzM2MTYwNTU0LCJleHAiOjE3MzYxNjQxNTR9.Y3hfq6B3f5Ysgdli4SawYA1nDB-YgCs_BY76SuOK3RA`,
+            Authorization: `Bearer 로그인후발급받은Authorization값`,
           },
         }
       );
