@@ -3,6 +3,7 @@ import "@/app/globals.css";
 import TopNav from "@/app/components/TopNav";
 import { ReactNode } from "react";
 import { SvgButtonForNav, TextLogoButtonForNav } from "@/app/components/button";
+import { AddBotNav } from "@/app/components/BotNav";
 
 
 export const metadata: Metadata = {
@@ -42,13 +43,12 @@ export default function Layout({ children }: LayoutProps) {
           />
           {/* 메인 */}
           <div className="main-container flex-1 bg-white rounded-lg shadow-md">
-
             {/* 메인 페이지 내용 */}
             {children}
-
-
-            {/* 하단 네비게이션 */}
+            
           </div>
+          {/* 하단 네비게이션 */}
+          <AddBotNav></AddBotNav>
         </div>
 
       </body>
