@@ -3,8 +3,10 @@ import { emailSchema, passwordSchema, userSchema } from "@/schemas/auth";
 import { WideButton } from "../button";
 import { UseVaildate } from "@/app/hooks/useVaildate";
 import { EmailValidateError, PasswordValidateError, UserValidateError } from "@/app/types/signupValidate";
-import { boolean } from "zod";
-import { useState } from "react";
+import { boolean, set } from "zod";
+import { useEffect, useState } from "react";
+import { useSignupStore } from "@/app/types/signupStore";
+
 
 type Props = {
     message: string;
@@ -30,6 +32,20 @@ export function ValidateSpan({ message, error }: Props) {
 
 
 export function SignupStep() {
+
+    const [personalInfoAgree, setpersonalInfoAgree] = useState<boolean>(false);
+    const [termsAgree, settermsAgree] = useState<boolean>(false);
+    const [isAgree, setIsAgree] = useState<boolean>(false);
+
+    useEffect(() => {
+        setIsAgree(personalInfoAgree && termsAgree);
+    }, [personalInfoAgree, termsAgree]);
+
+    const checkboxChange = (e: React.ChangeEvent<HTMLInputElement>,
+        setFunction : React.Dispatch<React.SetStateAction<boolean>>
+    ) => {
+        setFunction(e.target.checked);
+    };
     return (
         <>
             <head>
@@ -41,16 +57,18 @@ export function SignupStep() {
                     <div className="form-control primary">
                         <label className="cursor-pointer label">
                             <span className="label-text">개인정보 및 민감정보 사용 동의</span>
-                            <input type="checkbox" className="checkbox checkbox-xs" />
+                            <input type="checkbox" className="checkbox checkbox-xs"
+                            onChange={(e) => checkboxChange(e, setpersonalInfoAgree)} />
                         </label>
                     </div>
                     <div className="form-control">
                         <label className="cursor-pointer label">
                             <span className="label-text">이용 약관 동의</span>
-                            <input type="checkbox" className="checkbox checkbox-xs" />
+                            <input type="checkbox" className="checkbox checkbox-xs"
+                            onChange={(e) => checkboxChange(e, settermsAgree)}  />
                         </label>
                     </div>
-                    <WideButton href="/signup/step1">다음으로</WideButton>
+                    <WideButton href="/signup/step1" disabled={!isAgree}>다음으로</WideButton>
                 </div>
             </div>
         </>
@@ -58,13 +76,17 @@ export function SignupStep() {
     );
 }
 export function SignupStep1() {
-    const { errors, validateField } = UseVaildate<EmailValidateError>(emailSchema);
+    const email=useSignupStore(state=>state.email);
+    const setemail=useSignupStore(state=>state.setemail);
 
+    const { errors, validateField } = UseVaildate<EmailValidateError>(emailSchema);
+    const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(true);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        validateField(name, value);
-
+        validateField(name, value);  
+        setIsButtonDisabled(!!errors?.email||!value.trim());
+        setemail(e.target.value);
     };
 
 
@@ -90,7 +112,7 @@ export function SignupStep1() {
                     </label>
                     {errors?.email && <ValidateSpan message={errors?.email[0]} error={!!errors?.email}></ValidateSpan>}
 
-                    <WideButton href="/signup/step2">다음으로</WideButton>
+                    <WideButton href="/signup/step2" disabled={isButtonDisabled}>다음으로</WideButton>
                 </div>
             </div>
         </>
@@ -98,13 +120,15 @@ export function SignupStep1() {
 }
 export function SignupStep2() {
     const { errors, validateField } = UseVaildate<UserValidateError>(userSchema);
-
+    const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(true);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         validateField(name, value);
+        setIsButtonDisabled(!!errors?.userId && !!errors?.userName||!value.trim());
 
     };
+
 
     return (
         <>
@@ -135,7 +159,7 @@ export function SignupStep2() {
                         <ValidateIcon error={!!errors?.userName}></ValidateIcon>
                     </label>
                     {errors?.userName && <ValidateSpan message={errors?.userName[0]} error={!!errors?.userName}></ValidateSpan>}
-                    <WideButton href="/signup/step3">다음으로</WideButton>
+                    <WideButton href="/signup/step3" disabled={isButtonDisabled}>다음으로</WideButton>
                 </div>
             </div>
         </>
@@ -143,13 +167,15 @@ export function SignupStep2() {
 }
 export function SignupStep3() {
     const { errors, validateField } = UseVaildate<PasswordValidateError>(passwordSchema);
-
+    const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(true);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         validateField(name, value);
+        setIsButtonDisabled(!!errors?.password||!value.trim());
 
     };
+
 
     return (
         <>
@@ -170,7 +196,7 @@ export function SignupStep3() {
                         <ValidateIcon error={!!errors?.password}></ValidateIcon>
                     </label>
                     {errors?.password && <ValidateSpan message={errors?.password[0]} error={!!errors?.password}></ValidateSpan>}
-                    <WideButton href="/signup/step4">다음으로</WideButton>
+                    <WideButton href="/signup/step4" disabled={isButtonDisabled}>다음으로</WideButton>
                 </div>
             </div>
         </>
@@ -203,6 +229,62 @@ export function SignupStep4() {
     const handleBadgeClick = (item: string) => {
         setSelectedItems((prev) => prev.filter((selectedItem) => selectedItem !== item));
     };
+
+    // 회원가입 완료 버튼 클릭 시
+    const signupHandler = async (e: React.FormEvent) => {
+        e.preventDefault();
+        console.log("ID:", userId);
+        console.log("PW:", password);
+
+
+        if (!userId || !password) {
+            setErrorMessage('아이디와 비밀번호를 입력해주세요');
+            return;
+        }
+
+        //로그인 post request
+        try {
+            console.log("로그인 요청중");
+           
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_ROOT_API}/auth/login`,
+                {
+                    'userId': userId,
+                    'password': password
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    withCredentials: true,
+                }
+            );
+            console.log("Request Data:", { userId, password }); // 요청 데이터
+            console.log("Response Data:", response.data); // 서버 응답 데이터
+            console.log("Response Token:", response.data.token); // 서버 응답 토큰
+            console.log("Response Status:", response.status); // 서버 응답 상태
+            console.log("API주소", `${process.env.NEXT_PUBLIC_ROOT_API}/auth/login`); // 서버 응답 상태 텍스트
+
+            const { token } = response.data;
+
+            // 쿠키 설정 (document.cookie 대신 js-cookie 사용)
+            Cookies.set('authToken', token, { expires: 30, path: '' }); // 만료 30일
+
+            setErrorMessage('');
+            alert('로그인 성공');
+            router.push('/');
+        }
+        catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                if (error.response?.status === 401) {
+                    setErrorMessage('아이디 또는 비밀번호가 일치하지 않습니다');
+                }
+                else {
+                    setErrorMessage('서버 에러');
+                }
+            }
+        }
+    };
+    
 
 
     return (
@@ -251,7 +333,7 @@ export function SignupStep4() {
                         ))}
                     </div>
 
-                    <WideButton href="/login">회원가입 완료하기!</WideButton>
+                    <WideButton onClick>회원가입 완료하기!</WideButton>
                 </div>
             </div>
         </>
