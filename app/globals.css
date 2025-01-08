@@ -1,29 +1,101 @@
 /* app/globals.css */
 
 /* Tailwind 기본 스타일 적용 */
+@import url("https://cdn.noonnu.cc/fonts/suit/1.0.0/SUIT.css");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-.root-container {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  display : flex;
-  max-width: 480px;
+.root-wrapper {
+  display: flex;
   flex-direction: column;
   min-height: 100vh;
-  align-items: center;
+  background-color: white;
   justify-content: center;
-  margin: 0 auto; 
-  background-color: black;
+  align-items: center;
+  margin: 0 auto;
+  max-width: 390; /* 확인용으로  일단 390px */
 }
 
+.main-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background-color: black;
+  width: 94%;
+  justify-content: center;
+  margin: 0 auto;
+  padding: 0;
+}
 
-
+.root-topNav {
+  max-height: 3.5rem;
+  background-color: cyan;
+}
 
 /* 웹뷰 및 모바일 최적화 */
 @media {
   body {
     font-size: 16px;
+    font-family: "SUIT", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, sans-serif;
   }
 }
 
+/* 텍스트 있는 post 버튼 css */
+.PostButtonForNav {
+  border-radius: 3.125rem;
+  background: #1e252f;
+  font-size: 1rem;
+  color: white;
+  width: 5rem;
+  height: 2rem;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 상단 내비게이션 바 text 부분 css community,search 등등 */
+.nav-text {
+  color: var(--Gray-gray-900, #0b0b0b);
+  text-align: center;
+  font-feature-settings: "liga" off, "clig" off;
+  font-family: "SUIT";
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: normal;
+}
+.nav-text-search {
+  color: #0a0c10;
+  text-align: center;
+  font-feature-settings: "liga" off, "clig" off;
+  font-family: SUIT;
+  font-size: 1.5rem;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+}
+
+.nav-logo {
+  color: #1e252f;
+  font-feature-settings: "liga" off, "clig" off;
+  font-family: SUIT;
+  font-size: 1.5rem;
+  font-style: normal;
+  font-weight: 900;
+  line-height: normal;
+}
+.nav-text-button {
+  color: #fff;
+  font-feature-settings: "liga" off, "clig" off;
+  font-family: SUIT;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+/* 
+.svg {
+  width: 100%;
+  height: auto;
+} */
