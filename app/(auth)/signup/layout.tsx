@@ -33,7 +33,7 @@ export default function Layout({ children }: LayoutProps) {
 
 
         {/* 메인 */}
-        <div className="root-wrapper">
+        <div className="root-wrapper root-text">
           <TopNav
             leftButton={<SvgButtonForNav>
               <svg width="24" height="24" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -23,7 +23,7 @@ export default function Layout({ children }: LayoutProps) {
       </head>
 
       <body>
-        <div className="root-wrapper">
+        <div className="root-wrapper root-text">
 
           {/* 상단 바 */}
           <TopNav

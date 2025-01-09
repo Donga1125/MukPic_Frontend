@@ -6,6 +6,23 @@
 @tailwind components;
 @tailwind utilities;
 
+input {
+  all: unset;
+  cursor: text;
+  color: #0b0b0b;
+  font-feature-settings: "liga" off, "clig" off;
+  font-family: SUIT;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.375rem; /* 137.5% */
+  letter-spacing: -0.01875rem;
+}
+
+input:focus::placeholder {
+  opacity: 0 !important;
+}
+
 .root-wrapper {
   display: flex;
   flex-direction: column;
@@ -21,7 +38,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100%;
-  background-color: black;
+  background-color: white;
   width: 94%;
   justify-content: center;
   margin: 0 auto;
@@ -54,45 +71,18 @@
   align-items: center;
 }
 
-/* 상단 내비게이션 바 text 부분 css community,search 등등 */
-.nav-text {
-  color: var(--Gray-gray-900, #0b0b0b);
-  text-align: center;
-  font-feature-settings: "liga" off, "clig" off;
-  font-family: "SUIT";
-  font-size: 1.5rem;
-  font-weight: 600;
-  line-height: normal;
+.verify-button {
+  height: 2.125rem;
+  flex-shrink: 0;
+  border-radius: 3.125rem;
+  background: #1e252f;
 }
-.nav-text-search {
-  color: #0a0c10;
-  text-align: center;
-  font-feature-settings: "liga" off, "clig" off;
-  font-family: SUIT;
-  font-size: 1.5rem;
-  font-style: normal;
-  font-weight: 600;
-  line-height: normal;
+.verify-button-send {
+  width: 3.875rem;
 }
 
-.nav-logo {
-  color: #1e252f;
-  font-feature-settings: "liga" off, "clig" off;
-  font-family: SUIT;
-  font-size: 1.5rem;
-  font-style: normal;
-  font-weight: 900;
-  line-height: normal;
-}
-.nav-text-button {
-  color: #fff;
-  font-feature-settings: "liga" off, "clig" off;
-  font-family: SUIT;
-  font-size: 1rem;
-  font-style: normal;
-  font-weight: 400;
-  line-height: normal;
-}
+/* 상단 내비게이션 바 text 부분 css community,search 등등 */
+
 .bot-nav {
   width: 80%;
   max-width: 21.25rem;
@@ -103,15 +93,162 @@
   box-shadow: 0px 4px 16px 0px rgba(166, 168, 178, 0.5);
 }
 
-.botnav-text {
-  color: gray;
+.auth-button {
+  display: flex;
+  width: 100%;
+  height: 3.375rem;
+  padding: 0.75rem 0.9375rem;
+  justify-content: center;
+  align-items: center;
+  gap: 0.9375rem;
+  flex-shrink: 0;
+  border-radius: 6.25rem;
+}
+.auth-button-id {
+  background: #0a0c10;
+}
+.auth-button-google {
+  background: #e9ebf3;
+}
+
+.auth-input-label {
+  width: 100%;
+  height: 3.375rem;
+  flex-shrink: 0;
+  border-radius: 6.25rem;
+  padding: 1.25rem;
+  background: #f1f3f6;
+  color: #0b0b0b;
+  font-feature-settings: "liga" off, "clig" off;
+  font-family: SUIT;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.375rem; /* 137.5% */
+  letter-spacing: -0.01875rem;
+}
+
+input.auth-placeholder::placeholder {
+  color: #5a6e8c;
+  font-feature-settings: "liga" off, "clig" off;
+  font-family: SUIT;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.375rem; /* 137.5% */
+  letter-spacing: -0.01875rem;
+}
+
+/* 텍스트 스타일 */
+
+.root-text {
   text-align: center;
   font-feature-settings: "liga" off, "clig" off;
   font-family: SUIT;
+  line-height: normal;
+  /* 
+  color:
+  font-size:
+  font-weight:
+  font-style:
+  */
+}
+
+.nav-text {
+  color: var(--Gray-gray-900, #0b0b0b);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.nav-text-search {
+  color: #0a0c10;
+  font-size: 1.5rem;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.botnav-text {
+  color: gray;
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+.nav-logo {
+  color: #1e252f;
+  font-size: 1.5rem;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.nav-text-button {
+  color: #fff;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.login-text {
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.375rem; /* 137.5% */
+  letter-spacing: -0.01875rem;
+}
+.login-text-id {
+  color: #fff;
+}
+.login-text-google {
+  color: #000;
+}
+
+.login-logo {
+  color: var(--Gray-gray-900, #0b0b0b);
+  font-family: SUIT;
+  font-size: 3rem;
+  font-style: normal;
+  font-weight: 900;
+  line-height: normal;
+}
+.sign-up-logo {
+  color: var(--Gray-gray-900, #0b0b0b);
+  font-size: 2.5rem;
+  font-style: normal;
+  font-weight: 900;
+}
+.no-account {
+  font-size: 0.875rem;
+  font-style: normal;
+  color: #5b6a79;
+  font-weight: 400;
+}
+.sign-up-link {
+  color: #000;
+  font-size: 0.9375rem;
+  font-style: normal;
+  font-weight: 600;
+}
+.sign-up-button-text {
+  color: #fff;
+  font-size: 1.25rem;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 1.375rem; /* 110% */
+  letter-spacing: -0.01875rem;
+}
+
+.validate-error-text {
+  color: #fa0c38;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 0.875rem; /* 116.667% */
+  letter-spacing: -0.01875rem;
+}
+
+.login-form-text-sm {
+  color: #5b6a79;
   font-size: 0.875rem;
   font-style: normal;
   font-weight: 400;
-  line-height: normal;
 }
 
 /* 

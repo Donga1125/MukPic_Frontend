@@ -42,7 +42,7 @@ export function SignupStep() {
     }, [personalInfoAgree, termsAgree]);
 
     const checkboxChange = (e: React.ChangeEvent<HTMLInputElement>,
-        setFunction : React.Dispatch<React.SetStateAction<boolean>>
+        setFunction: React.Dispatch<React.SetStateAction<boolean>>
     ) => {
         setFunction(e.target.checked);
     };
@@ -58,14 +58,14 @@ export function SignupStep() {
                         <label className="cursor-pointer label">
                             <span className="label-text">개인정보 및 민감정보 사용 동의</span>
                             <input type="checkbox" className="checkbox checkbox-xs"
-                            onChange={(e) => checkboxChange(e, setpersonalInfoAgree)} />
+                                onChange={(e) => checkboxChange(e, setpersonalInfoAgree)} />
                         </label>
                     </div>
                     <div className="form-control">
                         <label className="cursor-pointer label">
                             <span className="label-text">이용 약관 동의</span>
                             <input type="checkbox" className="checkbox checkbox-xs"
-                            onChange={(e) => checkboxChange(e, settermsAgree)}  />
+                                onChange={(e) => checkboxChange(e, settermsAgree)} />
                         </label>
                     </div>
                     <WideButton href="/signup/step1" disabled={!isAgree}>다음으로</WideButton>
@@ -75,47 +75,59 @@ export function SignupStep() {
 
     );
 }
+
+
 export function SignupStep1() {
-    const email=useSignupStore(state=>state.email);
-    const setemail=useSignupStore(state=>state.setemail);
+    const email = useSignupStore(state => state.email);
+    const setemail = useSignupStore(state => state.setemail);
 
     const { errors, validateField } = UseVaildate<EmailValidateError>(emailSchema);
     const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(true);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        validateField(name, value);  
-        setIsButtonDisabled(!!errors?.email||!value.trim());
+        validateField(name, value);
+        setIsButtonDisabled(!!errors?.email || !value.trim());
         setemail(e.target.value);
     };
 
 
     return (
-        <>
-            <head>
-                <title>id</title>  {/* 각 페이지에서 동적으로 타이틀 설정 */}
-            </head>
-            <h1>우선 이메일을 입력해주세요!</h1>
-            <div className="card bg-base-100">
+        <form className='flex flex-col gap-[0.75rem] '>
+            <label htmlFor="password" className="flex auth-input-label">
+                <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="email@example.com"
+                    onChange={handleChange}
+                    className='auth-placeholder grow text-left' />
+                <button className='flex items-center justify-center'>
+                    <span className='nav-text-button'>Send</span>
+                </button>
+            </label>
+            <input type="text" placeholder="testinput" />
+            {errors?.email && <ValidateSpan message={errors?.email[0]} error={!!errors?.email}></ValidateSpan>}
+            {/* <label className="input input-bordered flex items-center gap-2">
+                <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="email@example.com"
+                    onChange={handleChange}
+                />
+                <ValidateIcon error={!!errors?.email}></ValidateIcon>
+            </label> */}
+            <button className='verify-button verify-button-send relative right-[4.625rem] top-[0.62rem]'>
 
-                <div className='card-body'>
+            </button>
 
-                    <label className="input input-bordered flex items-center gap-2">
-                        <input
-                            id="email"
-                            name="email"
-                            type="email"
-                            placeholder="email@example.com"
-                            onChange={handleChange}
-                        />
-                        <ValidateIcon error={!!errors?.email}></ValidateIcon>
-                    </label>
-                    {errors?.email && <ValidateSpan message={errors?.email[0]} error={!!errors?.email}></ValidateSpan>}
-
-                    <WideButton href="/signup/step2" disabled={isButtonDisabled}>다음으로</WideButton>
-                </div>
-            </div>
-        </>
+            <button className='auth-button auth-button-id sign-up-button-text'
+                type='submit'
+                disabled={isButtonDisabled}
+            >Next
+            </button>
+        </form >
     );
 }
 export function SignupStep2() {
@@ -125,7 +137,7 @@ export function SignupStep2() {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         validateField(name, value);
-        setIsButtonDisabled(!!errors?.userId && !!errors?.userName||!value.trim());
+        setIsButtonDisabled(!!errors?.userId && !!errors?.userName || !value.trim());
 
     };
 
@@ -172,7 +184,7 @@ export function SignupStep3() {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         validateField(name, value);
-        setIsButtonDisabled(!!errors?.password||!value.trim());
+        setIsButtonDisabled(!!errors?.password || !value.trim());
 
     };
 
@@ -245,7 +257,7 @@ export function SignupStep4() {
         //로그인 post request
         try {
             console.log("로그인 요청중");
-           
+
             const response = await axios.post(`${process.env.NEXT_PUBLIC_ROOT_API}/auth/login`,
                 {
                     'userId': userId,
@@ -284,7 +296,7 @@ export function SignupStep4() {
             }
         }
     };
-    
+
 
 
     return (
