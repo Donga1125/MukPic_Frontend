@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import '@/app/globals.css';
 
 interface WideButtonProps {
     children: ReactNode;
@@ -120,17 +120,34 @@ export function TextLogoButtonForNav({ children, className }: TextLogoButtonForN
 }
 
 
-type TextButtonForNavProps = {
+type TextAndIconButtonProps = {
     icon?: ReactNode;
     children?: ReactNode;
 }
-export function TextButtonForNav({ icon, children }: TextButtonForNavProps) {
+export function TextAndIconButton({ icon, children }: TextAndIconButtonProps) {
     return (
-        <button className='PostButtonForNav flex items-center gap-2'>
-            {icon}
-            <span className='nav-text-button'>{children}</span>
+        <button className='text-and-icon-button flex gap-2 items-center justify-center'>
+                {icon}
+                <span className='nav-text-button'>{children}</span>
         </button>
     )
 
 }
+
+type ViewAiResearchButtonProps = {
+    icon?: ReactNode;
+    children?: ReactNode;
+}
+
+export function ViewAiResearchButton({ icon, children }: ViewAiResearchButtonProps) {
+    return (
+        <button className='view-ai-research-button flex gap-2 items-center '>
+                <span className='view-ai-research-button-text'>{children}</span>
+                {icon}
+        </button>
+    )
+
+}
+
+
 
