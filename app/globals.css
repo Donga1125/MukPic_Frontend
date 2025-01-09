@@ -23,6 +23,11 @@ input:focus::placeholder {
   opacity: 0 !important;
 }
 
+button:disabled {
+  cursor: not-allowed; /* 비활성화 상태 커서 */
+  opacity: 0.5; /* 투명도 조정 */
+}
+
 .root-wrapper {
   display: flex;
   flex-direction: column;
@@ -41,6 +46,17 @@ input:focus::placeholder {
   background-color: white;
   width: 94%;
   justify-content: center;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.auth-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background-color: white;
+  width: 94%;
+  justify-content: start;
   margin: 0 auto;
   padding: 0;
 }
@@ -79,6 +95,9 @@ input:focus::placeholder {
 }
 .verify-button-send {
   width: 3.875rem;
+}
+.verify-button-verify {
+  width: 4.375rem;
 }
 
 /* 상단 내비게이션 바 text 부분 css community,search 등등 */
@@ -137,6 +156,69 @@ input.auth-placeholder::placeholder {
   font-weight: 500;
   line-height: 1.375rem; /* 137.5% */
   letter-spacing: -0.01875rem;
+}
+
+.signup-text {
+  font-feature-settings: "liga" off, "clig" off;
+  font-family: SUIT;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.375rem; /* 137.5% */
+  letter-spacing: -0.01875rem;
+}
+
+.signup-text-gray {
+  color: #5a6e8c;
+}
+.signup-text-black {
+  color: #1e252f;
+}
+
+.profile-dropdown-button {
+  border-radius: 6.25rem;
+  border: 1px solid #0a0c10;
+  background: #fff;
+  height: 2.5rem;
+  flex-shrink: 0;
+  color: #1e252f;
+  padding-left: 1rem;
+  padding-right: 0.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+
+.dropdown-list {
+  width: 100%;
+  max-height: 15.625rem;
+  overflow-y: auto;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center; /* 세로 방향 가운데 정렬 */
+  justify-content: flex-start; /* 가로 방향 왼쪽 정렬 */
+  padding-left:1.53rem;
+  width: 100%;
+  height: 3.125rem;
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+  font-feature-settings: "liga" off, "clig" off;
+  font-family: SUIT;
+  font-size: 0.875rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+.dropdown-item-top {
+  border-radius: 1rem 1rem 0rem 0rem;
+}
+.dropdown-item-bottom {
+  border-radius: 0rem 0rem 1rem 1rem;
 }
 
 /* 텍스트 스타일 */
@@ -201,12 +283,34 @@ input.auth-placeholder::placeholder {
   color: #000;
 }
 
+.logo-box {
+  height: 9rem;
+}
+
 .login-logo {
   color: var(--Gray-gray-900, #0b0b0b);
   font-family: SUIT;
   font-size: 3rem;
   font-style: normal;
   font-weight: 900;
+  line-height: normal;
+}
+.login-logo-small {
+  color: var(--Gray-gray-900, #0b0b0b);
+  font-family: SUIT;
+  font-size: 2.5rem;
+  font-style: normal;
+  font-weight: 900;
+  line-height: normal;
+}
+.set-profile-logo {
+  color: var(--Gray-gray-900, #0b0b0b);
+  text-align: center;
+  font-feature-settings: "liga" off, "clig" off;
+  font-family: SUIT;
+  font-size: 2rem;
+  font-style: normal;
+  font-weight: 800;
   line-height: normal;
 }
 .sign-up-logo {

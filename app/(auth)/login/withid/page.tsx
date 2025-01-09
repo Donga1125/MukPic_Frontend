@@ -5,8 +5,8 @@ import '@/app/globals.css'
 export default function LoginWithId() {
     return (
         <>
-            <div className='flex justify-center items-center'>
-                <span className='login-logo'>MUKPIC</span>
+            <div className='flex justify-center items-center logo-box'>
+                <span className='login-logo-small'>MUKPIC</span>
             </div>
             <div >
                 <LoginForm></LoginForm>

@@ -1,8 +1,8 @@
 'use client';
-import { emailSchema, passwordSchema, userSchema } from "@/schemas/auth";
+import { emailSchema, userNameSchema, userSchema } from "@/schemas/auth";
 import { WideButton } from "../button";
 import { UseVaildate } from "@/app/hooks/useVaildate";
-import { EmailValidateError, PasswordValidateError, UserValidateError } from "@/app/types/signupValidate";
+import { EmailValidateError, UserNameValidateError, UserValidateError } from "@/app/types/signupValidate";
 import { boolean, set } from "zod";
 import { useEffect, useState } from "react";
 import { useSignupStore } from "@/app/types/signupStore";
@@ -24,7 +24,7 @@ export function ValidateIcon({ error }: IconProps) {
 
 export function ValidateSpan({ message, error }: Props) {
     return (
-        <span className="label-text-alt" style={{ display: error ? 'block' : 'none' }}>
+        <span className="label-text-alt text-left pl-[1.25rem]" style={{ display: error ? 'block' : 'none' }}>
             {message}
         </span>
     );
@@ -94,7 +94,7 @@ export function SignupStep1() {
 
     return (
         <form className='flex flex-col gap-[0.75rem] '>
-            <label htmlFor="password" className="flex auth-input-label">
+            <label htmlFor="email" className="flex auth-input-label items-center">
                 <input
                     id="email"
                     name="email"
@@ -102,26 +102,26 @@ export function SignupStep1() {
                     placeholder="email@example.com"
                     onChange={handleChange}
                     className='auth-placeholder grow text-left' />
-                <button className='flex items-center justify-center'>
-                    <span className='nav-text-button'>Send</span>
+                <button className='flex items-center justify-center verify-button-send verify-button nav-text-button'>
+                    Send
                 </button>
             </label>
-            <input type="text" placeholder="testinput" />
-            {errors?.email && <ValidateSpan message={errors?.email[0]} error={!!errors?.email}></ValidateSpan>}
-            {/* <label className="input input-bordered flex items-center gap-2">
+            <div>
+                {errors?.email && <ValidateSpan message={errors?.email[0]} error={!!errors?.email}></ValidateSpan>}
+            </div>
+
+            <label htmlFor="emailVerify" className="flex auth-input-label items-center">
                 <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="email@example.com"
-                    onChange={handleChange}
-                />
-                <ValidateIcon error={!!errors?.email}></ValidateIcon>
-            </label> */}
-            <button className='verify-button verify-button-send relative right-[4.625rem] top-[0.62rem]'>
-
-            </button>
-
+                    id="emailVerify"
+                    name="emailVerify"
+                    type="text"
+                    placeholder="Enter verification code"
+                    className='auth-placeholder grow text-left' />
+                <button className='flex items-center justify-center verify-button-send verify-button nav-text-button'>
+                    Verify
+                </button>
+            </label>
+            {/* 인증 메시지 처리 넣어줘야함 */}
             <button className='auth-button auth-button-id sign-up-button-text'
                 type='submit'
                 disabled={isButtonDisabled}
@@ -133,87 +133,144 @@ export function SignupStep1() {
 export function SignupStep2() {
     const { errors, validateField } = UseVaildate<UserValidateError>(userSchema);
     const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(true);
+    const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         validateField(name, value);
-        setIsButtonDisabled(!!errors?.userId && !!errors?.userName || !value.trim());
+        setIsButtonDisabled(!!errors?.userId && !!errors?.password || !value.trim());
 
     };
+    const PasswordToggle = () => {
+        setPasswordVisible(!passwordVisible);
+    }
+
 
 
     return (
-        <>
-            <head>
-                <title>email</title>  {/* 각 페이지에서 동적으로 타이틀 설정 */}
-            </head>
-            <h1>아이디와 성함을 입력해주세요.</h1>
-            <div className="card bg-base-100">
-                <div className='card-body'>
-                    <label className="input input-bordered flex items-center gap-2">
-                        <input
-                            id="userId"
-                            name="userId"
-                            type="text"
-                            placeholder="userId"
-                            onChange={handleChange}
-                        />
-                        <ValidateIcon error={!!errors?.userId}></ValidateIcon>
-                    </label>
-                    {errors?.userId && <ValidateSpan message={errors?.userId[0]} error={!!errors?.userId}></ValidateSpan>}<label className="input input-bordered flex items-center gap-2">
-                        <input
-                            id="userName"
-                            name="userName"
-                            type="text"
-                            placeholder="userName"
-                            onChange={handleChange}
-                        />
-                        <ValidateIcon error={!!errors?.userName}></ValidateIcon>
-                    </label>
-                    {errors?.userName && <ValidateSpan message={errors?.userName[0]} error={!!errors?.userName}></ValidateSpan>}
-                    <WideButton href="/signup/step3" disabled={isButtonDisabled}>다음으로</WideButton>
-                </div>
+
+        <form className='flex flex-col gap-[0.75rem] '>
+            <label htmlFor="userId" className="flex auth-input-label items-center">
+                <input
+                    id="userId"
+                    name="userId"
+                    type="userId"
+                    placeholder="Enter Your Id"
+                    onChange={handleChange}
+                    className='auth-placeholder grow text-left' />
+                <button className='flex items-center justify-center verify-button-send verify-button nav-text-button'>
+                    중복검사
+                </button>
+            </label>
+            <div>
+                {errors?.userId && <ValidateSpan message={errors?.userId[0]} error={!!errors?.userId}></ValidateSpan>}
             </div>
-        </>
+
+            <label htmlFor="password" className="flex auth-input-label items-center">
+                <input
+                    id="password"
+                    name="password"
+                    type={passwordVisible ? 'text' : 'password'}
+                    placeholder="Enter Your Password"
+                    onChange={handleChange}
+                    className='auth-placeholder grow text-left' />
+                <button type='button' className='flex items-center justify-center' onClick={PasswordToggle}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g clip-path="url(#clip0_112_3055)">
+                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12C2.73 16.39 7 19.5 12 19.5C17 19.5 21.27 16.39 23 12C21.27 7.61 17 4.5 12 4.5ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17ZM12 9C10.34 9 9 10.34 9 12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12C15 10.34 13.66 9 12 9Z" fill="#6A7784" />
+                        </g>
+                        <defs>
+                            <clipPath id="clip0_112_3055">
+                                <rect width="24" height="24" fill="white" />
+                            </clipPath>
+                        </defs>
+                    </svg>
+                </button>
+            </label>
+            <div>
+                {errors?.password && <ValidateSpan message={errors?.password[0]} error={!!errors?.password}></ValidateSpan>}
+            </div>
+            <button className='auth-button auth-button-id sign-up-button-text'
+                type='submit'
+                disabled={isButtonDisabled}
+            >Next
+            </button>
+        </form >
+
     );
 }
+
 export function SignupStep3() {
-    const { errors, validateField } = UseVaildate<PasswordValidateError>(passwordSchema);
+    const { errors, validateField } = UseVaildate<UserNameValidateError>(userNameSchema);
     const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(true);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         validateField(name, value);
-        setIsButtonDisabled(!!errors?.password || !value.trim());
+        setIsButtonDisabled(!!errors?.userName || !value.trim());
 
     };
 
 
     return (
-        <>
-            <head>
-                <title>signup</title>  {/* 각 페이지에서 동적으로 타이틀 설정 */}
-            </head>
-            <h1>사용하실 비밀번호를 입력해주세요!</h1>
-            <div className="card bg-base-100">
-                <div className='card-body'>
-                    <label className="input input-bordered flex items-center gap-2">
-                        <input
-                            id="password"
-                            name="password"
-                            type="password"
-                            placeholder="yourPassword"
-                            onChange={handleChange}
-                        />
-                        <ValidateIcon error={!!errors?.password}></ValidateIcon>
-                    </label>
-                    {errors?.password && <ValidateSpan message={errors?.password[0]} error={!!errors?.password}></ValidateSpan>}
-                    <WideButton href="/signup/step4" disabled={isButtonDisabled}>다음으로</WideButton>
-                </div>
+        <form className='flex flex-col gap-[0.75rem] '>
+            <label htmlFor='profileImage' className='flex items-center gap-8'>
+                <button type='button'>
+                    <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="60" cy="60" r="60" fill="#F1F3F6" />
+
+                        <g transform="translate(90, 90)">
+                            <circle cx="12" cy="12" r="11.5" fill="white" stroke="#C7C7CC" />
+                            <g transform="translate(4, 4)">
+                                <path d="M8 10C9.10457 10 10 9.10457 10 8C10 6.89543 9.10457 6 8 6C6.89543 6 6 6.89543 6 8C6 9.10457 6.89543 10 8 10Z" fill="#8E8E93" />
+                                <path d="M12.8 3.22222H10.898L10.154 2.39722C9.932 2.14667 9.608 2 9.272 2H6.728C6.392 2 6.068 2.14667 5.84 2.39722L5.102 3.22222H3.2C2.54 3.22222 2 3.77222 2 4.44444V11.7778C2 12.45 2.54 13 3.2 13H12.8C13.46 13 14 12.45 14 11.7778V4.44444C14 3.77222 13.46 3.22222 12.8 3.22222ZM8 11.1667C6.344 11.1667 5 9.79778 5 8.11111C5 6.42444 6.344 5.05556 8 5.05556C9.656 5.05556 11 6.42444 11 8.11111C11 9.79778 9.656 11.1667 8 11.1667Z" fill="#8E8E93" />
+                            </g>
+                        </g>
+                    </svg>
+                </button>
+                <span className='signup-text signup-text-gray'>Set Your Profile Image</span>
+            </label>
+            <label htmlFor="userName" className="flex auth-input-label items-center">
+                <input
+                    id="userName"
+                    name="userName"
+                    type="userName"
+                    placeholder="Enter Your Name"
+                    onChange={handleChange}
+                    className='auth-placeholder grow text-left' />
+                <button
+                    type='button'
+                    className='flex items-center justify-center verify-button-send verify-button nav-text-button'>
+                    중복검사
+                </button>
+            </label>
+            <div>
+                {errors?.userName && <ValidateSpan message={errors?.userName[0]} error={!!errors?.userName}></ValidateSpan>}
             </div>
-        </>
+            <button className='auth-button auth-button-id sign-up-button-text'
+                type='submit'
+                disabled={isButtonDisabled}
+            >Next
+            </button>
+        </form>
     );
 }
+
+const DropDownIcon = () => {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <g clip-path="url(#clip0_112_2361)">
+                <path d="M11.6133 15.6133L15.0667 19.0666C15.5867 19.5866 16.4267 19.5866 16.9467 19.0666L20.4 15.6133C21.24 14.7733 20.64 13.3333 19.4533 13.3333H12.5467C11.36 13.3333 10.7733 14.7733 11.6133 15.6133Z" fill="black" />
+            </g>
+            <defs>
+                <clipPath id="clip0_112_2361">
+                    <rect width="32" height="32" fill="white" />
+                </clipPath>
+            </defs>
+        </svg>
+    );
+}
+
 export function SignupStep4() {
     const searchData = ["Apple", "Banana", "Cherry", "Date", "Elderberry", "Fig", "Grape"];
 
@@ -255,99 +312,45 @@ export function SignupStep4() {
         }
 
         //로그인 post request
-        try {
-            console.log("로그인 요청중");
 
-            const response = await axios.post(`${process.env.NEXT_PUBLIC_ROOT_API}/auth/login`,
-                {
-                    'userId': userId,
-                    'password': password
-                },
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    withCredentials: true,
-                }
-            );
-            console.log("Request Data:", { userId, password }); // 요청 데이터
-            console.log("Response Data:", response.data); // 서버 응답 데이터
-            console.log("Response Token:", response.data.token); // 서버 응답 토큰
-            console.log("Response Status:", response.status); // 서버 응답 상태
-            console.log("API주소", `${process.env.NEXT_PUBLIC_ROOT_API}/auth/login`); // 서버 응답 상태 텍스트
-
-            const { token } = response.data;
-
-            // 쿠키 설정 (document.cookie 대신 js-cookie 사용)
-            Cookies.set('authToken', token, { expires: 30, path: '' }); // 만료 30일
-
-            setErrorMessage('');
-            alert('로그인 성공');
-            router.push('/');
-        }
-        catch (error: unknown) {
-            if (axios.isAxiosError(error)) {
-                if (error.response?.status === 401) {
-                    setErrorMessage('아이디 또는 비밀번호가 일치하지 않습니다');
-                }
-                else {
-                    setErrorMessage('서버 에러');
-                }
-            }
-        }
     };
 
 
 
     return (
-        <>
-            <head>
-                <title>signup</title>  {/* 각 페이지에서 동적으로 타이틀 설정 */}
-            </head>
-            <h1>그 외의 정보를 입력해주세요!</h1>
-            <div className="card bg-base-100">
-                <div className='card-body'>
-                    {/* 검색창 */}
-                    <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={handleSearchChange}
-                        placeholder="검색..."
-                        className="input input-bordered"
-                    />
-
-                    {/* 검색 결과 */}
-                    <div className="mt-2">
-                        <ul>
-                            {filteredData.map((item) => (
-                                <li key={item} className="flex items-center gap-2">
-                                    <button
-                                        onClick={() => handleItemClick(item)}
-                                        className="btn btn-sm btn-outline"
-                                    >
-                                        {item}
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    {/* 선택된 항목을 뱃지로 표시 */}
-                    <div className="mt-4">
-                        {selectedItems.map((item) => (
-                            <span
-                                key={item}
-                                className="badge badge-info mr-2 cursor-pointer"
-                                onClick={() => handleBadgeClick(item)}
-                            >
-                                {item} <span className="ml-2">&times;</span>
-                            </span>
-                        ))}
-                    </div>
-
-                    <WideButton onClick>회원가입 완료하기!</WideButton>
+        <form action="" className='signup-text signup-text-black flex flex-col gap-[8rem]'>
+            <div>
+                <button type='button' className='profile-dropdown-button'>
+                    <span>Select Your Country</span>
+                    <DropDownIcon />
+                </button>
+                <div id="country-list mt-[0.5rem]" className="dropdown-list">
+                    <ul>
+                        <li className="dropdown-item dropdown-item-top"><span>Korea</span></li>
+                        <li className="dropdown-item">USA</li>
+                        <li className="dropdown-item">China</li>
+                        <li className="dropdown-item">Japan</li>
+                        <li className="dropdown-item">Germany</li>
+                        <li className="dropdown-item">France</li>
+                        <li className="dropdown-item">France</li>
+                        <li className="dropdown-item">France</li>
+                        <li className="dropdown-item">France</li>
+                        <li className="dropdown-item dropdown-item-bottom ">France</li>
+                    </ul>
                 </div>
             </div>
-        </>
+            <div>
+                <button type='button' className='profile-dropdown-button'>
+                    <span>Select Your Religion</span>
+                    <DropDownIcon />
+                </button>
+            </div>
+            <div>
+                <button type='button' className='profile-dropdown-button'>
+                    <span>Select Your Food Habits</span>
+                    <DropDownIcon />
+                </button>
+            </div>
+        </form >
     );
 }

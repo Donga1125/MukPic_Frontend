@@ -6,11 +6,11 @@ export default function SignUpStep3() {
     return (
 
         <>
-            <div className='flex justify-center items-center'>
-                <span className='login-logo'>MUKPIC</span>
+            <div className='flex justify-center items-center logo-box'>
+                <span className='set-profile-logo'>Set Your Profile!</span>
             </div>
             <SignupStep3/>
         </>
-        
+    );
 
 }

@@ -32,7 +32,7 @@ export default function Layout({ children }: LayoutProps) {
             </SvgButtonForNav>}
           />
           {/* 메인 */}
-          <div className="main-container flex-1 bg-white rounded-lg shadow-md">
+          <div className="auth-container flex-1 bg-white rounded-lg shadow-md">
             {/* 메인 페이지 내용 */}
             {children}
           </div>

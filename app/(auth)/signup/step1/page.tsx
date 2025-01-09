@@ -6,10 +6,10 @@ export default function SignUpStep1() {
 
     return (
         <>
-            <div className='flex justify-center items-center'>
+            <div className='flex justify-center items-center logo-box'>
                 <span className='login-logo'>MUKPIC</span>
             </div>
-            <SignupStep1></SignupStep1>
+            <SignupStep1/>
         </>
     )
 

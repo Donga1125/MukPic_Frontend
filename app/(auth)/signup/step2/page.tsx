@@ -6,7 +6,7 @@ export default function SignUpStep2() {
 
     return (
         <>
-            <div className='flex justify-center items-center'>
+            <div className='flex justify-center items-center logo-box'>
                 <span className='login-logo'>MUKPIC</span>
             </div>
             <SignupStep2></SignupStep2>

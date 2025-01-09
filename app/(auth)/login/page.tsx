@@ -40,8 +40,8 @@ export default function LoginPage() {
                 </LoginButton>
             </div>
             <div className='flex-none mb-[2rem]'>
-                <span className='no-account'>No Account?</span>
-                <Link className='sign-up-link' href='/signup'>
+                <span className='no-account mr-[0.25rem]'>No Account?</span>
+                <Link className='sign-up-link ml-[0.25rem]' href='/signup'>
                     Sign Up
                 </Link>
             </div>

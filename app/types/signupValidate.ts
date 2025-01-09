@@ -2,11 +2,12 @@ export type EmailValidateError = {
     email?: string[];
 }
 
-export type PasswordValidateError = {
-    password?: string[];
+export type UserNameValidateError = {
+    userName?: string[];
 }
 
 export type UserValidateError = {
     userId?: string[];
-    userName?: string[];
+    password?: string[];
+    
 }
