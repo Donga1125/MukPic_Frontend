@@ -4,7 +4,7 @@ import { WideButton } from "../button";
 import { UseVaildate } from "@/app/hooks/useVaildate";
 import { EmailValidateError, UserNameValidateError, UserValidateError } from "@/app/types/signupValidate";
 import { boolean, set } from "zod";
-import { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSignupStore } from "@/app/types/signupStore";
 
 
@@ -271,86 +271,306 @@ const DropDownIcon = () => {
     );
 }
 
-export function SignupStep4() {
-    const searchData = ["Apple", "Banana", "Cherry", "Date", "Elderberry", "Fig", "Grape"];
+const DropDownIconReverse = () => {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <path d="M20.3867 16.3867L16.9333 12.9334C16.4133 12.4134 15.5733 12.4134 15.0533 12.9334L11.6 16.3867C10.76 17.2267 11.36 18.6667 12.5467 18.6667L19.4533 18.6667C20.64 18.6667 21.2267 17.2267 20.3867 16.3867Z" fill="black" />
+        </svg>
+    )
+}
 
-    const [searchQuery, setSearchQuery] = useState("");
-    const [selectedItems, setSelectedItems] = useState<string[]>([]);
+type DropdownProps = {
+    options: string[];
+    buttonName: string;
+    isMultiSelect?: boolean;
+    onSelect: (selected: string | string[]) => void;
+}
+export function Dropdown({ options, buttonName, isMultiSelect, onSelect }: DropdownProps) {
+    const [isOpen, setIsOpen] = useState(false); // 드롭다운 열림 상태
+    const [selectedItems, setSelectedItems] = useState<string[]>([]); // 선택된 항목 리스트
+    const [selectedItem, setSelectedItem] = useState<string | null>(null); // 단일 선택용
+    const dropdownRef = useRef<HTMLDivElement>(null); // 드롭다운 외부 클릭 감지
 
-    // 검색어 변경 시 리스트 필터링
-    const filteredData = searchData.filter((item) =>
-        item.toLowerCase().includes(searchQuery.toLowerCase())
+    // 드롭다운 토글
+    const toggleDropdown = () => {
+        setIsOpen((prev) => !prev);
+    };
+
+    // 항목 선택
+    const selectItem = (item: string) => {
+        if (isMultiSelect) {
+            if (!selectedItems.includes(item)) {
+                const newSelectedItems = [...selectedItems, item];
+                setSelectedItems(newSelectedItems);
+                onSelect(newSelectedItems); // 부모로 선택된 항목 전달
+            }
+        } else {
+            setSelectedItem(item);
+            setIsOpen(false);
+            onSelect(item); // 부모로 선택된 항목 전달
+        }
+    };
+
+    // 뱃지 삭제
+    const removeBadge = (item: string) => {
+        if (isMultiSelect) {
+            const newSelectedItems = selectedItems.filter((selected) => selected !== item);
+            setSelectedItems(newSelectedItems);
+            onSelect(newSelectedItems); // 부모로 선택된 항목 전달
+        } else {
+            setSelectedItem(null);
+            onSelect(""); // 부모로 선택 해제 상태 전달
+        }
+    };
+
+    // 드롭다운 외부 클릭 감지
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
+            }
+        };
+
+        document.addEventListener("click", handleClickOutside);
+        return () => document.removeEventListener("click", handleClickOutside);
+    }, []);
+
+    return (
+        <div ref={dropdownRef} className="dropdown-container">
+            {/* 드롭다운 버튼 */}
+            <button
+                type="button"
+                onClick={toggleDropdown}
+                className="profile-dropdown-button"
+            >
+                <span>{buttonName}</span>
+                {!isOpen ? <DropDownIcon /> : <DropDownIconReverse />}
+            </button>
+
+            {/* 드롭다운 리스트 */}
+            {isOpen && (
+                <div className="dropdown-list">
+                    <ul>
+                        {options.map((option) => (
+                            <li
+                                key={option}
+                                className="dropdown-item"
+                                onClick={() => selectItem(option)}
+                            >
+                                {option}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+
+            {/* 선택된 항목 표시 (뱃지) */}
+            <div className='dropdown-badge-container'>
+                {isMultiSelect ? selectedItems.map((item) => (
+                    <button
+                        key={item}
+                        className="dropdown-badge dropdown-badge-green"
+                        onClick={() => removeBadge(item)}
+                    >
+                        {item} ×
+                    </button>
+                ))
+                    : selectedItem && (
+                        <button
+                            key={selectedItem}
+                            className="dropdown-badge dropdown-badge-green"
+                            onClick={() => removeBadge(selectedItem)}
+                        >
+                            {selectedItem} ×
+                        </button>
+                    )}
+            </div>
+        </div>
     );
+}
 
-    // 검색어 입력 처리
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value);
-    };
+export function SignupStep4() {
+    const [selectedCountry, setSelectedCountry] = useState<string | null>(null); // 지역 선택 상태
+    const [selectedReligions, setSelectedReligions] = useState<string | null>(null); // 종교 선택 상태
+    const [selectedFoodHabits, setSelectedFoodHabits] = useState<string[]>([]); // 식습관 선택 상태
 
-    // 항목 클릭 시 선택된 항목 추가
-    const handleItemClick = (item: string) => {
-        if (!selectedItems.includes(item)) {
-            setSelectedItems((prev) => [...prev, item]);
+    const isFormValid = selectedCountry && selectedReligions && selectedFoodHabits.length > 0;
+
+    return (
+        <form className='signup-text signup-text-black flex flex-col gap-[8rem]'>
+            <div>
+                <Dropdown
+                    options={[
+                        "Korea", "USA", "China", "Japan", "Germany", "France"
+                    ]}
+                    buttonName="Select Your Country"
+                    isMultiSelect={false}
+                    onSelect={(selected) => setSelectedCountry(selected as string | null)}
+                />
+            </div>
+            <div>
+                <Dropdown
+                    options={[
+                        "Christianity", "Buddhism", "Catholicism", "Islam", "Hinduism", "Atheism"
+                    ]}
+                    buttonName="Select Your Religion"
+                    isMultiSelect={false}
+                    onSelect={(selected) => setSelectedReligions(selected as string | null)}
+                />
+            </div>
+            <div>
+                <Dropdown
+                    options={[
+                        "No food to cover", "Vegetarian", "Vegan", "Pescatarian", "Low-Spice tolerance", "No Alcohol",
+                        "No Pork", "No Beef"
+                    ]}
+                    buttonName="Select Your Food Habits"
+                    isMultiSelect={true}
+                    onSelect={(selected) => setSelectedFoodHabits(selected as string[])}
+                />
+            </div>
+            <button className='auth-button auth-button-id sign-up-button-text'
+                type='submit'
+                disabled={!isFormValid}
+            >Next
+            </button>
+        </form >
+    );
+}
+
+export function SignupStep5() {
+    // Eggs,Milk,Buck wheat, Peanut,Soybean,Wheat,Fish,Crab,Shrimp,Pork,Peach,Tomato,
+    // Sulfurousacids,Walnut,Chicken,Beef,Squid,Oyster,Abalone,Mussel,Shellfish,Pine nut
+
+    const [selectedAllergies, setSelectedAllergies] = useState<string[]>([]); // 알레르기 선택 상태
+
+    const seaFoodAllergieList = ['Fish', 'Crab', 'Shrimp', 'Squid', 'Abalone', 'Mussel', 'Oyster', 'Shellfish'];
+    const fruitAllergieList = ['Peach', 'Tomato'];
+    const nutsAllergieList = ['Buck wheat', 'Wheat', 'Walnut', 'Pine nut', 'Peanut', 'Soybean'];
+    const meatAllergieList = ['Pork', 'Eggs', 'Milk', 'Chicken', 'Beef',];
+    const etcAllergieList = ['Sulfurous'];
+
+    const toggleAllergy = (allergy: string) => {
+        if (selectedAllergies.includes(allergy)) {
+            // 이미 선택된 경우 제거
+            setSelectedAllergies((prev) => prev.filter((selected) => selected !== allergy));
+        } else {
+            // 선택되지 않은 경우 추가
+            setSelectedAllergies((prev) => [...prev, allergy]);
         }
+        console.log(selectedAllergies);
     };
 
-    // 뱃지 클릭 시 항목 제거
-    const handleBadgeClick = (item: string) => {
-        setSelectedItems((prev) => prev.filter((selectedItem) => selectedItem !== item));
-    };
 
-    // 회원가입 완료 버튼 클릭 시
-    const signupHandler = async (e: React.FormEvent) => {
-        e.preventDefault();
-        console.log("ID:", userId);
-        console.log("PW:", password);
-
-
-        if (!userId || !password) {
-            setErrorMessage('아이디와 비밀번호를 입력해주세요');
-            return;
-        }
-
-        //로그인 post request
-
-    };
 
 
 
     return (
-        <form action="" className='signup-text signup-text-black flex flex-col gap-[8rem]'>
-            <div>
-                <button type='button' className='profile-dropdown-button'>
-                    <span>Select Your Country</span>
-                    <DropDownIcon />
-                </button>
-                <div id="country-list mt-[0.5rem]" className="dropdown-list">
-                    <ul>
-                        <li className="dropdown-item dropdown-item-top"><span>Korea</span></li>
-                        <li className="dropdown-item">USA</li>
-                        <li className="dropdown-item">China</li>
-                        <li className="dropdown-item">Japan</li>
-                        <li className="dropdown-item">Germany</li>
-                        <li className="dropdown-item">France</li>
-                        <li className="dropdown-item">France</li>
-                        <li className="dropdown-item">France</li>
-                        <li className="dropdown-item">France</li>
-                        <li className="dropdown-item dropdown-item-bottom ">France</li>
-                    </ul>
+        <form action="" className='flex flex-col gap-10'>
+            <h1 className="text-xl font-bold mb-4">
+                Please select your allergy</h1>
+
+            {/* 버튼들을 나열 */}
+            <div className="button-toggle-container flex flex-col gap-[1rem]" >
+                <div>
+                    <h1 className='allergies-title text-left gap-[0.75rem]'>Fruits</h1>
+                </div>
+                <div className='dropdown-badge-container '>
+                    {fruitAllergieList.map((allergie) => (
+                        <button
+                            type='button'
+                            key={allergie}
+                            onClick={() => toggleAllergy(allergie)}
+                            className={`allergies-button
+                            ${selectedAllergies.includes(allergie)
+                                    ? "dropdown-badge-red "
+                                    : "dropdown-badge-none"
+                                }`}
+                        >
+                            {allergie}
+                        </button>
+                    ))}
                 </div>
             </div>
-            <div>
-                <button type='button' className='profile-dropdown-button'>
-                    <span>Select Your Religion</span>
-                    <DropDownIcon />
-                </button>
+            <div className="button-toggle-container flex flex-wrap gap-[1rem]">
+                <h1 className='allergies-title text-left gap-[0.75rem]'>Sea Food</h1>
+                <div className='dropdown-badge-container'>
+                    {seaFoodAllergieList.map((allergie) => (
+                        <button
+                            type='button'
+                            key={allergie}
+                            onClick={() => toggleAllergy(allergie)}
+                            className={`allergies-button
+                            ${selectedAllergies.includes(allergie)
+                                    ? "dropdown-badge-red "
+                                    : "dropdown-badge-none"
+                                }`}
+                        >
+                            {allergie}
+                        </button>
+                    ))}
+                </div>
             </div>
-            <div>
-                <button type='button' className='profile-dropdown-button'>
-                    <span>Select Your Food Habits</span>
-                    <DropDownIcon />
-                </button>
+            <div className="button-toggle-container flex flex-wrap gap-[1rem]">
+                <h1 className='allergies-title text-left gap-[0.75rem]'>Nuts & Seeds</h1>
+                <div className='dropdown-badge-container'>
+                    {nutsAllergieList.map((allergie) => (
+                        <button
+                            type='button'
+                            key={allergie}
+                            onClick={() => toggleAllergy(allergie)}
+                            className={`allergies-button
+                            ${selectedAllergies.includes(allergie)
+                                    ? "dropdown-badge-red "
+                                    : "dropdown-badge-none"
+                                }`}
+                        >
+                            {allergie}
+                        </button>
+                    ))}
+                </div>
             </div>
-        </form >
+            <div className="button-toggle-container flex flex-wrap gap-[1rem]">
+                <h1 className='allergies-title text-left gap-[0.75rem]'>Meat & Dairy</h1>
+                <div className='dropdown-badge-container'>
+                    {meatAllergieList.map((allergie) => (
+                        <button
+                            type='button'
+                            key={allergie}
+                            onClick={() => toggleAllergy(allergie)}
+                            className={`allergies-button
+                            ${selectedAllergies.includes(allergie)
+                                    ? "dropdown-badge-red "
+                                    : "dropdown-badge-none"
+                                }`}
+                        >
+                            {allergie}
+                        </button>
+                    ))}
+                </div>
+            </div>
+            <div className="button-toggle-container flex flex-wrap gap-[1rem]">
+                <div>
+                    <h1 className='allergies-title text-left gap-[0.75rem]'>ETC</h1>
+                </div>
+                <div className="dropdown-badge-container">
+                    {etcAllergieList.map((allergie) => (
+                        <button
+                            type='button'
+                            key={allergie}
+                            onClick={() => toggleAllergy(allergie)}
+                            className={`allergies-button
+                            ${selectedAllergies.includes(allergie)
+                                    ? "dropdown-badge-red "
+                                    : "dropdown-badge-none"
+                                }`}
+                        >
+                            {allergie}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+        </form>
     );
 }
