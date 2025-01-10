@@ -29,10 +29,9 @@ button:disabled {
 }
 
 .root-wrapper {
-  display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: white;
+  background-color: gray;
   justify-content: center;
   align-items: center;
   margin: 0 auto;
@@ -61,6 +60,125 @@ button:disabled {
   padding: 0;
 }
 
+.auth-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background-color: white;
+  width: 94%;
+  justify-content: start;
+  margin: 0 auto;
+  padding: 0;
+}
+
+/* 게시글 부분분 */
+
+.post-component-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background-color: #f9f9f9;
+  padding: 0;
+  margin-top: 0.2rem;
+  margin-bottom: 0.2rem;
+}
+.post-contents-wrapper {
+  width: 94%;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #f9f9f9;
+  padding: 0;
+}
+
+.post-profile-wrapper {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.375rem;
+}
+.post-profile-text {
+  flex-shrink: 0;
+  color: var(--Gray-gray-900, #0b0b0b);
+  font-feature-settings: "liga" off, "clig" off;
+  font-family: SUIT;
+  font-size: 0.875rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 150%; /* 1.3125rem */
+}
+
+.post-img-wrapper {
+  width: 100%;
+  height: auto;
+  position: relative;
+  flex-shrink: 0;
+  align-self: stretch;
+}
+
+.view-ai-research-button {
+  display: flex;
+  width: 9.3125rem;
+  height: 2.25rem;
+  padding: 0.625rem 0.5rem 0.625rem 0.75rem;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  position: absolute;
+  left: 0.75rem;
+  bottom: 0.75rem;
+  border-radius: 6.1875rem;
+  background: #0a0c10;
+  box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.1);
+}
+
+.img {
+  width: 100%;
+  height: auto;
+}
+
+.view-ai-research-button-text {
+  color: #fff;
+  font-feature-settings: "liga" off, "clig" off;
+  font-family: SUIT;
+  font-size: 0.8125rem;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.125rem; /* 138.462% */
+  letter-spacing: -0.01875rem;
+}
+
+.post-content-text {
+  color: #0a0c10;
+  font-feature-settings: "liga" off, "clig" off;
+  font-family: SUIT;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1.375rem; /* 137.5% */
+  letter-spacing: -0.01875rem;
+}
+
+.post-date-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.comment-date-text {
+  color: #5a6e8c;
+  font-feature-settings: "liga" off, "clig" off;
+  font-family: SUIT;
+  font-size: 0.9375rem;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.375rem; /* 146.667% */
+  letter-spacing: -0.01875rem;
+}
+
+/* 상단 내브바바 */
 .root-topNav {
   max-height: 3.5rem;
   background-color: cyan;
@@ -76,15 +194,15 @@ button:disabled {
 }
 
 /* 텍스트 있는 post 버튼 css */
-.PostButtonForNav {
+.text-and-icon-button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   border-radius: 3.125rem;
   background: #1e252f;
-  font-size: 1rem;
   color: white;
   width: 5rem;
   height: 2rem;
-  justify-content: center;
-  align-items: center;
 }
 
 .verify-button {
@@ -405,6 +523,54 @@ input.auth-placeholder::placeholder {
   font-size: 0.875rem;
   font-style: normal;
   font-weight: 400;
+}
+
+/* 뱃지들 */
+
+.food-category-badge {
+  width: auto;
+  display: flex;
+  padding: 0.125rem 0.75rem;
+  justify-content: center;
+  align-items: center;
+  gap: 0.625rem;
+  border-radius: 3.125rem;
+  border: 1px solid #0a0c10;
+  background: #fff;
+}
+
+.food-category-badge-text {
+  color: #0a0c10;
+  font-feature-settings: "liga" off, "clig" off;
+  font-family: SUIT;
+  font-size: 0.75rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+/* 뱃지들 */
+
+.food-category-badge {
+  width: auto;
+  display: flex;
+  padding: 0.125rem 0.75rem;
+  justify-content: center;
+  align-items: center;
+  gap: 0.625rem;
+  border-radius: 3.125rem;
+  border: 1px solid #0a0c10;
+  background: #fff;
+}
+
+.food-category-badge-text {
+  color: #0a0c10;
+  font-feature-settings: "liga" off, "clig" off;
+  font-family: SUIT;
+  font-size: 0.75rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
 }
 
 /* 

@@ -6,6 +6,7 @@ import { TextLogoButtonForNav } from "@/app/components/button";
 import { TextAndIconButton } from "@/app/components/community/communityComponents";
 
 
+
 export const metadata: Metadata = {
     title: "MukPic-community",
 };
