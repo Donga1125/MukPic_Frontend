@@ -1,7 +1,38 @@
 import { ReactNode } from "react";
+import '@/app/(css)/community.module.css';
+import "@/app/globals.css";
 
 type FoodCategoryBadgeProps = {
     children: ReactNode;
+}
+
+type TextAndIconButtonProps = {
+    icon?: ReactNode;
+    children?: ReactNode;
+}
+export function TextAndIconButton({ icon, children }: TextAndIconButtonProps) {
+    return (
+        <button className='text-and-icon-button flex gap-2 items-center justify-center'>
+            {icon}
+            <span className='nav-text-button'>{children}</span>
+        </button>
+    )
+
+}
+
+type ViewAiResearchButtonProps = {
+    icon?: ReactNode;
+    children?: ReactNode;
+}
+
+export function ViewAiResearchButton({ icon, children }: ViewAiResearchButtonProps) {
+    return (
+        <button className='view-ai-research-button flex gap-2 items-center '>
+            <span className='view-ai-research-button-text'>{children}</span>
+            {icon}
+        </button>
+    )
+
 }
 
 export function FoodCategoryBadge({ children }: FoodCategoryBadgeProps) {
@@ -14,8 +45,6 @@ export function FoodCategoryBadge({ children }: FoodCategoryBadgeProps) {
 
 // 마이데이터, 게시판에 게시글 리스트 보여주기용 컴포넌트
 
-import { ViewAiResearchButton } from "@/app/components/button";
-import { FoodCategoryBadge } from "../badges";
 
 
 export function PostComponents() {
