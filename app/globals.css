@@ -19,8 +19,8 @@ input {
   letter-spacing: -0.01875rem;
 }
 
-input:focus::placeholder {g
-  opacity: 0 !important;
+input:focus::placeholder {
+  opacity: 0 !important
 }
 
 button:disabled {
