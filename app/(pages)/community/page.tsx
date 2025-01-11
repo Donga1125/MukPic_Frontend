@@ -1,4 +1,6 @@
-import { PostComponents } from "@/app/components/community/post";
+
+import { PostComponents } from "@/app/components/community/communityComponents";
+
 
 export default function boardMain() {
     return (
