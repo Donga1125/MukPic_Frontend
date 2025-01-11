@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import "@/app/globals.css";
 import TopNav from "@/app/components/TopNav";
 import { ReactNode } from "react";
-import { TextAndIconButton, TextLogoButtonForNav } from "@/app/components/button";
+import { TextLogoButtonForNav } from "@/app/components/button";
+import { TextAndIconButton } from "@/app/components/community/communityComponents";
+
 
 
 export const metadata: Metadata = {
