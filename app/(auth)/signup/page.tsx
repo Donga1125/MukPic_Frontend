@@ -5,7 +5,14 @@ export default function SignUp() {
 
 
     return (
-        SignupStep()
+
+        <>
+            <div className='flex justify-center items-center logo-box'>
+                <span className='login-logo'>MUKPIC</span>
+            </div>
+            <SignupStep></SignupStep>
+        </>
+        
     )
 
 

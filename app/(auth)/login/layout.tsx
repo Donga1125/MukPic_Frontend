@@ -24,7 +24,7 @@ export default function Layout({ children }: LayoutProps) {
                 <div className="root-wrapper root-text">
                     
                     {/* 메인 */}
-                    <div className="main-container flex flex-1 bg-white rounded-lg shadow-md gap-2">
+                    <div className="auth-container flex flex-1 gap-2">
                         {/* 메인 페이지 내용 */}
                         {children}
                     </div>

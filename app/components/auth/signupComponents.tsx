@@ -4,13 +4,16 @@ import { WideButton } from "../button";
 import { UseVaildate } from "@/app/hooks/useVaildate";
 import { EmailValidateError, UserNameValidateError, UserValidateError } from "@/app/types/signupValidate";
 import { boolean, set } from "zod";
-import React, { useEffect, useRef, useState } from "react";
+import React, { use, useEffect, useRef, useState } from "react";
 import { useSignupStore } from "@/app/types/signupStore";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
 
 type Props = {
     message: string;
     error: boolean;
+    className?: string;
 }
 type IconProps = {
     error: boolean;
@@ -22,9 +25,9 @@ export function ValidateIcon({ error }: IconProps) {
     );
 }
 
-export function ValidateSpan({ message, error }: Props) {
+export function ValidateSpan({ message, error, className }: Props) {
     return (
-        <span className="label-text-alt text-left pl-[1.25rem]" style={{ display: error ? 'block' : 'none' }}>
+        <span className={`label-text-alt text-left pl-[1.25rem] ${className}`} style={{ display: error ? 'block' : 'none' }}>
             {message}
         </span>
     );
@@ -36,7 +39,8 @@ export function SignupStep() {
     const [personalInfoAgree, setpersonalInfoAgree] = useState<boolean>(false);
     const [termsAgree, settermsAgree] = useState<boolean>(false);
     const [isAgree, setIsAgree] = useState<boolean>(false);
-
+    const setAgree = useSignupStore(state => state.setagree);
+    const router = useRouter();
     useEffect(() => {
         setIsAgree(personalInfoAgree && termsAgree);
     }, [personalInfoAgree, termsAgree]);
@@ -46,33 +50,37 @@ export function SignupStep() {
     ) => {
         setFunction(e.target.checked);
     };
+
+    const handleSumbit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setAgree(true);
+        router.push('/signup/step1');
+    }
+
     return (
-        <>
-            <head>
-                <title>signup</title>  {/* 각 페이지에서 동적으로 타이틀 설정 */}
-            </head>
-            <div className="card bg-base-100">
-                <div className='card-body'>
-                    <h1>회원 가입을 진행할게요</h1>
-                    <div className="form-control primary">
-                        <label className="cursor-pointer label">
-                            <span className="label-text">개인정보 및 민감정보 사용 동의</span>
-                            <input type="checkbox" className="checkbox checkbox-xs"
-                                onChange={(e) => checkboxChange(e, setpersonalInfoAgree)} />
-                        </label>
-                    </div>
-                    <div className="form-control">
-                        <label className="cursor-pointer label">
-                            <span className="label-text">이용 약관 동의</span>
-                            <input type="checkbox" className="checkbox checkbox-xs"
-                                onChange={(e) => checkboxChange(e, settermsAgree)} />
-                        </label>
-                    </div>
-                    <WideButton href="/signup/step1" disabled={!isAgree}>다음으로</WideButton>
+        <form onSubmit={handleSumbit} className='flex flex-col gap-[0.75rem] flex-grow' >
+            <div className='card'>
+                <div className="form-control primary">
+                    <label className="cursor-pointer label">
+                        <span className="label-text">개인정보 및 민감정보 사용 동의</span>
+                        <input type="checkbox" className="checkbox checkbox-xs"
+                            onChange={(e) => checkboxChange(e, setpersonalInfoAgree)} />
+                    </label>
+                </div>
+                <div className="form-control">
+                    <label className="cursor-pointer label">
+                        <span className="label-text">이용 약관 동의</span>
+                        <input type="checkbox" className="checkbox checkbox-xs"
+                            onChange={(e) => checkboxChange(e, settermsAgree)} />
+                    </label>
                 </div>
             </div>
-        </>
-
+            <button
+                className='auth-button auth-button-id sign-up-button-text'
+                disabled={!isAgree}
+            >Next
+            </button>
+        </form>
     );
 }
 
@@ -80,86 +88,216 @@ export function SignupStep() {
 export function SignupStep1() {
     const email = useSignupStore(state => state.email);
     const setemail = useSignupStore(state => state.setemail);
-
+    const [authNum, setAuthNum] = useState<string>('');
+    const [isSendButtonDisabled, setIsSendButtonDisabled] = useState<boolean>(true);
+    const emailSendMessage = 'Verification code has been sent to your email';
+    const [sendMessageVisiblity, setSendMessageVisiblity] = useState<boolean>(false);
+    const router = useRouter();
     const { errors, validateField } = UseVaildate<EmailValidateError>(emailSchema);
-    const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(true);
+    const [isNextButtonDisabled, setIsNextButtonDisabled] = useState<boolean>(true);
+    const [isVerifyButtonDisabled, setIsVerifyButtonDisabled] = useState<boolean>(true);
+    const [emailVerifyMessage, setEmailVerifyMessage] = useState<string>('');
+    const [inputBorderColor, setInputBorderColor] = useState<string>('');
+    const [messageColor, setMessageColor] = useState<string>('');
+
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         validateField(name, value);
-        setIsButtonDisabled(!!errors?.email || !value.trim());
-        setemail(e.target.value);
+        setemail(value);
+        //이메일 중복체크 포함
     };
 
+    // 이메일 전송 포스트 요청
+    const sendEmail = async () => {
+
+        console.log(email);
+        axios.post(`${process.env.NEXT_PUBLIC_ROOT_API}/register/email`,
+            {
+                email: email
+            },
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            }
+        ).then(function (response) {
+            if (response.data.success) {
+                setSendMessageVisiblity(true);
+            }
+        }.catch(function (error) {
+            console.log(error);
+        }));
+
+    }
+    const emailVerify = async () => {
+
+        axios.post(`${process.env.NEXT_PUBLIC_ROOT_API}/register/emailAuth`,
+            {
+                email: email,
+                authNum: authNum
+            },
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            }
+        ).then(function (response) {
+            if (response.data.success) {
+                setMessageColor('text-green-500');
+                setEmailVerifyMessage('Email verification success!');
+                setInputBorderColor('border-green-500');
+                setIsNextButtonDisabled(false);
+            }
+            else {
+                console.log(response.data.message);
+                setMessageColor('text-red-500');
+                setInputBorderColor('border-red-500');
+                setEmailVerifyMessage('The verification code is incorrect. Please check again');
+            }
+        }.catch(function (error) {
+            console.log(error);
+        }));
+
+    }
+
+
+
+
+    useEffect(() => {
+        setIsSendButtonDisabled(!!errors?.email || !email.trim()); //유효성 검사 통과해야 send 버튼 활성화
+    }, [errors, email]);
+
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        router.push('/signup/step2');
+    }
 
     return (
-        <form className='flex flex-col gap-[0.75rem] '>
+        <form onSubmit={handleSubmit} className='flex flex-col gap-[0.75rem] flex-grow'>
             <label htmlFor="email" className="flex auth-input-label items-center">
                 <input
                     id="email"
                     name="email"
                     type="email"
+                    value={email}
                     placeholder="email@example.com"
                     onChange={handleChange}
                     className='auth-placeholder grow text-left' />
-                <button className='flex items-center justify-center verify-button-send verify-button nav-text-button'>
+                <button
+                    className='flex items-center justify-center verify-button-send verify-button nav-text-button'
+                    onClick={sendEmail}
+                    disabled={isSendButtonDisabled}
+                    type='button'
+                >
                     Send
                 </button>
             </label>
             <div>
                 {errors?.email && <ValidateSpan message={errors?.email[0]} error={!!errors?.email}></ValidateSpan>}
+                {emailSendMessage && <ValidateSpan message={emailSendMessage} error={sendMessageVisiblity}></ValidateSpan>}
             </div>
 
-            <label htmlFor="emailVerify" className="flex auth-input-label items-center">
+            {sendMessageVisiblity && (<label htmlFor="authNum"
+                className={`flex auth-input-label items-center ${inputBorderColor}`}>
                 <input
-                    id="emailVerify"
-                    name="emailVerify"
+                    id="authNum"
+                    name="authNum"
                     type="text"
                     placeholder="Enter verification code"
-                    className='auth-placeholder grow text-left' />
-                <button className='flex items-center justify-center verify-button-send verify-button nav-text-button'>
+                    className='auth-placeholder grow text-left'
+                    value={authNum}
+                    onChange={(e) => setAuthNum(e.target.value)}
+                />
+                <button className='flex items-center justify-center verify-button-send verify-button nav-text-button'
+                    disabled={isVerifyButtonDisabled}
+                    onClick={emailVerify}
+                    type='button'>
                     Verify
                 </button>
             </label>
+            )}
+            <div>
+                {emailVerifyMessage && <ValidateSpan message={emailVerifyMessage} error={!!emailVerifyMessage}
+                    className={messageColor}></ValidateSpan>}
+            </div>
             {/* 인증 메시지 처리 넣어줘야함 */}
             <button className='auth-button auth-button-id sign-up-button-text'
                 type='submit'
-                disabled={isButtonDisabled}
+                disabled={isNextButtonDisabled}
             >Next
+            </button>
+            <button
+                onClick={() => {
+                    if (sendMessageVisiblity === true) {
+                        setSendMessageVisiblity(false);
+                    } else {
+                        setSendMessageVisiblity(true);
+                    }
+                }}
+                type='button'
+            >
+                test button
             </button>
         </form >
     );
 }
+
 export function SignupStep2() {
     const { errors, validateField } = UseVaildate<UserValidateError>(userSchema);
     const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(true);
-    const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
+    const [passwordVisible, setPasswordVisible] = useState<boolean>(true);
+
+    const userId = useSignupStore(state => state.userId);
+    const setuserId = useSignupStore(state => state.setuserId);
+    const password = useSignupStore(state => state.password);
+    const setpassword = useSignupStore(state => state.setpassword);
+
+    const router = useRouter();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         validateField(name, value);
-        setIsButtonDisabled(!!errors?.userId && !!errors?.password || !value.trim());
-
+        if (name === 'userId') {
+            setuserId(value);  // userId만 업데이트
+        } else if (name === 'password') {
+            setpassword(value);  // password만 업데이트
+        }
     };
+
+    useEffect(() => {
+        const isFormValid = userId.trim() && password.trim();  // userId와 password가 공백이 아니어야 활성화
+        const hasErrors = !!errors?.userId || !!errors?.password;  // errors가 있으면 비활성화
+
+        setIsButtonDisabled(hasErrors || !isFormValid);  // 오류가 있거나 유효성 검사 실패시 비활성화
+    }, [errors, userId, password]);
+
     const PasswordToggle = () => {
         setPasswordVisible(!passwordVisible);
+    }
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        router.push('/signup/step3');
     }
 
 
 
     return (
 
-        <form className='flex flex-col gap-[0.75rem] '>
+        <form onSubmit={handleSubmit} className='flex flex-col gap-[0.75rem] flex-grow'>
             <label htmlFor="userId" className="flex auth-input-label items-center">
                 <input
                     id="userId"
                     name="userId"
-                    type="userId"
+                    type="text"
                     placeholder="Enter Your Id"
                     onChange={handleChange}
+                    value={userId}
                     className='auth-placeholder grow text-left' />
                 <button className='flex items-center justify-center verify-button-send verify-button nav-text-button'>
-                    중복검사
+                    Check
                 </button>
             </label>
             <div>
@@ -172,10 +310,11 @@ export function SignupStep2() {
                     name="password"
                     type={passwordVisible ? 'text' : 'password'}
                     placeholder="Enter Your Password"
+                    value={password}
                     onChange={handleChange}
                     className='auth-placeholder grow text-left' />
                 <button type='button' className='flex items-center justify-center' onClick={PasswordToggle}>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    {passwordVisible ? <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <g clip-path="url(#clip0_112_3055)">
                             <path d="M12 4.5C7 4.5 2.73 7.61 1 12C2.73 16.39 7 19.5 12 19.5C17 19.5 21.27 16.39 23 12C21.27 7.61 17 4.5 12 4.5ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17ZM12 9C10.34 9 9 10.34 9 12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12C15 10.34 13.66 9 12 9Z" fill="#6A7784" />
                         </g>
@@ -185,6 +324,11 @@ export function SignupStep2() {
                             </clipPath>
                         </defs>
                     </svg>
+                        :
+                        <svg width="22" height="19" viewBox="0 0 22 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10.83 6L14 9.16C14 9.11 14 9.05 14 9C14 8.20435 13.6839 7.44129 13.1213 6.87868C12.5587 6.31607 11.7956 6 11 6C10.94 6 10.89 6 10.83 6ZM6.53 6.8L8.08 8.35C8.03 8.56 8 8.77 8 9C8 9.79565 8.31607 10.5587 8.87868 11.1213C9.44129 11.6839 10.2044 12 11 12C11.22 12 11.44 11.97 11.65 11.92L13.2 13.47C12.53 13.8 11.79 14 11 14C9.67392 14 8.40215 13.4732 7.46447 12.5355C6.52678 11.5979 6 10.3261 6 9C6 8.21 6.2 7.47 6.53 6.8ZM1 1.27L3.28 3.55L3.73 4C2.08 5.3 0.78 7 0 9C1.73 13.39 6 16.5 11 16.5C12.55 16.5 14.03 16.2 15.38 15.66L15.81 16.08L18.73 19L20 17.73L2.27 0M11 4C12.3261 4 13.5979 4.52678 14.5355 5.46447C15.4732 6.40215 16 7.67392 16 9C16 9.64 15.87 10.26 15.64 10.82L18.57 13.75C20.07 12.5 21.27 10.86 22 9C20.27 4.61 16 1.5 11 1.5C9.6 1.5 8.26 1.75 7 2.2L9.17 4.35C9.74 4.13 10.35 4 11 4Z" fill="#6A7784" />
+                        </svg>
+                    }
                 </button>
             </label>
             <div>
@@ -200,21 +344,34 @@ export function SignupStep2() {
     );
 }
 
+
 export function SignupStep3() {
     const { errors, validateField } = UseVaildate<UserNameValidateError>(userNameSchema);
     const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(true);
+    const userName = useSignupStore(state => state.userName);
+    const setuserName = useSignupStore(state => state.setuserName);
+    const router = useRouter();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         validateField(name, value);
-        setIsButtonDisabled(!!errors?.userName || !value.trim());
-
+        setuserName(value);
     };
+
+    useEffect(() => {
+        setIsButtonDisabled(!!errors?.userName || !userName.trim());
+        console.log(userName);
+    }, [errors, userName]);
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        router.push('/signup/step4');
+    }
 
 
     return (
-        <form className='flex flex-col gap-[0.75rem] '>
-            <label htmlFor='profileImage' className='flex items-center gap-8'>
+        <form onSubmit={handleSubmit} className='flex flex-col gap-[0.75rem] flex-grow'>
+            {/* <label htmlFor='profileImage' className='flex items-center gap-8'>
                 <button type='button'>
                     <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="60" cy="60" r="60" fill="#F1F3F6" />
@@ -229,7 +386,7 @@ export function SignupStep3() {
                     </svg>
                 </button>
                 <span className='signup-text signup-text-gray'>Set Your Profile Image</span>
-            </label>
+            </label> */}
             <label htmlFor="userName" className="flex auth-input-label items-center">
                 <input
                     id="userName"
@@ -237,11 +394,12 @@ export function SignupStep3() {
                     type="userName"
                     placeholder="Enter Your Name"
                     onChange={handleChange}
+                    value={userName}
                     className='auth-placeholder grow text-left' />
                 <button
                     type='button'
                     className='flex items-center justify-center verify-button-send verify-button nav-text-button'>
-                    중복검사
+                    Check
                 </button>
             </label>
             <div>
@@ -393,11 +551,35 @@ export function SignupStep4() {
     const [selectedCountry, setSelectedCountry] = useState<string | null>(null); // 지역 선택 상태
     const [selectedReligions, setSelectedReligions] = useState<string | null>(null); // 종교 선택 상태
     const [selectedFoodHabits, setSelectedFoodHabits] = useState<string[]>([]); // 식습관 선택 상태
+    const router = useRouter();
+
+    const setNationality = useSignupStore(state => state.setnationality);
+    const setReligion = useSignupStore(state => state.setreligion);
+    const setDietaryPreferences = useSignupStore(state => state.setDietaryPreferences);
 
     const isFormValid = selectedCountry && selectedReligions && selectedFoodHabits.length > 0;
 
+
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        setSelectedCountry(selectedCountry);
+        setSelectedReligions(selectedReligions);
+        setSelectedFoodHabits(selectedFoodHabits);
+
+        // useSignupStore 상태 업데이트
+        setNationality(selectedCountry ?? "");  // 국가 정보 설정
+        setReligion(selectedReligions ?? "");   // 종교 정보 설정
+        setDietaryPreferences(selectedFoodHabits);  // 식습관 설정
+        console.log(selectedCountry);
+        console.log(selectedFoodHabits)
+        router.push('/signup/step5');
+    }
+
+
     return (
-        <form className='signup-text signup-text-black flex flex-col gap-[8rem]'>
+        <form onSubmit={handleSubmit} className='signup-text signup-text-black flex-grow flex flex-col gap-[8rem]'>
             <div>
                 <Dropdown
                     options={[
@@ -443,12 +625,60 @@ export function SignupStep5() {
     // Sulfurousacids,Walnut,Chicken,Beef,Squid,Oyster,Abalone,Mussel,Shellfish,Pine nut
 
     const [selectedAllergies, setSelectedAllergies] = useState<string[]>([]); // 알레르기 선택 상태
-
     const seaFoodAllergieList = ['Fish', 'Crab', 'Shrimp', 'Squid', 'Abalone', 'Mussel', 'Oyster', 'Shellfish'];
     const fruitAllergieList = ['Peach', 'Tomato'];
     const nutsAllergieList = ['Buck wheat', 'Wheat', 'Walnut', 'Pine nut', 'Peanut', 'Soybean'];
     const meatAllergieList = ['Pork', 'Eggs', 'Milk', 'Chicken', 'Beef',];
     const etcAllergieList = ['Sulfurous'];
+    const router = useRouter();
+    const setAllergyTypes = useSignupStore(state => state.setAllergyTypes);
+    const { userId,
+        email,
+        password,
+        userName,
+        nationality,
+        religion,
+        agree,
+        chronicDiseaseTypes,
+        dietaryPreferences } = useSignupStore.getState();
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setAllergyTypes(selectedAllergies);
+        //직전에 업데이트 해줬으므로 여기서 불러옴
+        const {allergyTypes}=useSignupStore.getState();
+        //post 요청 로직 넣어야함
+        const signupData= { 
+            userId,
+            email,
+            password,
+            userName,
+            nationality,
+            religion,
+            agree,
+            allergyTypes,
+            chronicDiseaseTypes,
+            dietaryPreferences
+        };
+
+        axios({
+            method: 'post',
+            url: `${process.env.NEXT_PUBLIC_ROOT_API}/users/register`,
+            data: signupData,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then(function (response) {
+            if (response.data.success) {
+                alert('All set! Welcome aboard!');
+                router.push('/login');
+            }
+            console.log(response);
+        }).catch(function (error) {
+            console.log(error);
+        });
+    }
+
 
     const toggleAllergy = (allergy: string) => {
         if (selectedAllergies.includes(allergy)) {
@@ -466,7 +696,7 @@ export function SignupStep5() {
 
 
     return (
-        <form action="" className='flex flex-col gap-10'>
+        <form onSubmit={handleSubmit} className='flex flex-col gap-10 flex-grow'>
             <h1 className="text-xl font-bold mb-4">
                 Please select your allergy</h1>
 
@@ -570,7 +800,10 @@ export function SignupStep5() {
                     ))}
                 </div>
             </div>
-
+            <button className='auth-button auth-button-id sign-up-button-text'
+                type='submit'
+            >Next
+            </button>
         </form>
     );
 }
