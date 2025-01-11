@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import "@/app/globals.css";
 import { ReactNode } from "react";
-import { SvgButtonForNav } from "@/app/components/button";
-import TopNav from "@/app/components/TopNav";
 
 export const metadata: Metadata = {
     title: "MukPic-Login"
@@ -26,7 +24,7 @@ export default function Layout({ children }: LayoutProps) {
                 <div className="root-wrapper root-text">
                     
                     {/* 메인 */}
-                    <div className="main-container flex-1 bg-white rounded-lg shadow-md gap-2">
+                    <div className="main-container flex flex-1 bg-white rounded-lg shadow-md gap-2">
                         {/* 메인 페이지 내용 */}
                         {children}
                     </div>

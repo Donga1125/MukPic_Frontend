@@ -60,13 +60,12 @@ export default function Layout({ children }: LayoutProps) {
               </svg>
             </SvgButtonForNav>}
           />
-          <div className="auth-container flex-1 bg-white rounded-lg shadow-md">
+          <div className="auth-container flex flex-1 bg-white rounded-lg shadow-md">
 
             {/* 상단 내비게이션 필요한 버튼 넣어서 사용용 */}
 
             {/* 메인 페이지 내용 */}
             {children}
-
 
             {/* 하단 네비게이션 */}
           </div>

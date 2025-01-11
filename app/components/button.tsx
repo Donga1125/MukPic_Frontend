@@ -67,6 +67,8 @@ type LoginButtonProps = {
     text?: ReactNode;
     buttonClassName?: string;
     textClassName?: string;
+    icon?: ReactNode;
+    href?: string;
 }
 // 네비게이션 바 버튼 컴포넌트
 

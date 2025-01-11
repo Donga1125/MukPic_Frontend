@@ -29,6 +29,7 @@ button:disabled {
 }
 
 .root-wrapper {
+  display: flex;
   flex-direction: column;
   min-height: 100vh;
   background-color: gray;
@@ -41,7 +42,7 @@ button:disabled {
 .main-container {
   display: flex;
   flex-direction: column;
-  min-height: 100%;
+  flex-grow:1;
   background-color: white;
   width: 94%;
   justify-content: center;
@@ -52,24 +53,14 @@ button:disabled {
 .auth-container {
   display: flex;
   flex-direction: column;
-  min-height: 100%;
+  flex-grow: 1;
   background-color: white;
   width: 94%;
-  justify-content: start;
+  justify-content: center;
   margin: 0 auto;
   padding: 0;
 }
 
-.auth-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;
-  background-color: white;
-  width: 94%;
-  justify-content: start;
-  margin: 0 auto;
-  padding: 0;
-}
 
 /* 게시글 부분분 */
 
