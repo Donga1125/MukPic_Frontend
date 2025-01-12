@@ -38,12 +38,12 @@ export default function Layout({ children }: LayoutProps) {
                         </TextAndIconButton>}
                     />
                     {/* 메인 */}
-
+                    <div className='main container flex-1' style={{background: '#F1F3F6'}}>
                         {/* 메인 페이지 내용 */}
                         {children}
+                    </div>
 
-
-                        {/* 하단 네비게이션 */}
+                    {/* 하단 네비게이션 */}
                 </div>
 
             </body>

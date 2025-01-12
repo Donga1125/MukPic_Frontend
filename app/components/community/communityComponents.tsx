@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import '@/app/(css)/community.module.css';
+import styles from '@/app/(css)/community.module.css';
 import "@/app/globals.css";
 
 type FoodCategoryBadgeProps = {
@@ -37,9 +37,9 @@ export function ViewAiResearchButton({ icon, children }: ViewAiResearchButtonPro
 
 export function FoodCategoryBadge({ children }: FoodCategoryBadgeProps) {
     return (
-        <div className="food-category-badge">
-            <span className="food-category-badge-text">{children}</span>
-        </div>
+        <span className={`${styles['food-category-badge']} food-category-badge-text`}>
+            {children}
+        </span>
     );
 }
 
@@ -83,8 +83,13 @@ export function PostContents() {
         <div>
             {/* 음식 카테고리 뱃지 입력받아서 넣기 */}
             <div className='gap-[0.5rem]'>
-                <div>
+                <div className='flex-row flex gap-2 justify-between'>
                     <FoodCategoryBadge>snacks</FoodCategoryBadge>
+
+                    {/* 좋아요 수 */}
+                    <span className={`${styles.baseFont} inline-flex align-middle gap-1`}><svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3.33329 5.99996V14H0.666626V5.99996H3.33329ZM5.99996 14C5.64634 14 5.3072 13.8595 5.05715 13.6094C4.8071 13.3594 4.66663 13.0202 4.66663 12.6666V5.99996C4.66663 5.63329 4.81329 5.29996 5.05996 5.05996L9.44663 0.666626L10.1533 1.37329C10.3333 1.55329 10.4466 1.79996 10.4466 2.07329L10.4266 2.28663L9.79329 5.33329H14C14.74 5.33329 15.3333 5.93329 15.3333 6.66663V7.99996C15.3333 8.17329 15.3 8.33329 15.24 8.48663L13.2266 13.1866C13.0266 13.6666 12.5533 14 12 14H5.99996ZM5.99996 12.6666H12.02L14 7.99996V6.66663H8.13996L8.89329 3.11996L5.99996 6.01996V12.6666Z" fill="black" />
+                    </svg> 12k</span>
                 </div>
                 <div>
                     <span className='post-content-text'>컨텐츠 제목 및 내용🥵🥵🥵 </span>

@@ -20,7 +20,7 @@ input {
 }
 
 input:focus::placeholder {
-  opacity: 0 !important
+  opacity: 0 !important;
 }
 
 button:disabled {
@@ -32,7 +32,7 @@ button:disabled {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: gray;
+  background-color: white;
   justify-content: center;
   align-items: center;
   margin: 0 auto;
@@ -40,17 +40,6 @@ button:disabled {
 }
 
 .main-container {
-  display: flex;
-  flex-direction: column;
-  flex-grow:1;
-  background-color: white;
-  width: 94%;
-  justify-content: center;
-  margin: 0 auto;
-  padding: 0;
-}
-
-.auth-container {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
@@ -61,6 +50,18 @@ button:disabled {
   padding: 0;
 }
 
+.auth-container {
+  display: flex; /* flex 컨테이너로 설정 */
+  flex-direction: column; /* 자식 요소들이 세로로 배치되도록 설정 */
+  height: 100%; /* 부모 요소가 화면 높이를 차지하도록 설정 */
+  flex-grow: 1;
+  background-color: white;
+  width: 94%;
+  justify-content: start; /* 자식 요소들이 상단부터 배치되도록 설정 */
+  margin: 0 auto;
+  padding: 0;
+  border: none;
+}
 
 /* 게시글 부분분 */
 
@@ -128,6 +129,7 @@ button:disabled {
 .img {
   width: 100%;
   height: auto;
+  z-index: 5;
 }
 
 .view-ai-research-button-text {
@@ -172,7 +174,8 @@ button:disabled {
 /* 상단 내브바바 */
 .root-topNav {
   max-height: 3.5rem;
-  background-color: cyan;
+  background-color: white;
+  z-index:50;
 }
 
 /* 웹뷰 및 모바일 최적화 */
@@ -231,6 +234,8 @@ button:disabled {
   gap: 0.9375rem;
   flex-shrink: 0;
   border-radius: 6.25rem;
+  margin-top: auto;
+  margin-bottom:0.75rem;
 }
 .auth-button-id {
   background: #0a0c10;
@@ -371,7 +376,7 @@ input.auth-placeholder::placeholder {
   font-style: normal;
   font-weight: 700;
   line-height: normal;
-  padding-left:0.5rem;
+  padding-left: 0.5rem;
 }
 .allergies-button {
   color: var(--Gray-gray-900, #0b0b0b);
@@ -562,6 +567,18 @@ input.auth-placeholder::placeholder {
   font-style: normal;
   font-weight: 400;
   line-height: normal;
+}
+
+input[type="checkbox"] {
+  all: unset;
+  -webkit-appearance: checkbox; /* 크롬 및 사파리에서 기본 체크박스 스타일 활성화 */
+  appearance: none; /* 기본 체크박스 모양을 재활성화 */
+  width: 0.9375rem;
+  height: 0.9375rem;
+  flex-shrink: 0;
+  position: relative;
+  border-radius: 0.25rem;
+  border: 1px solid #758595;
 }
 
 /* 

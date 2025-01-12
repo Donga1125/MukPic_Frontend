@@ -6,6 +6,10 @@ export default function boardMain() {
     return (
         <>
             <PostComponents></PostComponents>
+            <PostComponents></PostComponents>
+            <PostComponents></PostComponents>
+            <PostComponents></PostComponents>
+            <PostComponents></PostComponents>
         </>
     );
 }
