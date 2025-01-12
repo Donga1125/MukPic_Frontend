@@ -1,0 +1,38 @@
+.rememberme-checkbox {
+  width: 0.9375rem;
+  height: 0.9375rem;
+  flex-shrink: 0;
+  background-color: white;
+  border-radius: 0.25rem;
+  border: 1px solid #758595;
+  
+}
+
+.checkbox {
+  -webkit-appearance: checkbox;
+  appearance: checkbox;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid #000;
+  background-color: white;
+  border-radius: 4px;
+  position: relative;
+}
+
+.checkbox:checked {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.checkbox:checked::after {
+  content: "✔";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  line-height: 1.5rem;
+  font-size: 1.25rem;
+  color: white;
+}

@@ -2,15 +2,15 @@
 
 import { ViewAiResearchButton } from "@/app/components/button";
 import { FoodCategoryBadge } from "../badges";
-
+import styles from '@/app/(css)/community.module.css'
 
 export function PostComponents() {
 
     return (
-        <div className="post-component-wrapper">
-            <div className='post-contents-wrapper self-center gap-2'>
+        <div className={styles['post-component-wrapper']}>
+            <div className={`${styles['post-contents-wrapper']} self-center gap-2`}>
                 {/* 프로필 부분 */}
-                <div className='post-profile-wrapper mt-2'>
+                <div className={`${styles['post-profile-wrapper']} mt-2`}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" fill="none">
                         <circle cx="18" cy="18" r="17.5" fill="#F1F3F6" stroke="#E0E4EB" />
                     </svg>
