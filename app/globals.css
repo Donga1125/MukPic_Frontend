@@ -17,6 +17,7 @@ input {
   font-weight: 500;
   line-height: 1.375rem; /* 137.5% */
   letter-spacing: -0.01875rem;
+  background: #f1f3f6 !important;
 }
 
 input:focus::placeholder {
@@ -233,7 +234,7 @@ button:disabled {
   flex-shrink: 0;
   border-radius: 6.25rem;
   margin-top: auto;
-  margin-bottom:0.75rem;
+  margin-bottom: 0.75rem;
 }
 .auth-button-id {
   background: #0a0c10;
@@ -584,3 +585,12 @@ input[type="checkbox"] {
   width: 100%;
   height: auto;
 } */
+
+input:-webkit-autofill {
+  background: #f1f3f6 !important;
+  color: #0b0b0b !important;
+}
+input:-webkit-autofill:focus {
+  background: #f1f3f6 !important;
+  color: #0b0b0b !important;
+}
