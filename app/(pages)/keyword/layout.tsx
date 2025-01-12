@@ -7,7 +7,7 @@ import { SearchButtonForNav, TextButtonForNav } from "@/app/components/button";
 
 
 export const metadata: Metadata = {
-    title: "MukPic-Search",
+    title: "MukPic-Keyword",
 };
 
 //기본 레이아웃
@@ -43,7 +43,7 @@ export default function Layout({ children }: LayoutProps) {
                             }
                         >Post</TextButtonForNav>}
                     />
-                    <div className="main-container flex-1 bg-white rounded-lg shadow-md">
+                    <div className="info-main-container flex-1 bg-white">
                         {/* 상단 내비게이션 필요한 버튼 넣어서 사용용 */}
 
                         {/* 메인 페이지 내용 */}
