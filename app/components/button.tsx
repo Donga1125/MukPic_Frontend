@@ -1,3 +1,5 @@
+'use client';
+
 import { ReactNode } from 'react';
 import Link from 'next/link';
 import '@/app/globals.css';
@@ -6,7 +8,7 @@ import '@/app/(css)/auth.css';
 interface WideButtonProps {
     children: ReactNode;
     href?: string;
-    onClick?: () => void; // 커스텀 onClick 추가
+    onClick?: () => void;
     className?: string;
     type?: 'button' | 'submit' | 'reset';
     disabled?: boolean;
@@ -19,7 +21,7 @@ export function WideButton({ children, href, onClick, className, type = 'button'
 }: WideButtonProps) {
     const handleClick = () => {
         if (onClick) {
-            onClick(); // 부모에서 전달된 onClick 호출
+            onClick();
         }
     };
 
@@ -28,7 +30,7 @@ export function WideButton({ children, href, onClick, className, type = 'button'
     if (disabled || !href) {
         return (
             <button
-                className={buttonClasses} s
+                className={buttonClasses}
                 onClick={handleClick}
                 type={type}
                 disabled={disabled}  // 비활성화 처리
@@ -70,7 +72,9 @@ type LoginButtonProps = {
     textClassName?: string;
     icon?: ReactNode;
     href?: string;
+    onClick?: () => void; 
 }
+
 // 네비게이션 바 버튼 컴포넌트
 
 type SvgButtonForNavProps = {
@@ -129,34 +133,26 @@ export function TextLogoButtonForNav({ children, className }: TextLogoButtonForN
 
 
 //로그인 때 사용할 버튼
-export function LoginButton({ text, textClassName, buttonClassName, icon, href, type }: LoginButtonProps) {
-
-    if (href) {
-        return (<Link href={href}>
-            <button
-                className={buttonClassName}
-            >
-                {icon}
-                <span className={textClassName}>
-                    {text}
-                </span>
-            </button>
-        </Link>
-        );
-    }
-    else {
-        return (<button
-            className={buttonClassName}
-            type={type}
-        >
-            {icon}
-            <span className={textClassName}>
-                {text}
-            </span>
-        </button>
-        );
-    }
-}
+export const LoginButton = ({
+    text,
+    buttonClassName,
+    textClassName,
+    icon,
+    href,
+    onClick,
+  }: LoginButtonProps) => {
+    return href ? (
+      <a href={href} className={buttonClassName}>
+        {icon && <span>{icon}</span>}
+        <span className={textClassName}>{text}</span>
+      </a>
+    ) : (
+      <button className={buttonClassName} onClick={onClick}>
+        {icon && <span>{icon}</span>}
+        <span className={textClassName}>{text}</span>
+      </button>
+    );
+  };
 
 type TextAndIconButtonProps = {
     icon?: ReactNode;
