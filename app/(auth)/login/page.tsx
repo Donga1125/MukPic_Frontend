@@ -4,6 +4,7 @@ import { LoginButton } from "@/app/components/button";
 import Link from "next/link";
 
 export default function LoginPage() {
+
   const handleGoogleLogin = () => {
     const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI}&scope=openid%20profile%20email`;
     console.log("Google Auth URL:", googleAuthUrl);
@@ -59,6 +60,7 @@ export default function LoginPage() {
           onClick={handleGoogleLogin}
         />
       </div>
+
 
       {/* ID 로그인 버튼 */}
       <div className="w-full max-w-sm mb-4">
