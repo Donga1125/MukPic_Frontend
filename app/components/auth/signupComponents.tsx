@@ -9,6 +9,7 @@ import { useSignupStore } from "@/app/types/signupStore";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { error } from "console";
+import { Input } from "postcss";
 
 
 type Props = {
@@ -600,6 +601,14 @@ export function Dropdown({ options, buttonName, isMultiSelect, onSelect }: Dropd
                                 onClick={() => selectItem(option)}
                             >
                                 {option}
+                                {/* 여기에 체크박스 추가 */}
+                                {isMultiSelect ? (
+                                    <input type="text" />
+                                ) :
+                                    (
+                                        null
+                                    )
+                                }
                             </li>
                         ))}
                     </ul>
@@ -635,11 +644,13 @@ export function SignupStep4() {
     const [selectedCountry, setSelectedCountry] = useState<string | null>(null); // 지역 선택 상태
     const [selectedReligions, setSelectedReligions] = useState<string | null>(null); // 종교 선택 상태
     const [selectedFoodHabits, setSelectedFoodHabits] = useState<string[]>([]); // 식습관 선택 상태
+    const [selectedChronicDisease, setSelectedChronicDisease] = useState<string[]>([]); // 만성질환 선택 상태
     const router = useRouter();
 
     const setNationality = useSignupStore(state => state.setnationality);
     const setReligion = useSignupStore(state => state.setreligion);
     const setDietaryPreferences = useSignupStore(state => state.setDietaryPreferences);
+    const setChronicDiseaseTypes = useSignupStore(state => state.setChronicDiseaseTypes);
 
     const isFormValid = selectedCountry && selectedReligions && selectedFoodHabits.length > 0;
 
@@ -651,13 +662,15 @@ export function SignupStep4() {
         setSelectedCountry(selectedCountry);
         setSelectedReligions(selectedReligions);
         setSelectedFoodHabits(selectedFoodHabits);
+        setSelectedChronicDisease(selectedChronicDisease);
 
         // useSignupStore 상태 업데이트
         setNationality(selectedCountry ?? "");  // 국가 정보 설정
         setReligion(selectedReligions ?? "");   // 종교 정보 설정
         setDietaryPreferences(selectedFoodHabits);  // 식습관 설정
-        console.log(selectedCountry);
-        console.log(selectedFoodHabits)
+        setChronicDiseaseTypes(selectedChronicDisease);  // 만성질환 설정
+
+
         router.push('/signup/step5');
     }
 
@@ -688,11 +701,21 @@ export function SignupStep4() {
                 <Dropdown
                     options={[
                         "No food to cover", "Vegetarian", "Vegan", "Pescatarian", "Low-Spice tolerance", "No Alcohol",
-                        "No Pork", "No Beef"
+                        "No Pork", "No Beef", 'halal', 'kosher', 'No Nuts', 'No Dairy', 'No Gluten', 'No Shellfish', 'No Soy'
                     ]}
                     buttonName="Select Your Food Habits"
                     isMultiSelect={true}
                     onSelect={(selected) => setSelectedFoodHabits(selected as string[])}
+                />
+            </div>
+            <div>
+                <Dropdown
+                    options={[
+                        'Cancer', '당뇨', '기타등등...'
+                    ]}
+                    buttonName="Select Your Chronic Disease"
+                    isMultiSelect={true}
+                    onSelect={(selected) => setSelectedChronicDisease(selected as string[])}
                 />
             </div>
             <button className='auth-button auth-button-id sign-up-button-text'
@@ -757,8 +780,12 @@ export function SignupStep5() {
                 alert('All set! Welcome aboard!');
                 router.push('/login');
             }
+            else {
+                alert('The error occurred. Please try again from the beginning.');
+            }
             console.log(response);
         }).catch(function (error) {
+            alert('The error occurred. Please try again from the beginning.');
             console.log(error);
         });
     }

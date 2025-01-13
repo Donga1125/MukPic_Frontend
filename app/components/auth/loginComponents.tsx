@@ -56,8 +56,7 @@ export default function LoginForm() {
                 console.log("Response 헤더 authorization:", response.headers.Authorization); // 서버 응답 상태 텍스트
 
                 //token 저장
-                document.cookie = `authToken=${response.data.token};
-                path=/; max-age=${60 * 60 * 24 * 7}; secure; samesite=strict`;
+                localStorage.setItem('Authorization', response.headers.Authorization);
 
                 // 로그인 성공시 메인페이지로
                 window.location.href = '/';
