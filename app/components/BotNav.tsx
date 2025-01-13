@@ -1,5 +1,6 @@
 'use client';
 import { ReactNode, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type BotNavProps = {
     searchButton: ReactNode;
@@ -39,9 +40,11 @@ export function BotNavButton({ Image, text, isActive, onClick }: BotNavButtonPro
 
 export function AddBotNav() {
     const [activeBotNavButton, setActiveBotNavButton] = useState<string>('search');
+    const router = useRouter();
 
-    const handleButtonClick = (buttonName: string) => {
-        setActiveBotNavButton(buttonName);
+    const handleButtonClick = (buttonName: string, route: string) => {
+        setActiveBotNavButton(buttonName); // 상태 업데이트
+        router.push(route); // 페이지 이동
     };
 
     return (
@@ -49,7 +52,7 @@ export function AddBotNav() {
             searchButton=
             {<BotNavButton
                 text='search'
-                onClick={() => handleButtonClick('search')}
+                onClick={() => handleButtonClick("search", "/search")}
                 isActive={activeBotNavButton === 'search'}
                 Image={
                     <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -68,7 +71,7 @@ export function AddBotNav() {
             communityButton=
             {<BotNavButton
                 text='community'
-                onClick={() => handleButtonClick('community')}
+                onClick={() => handleButtonClick('community', "")}
                 isActive={activeBotNavButton === 'community'}
                 Image={
                     <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -81,7 +84,7 @@ export function AddBotNav() {
             mypageButton=
             {<BotNavButton
                 text='mypage'
-                onClick={() => handleButtonClick('mypage')}
+                onClick={() => handleButtonClick('mypage', '')}
                 isActive={activeBotNavButton === 'mypage'}
                 Image={
                     <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
