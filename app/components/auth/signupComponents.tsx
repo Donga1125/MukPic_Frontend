@@ -8,6 +8,7 @@ import React, { use, useEffect, useRef, useState } from "react";
 import { useSignupStore } from "@/app/types/signupStore";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { error } from "console";
 
 
 type Props = {
@@ -96,8 +97,8 @@ export function SignupStep1() {
     const { errors, validateField } = UseVaildate<EmailValidateError>(emailSchema);
     const [isNextButtonDisabled, setIsNextButtonDisabled] = useState<boolean>(true);
     const [isVerifyButtonDisabled, setIsVerifyButtonDisabled] = useState<boolean>(true);
+    const [inputBorderColor, setInputBorderColor] = useState<string>('border-none');
     const [emailVerifyMessage, setEmailVerifyMessage] = useState<string>('');
-    const [inputBorderColor, setInputBorderColor] = useState<string>('');
     const [messageColor, setMessageColor] = useState<string>('');
 
 
@@ -122,16 +123,19 @@ export function SignupStep1() {
                 }
             }
         ).then(function (response) {
-            if (response.data.success) {
+            if (response.status === 200) {
                 setSendMessageVisiblity(true);
             }
-        }.catch(function (error) {
+        }).catch(function (error) {
             console.log(error);
-        }));
-
+        });
     }
-    const emailVerify = async () => {
 
+    // 응답 성공, 실패 시 const [inputBorderColor, setInputBorderColor] = useState<string>('border-none'); 로
+    // inputBorderColor를 변경해주는데 페이지에서 적용이 안됨 확인필요 25.01.13
+
+    const emailVerify = async () => {
+        console.log('이메일 인증 로직 시작');
         axios.post(`${process.env.NEXT_PUBLIC_ROOT_API}/register/emailAuth`,
             {
                 email: email,
@@ -143,23 +147,23 @@ export function SignupStep1() {
                 }
             }
         ).then(function (response) {
-            if (response.data.success) {
+            if (response.status === 200) {
                 setMessageColor('text-green-500');
                 setEmailVerifyMessage('Email verification success!');
                 setInputBorderColor('border-green-500');
                 setIsNextButtonDisabled(false);
             }
-            else {
-                console.log(response.data.message);
+        }).catch(function (error) {
+            if (error.response.status === 400) {
+                console.log(error.data);
                 setMessageColor('text-red-500');
-                setInputBorderColor('border-red-500');
+                setInputBorderColor('border-red-500 border-opacity-100');
                 setEmailVerifyMessage('The verification code is incorrect. Please check again');
             }
-        }.catch(function (error) {
-            console.log(error);
-        }));
+        });
+    };
 
-    }
+
 
 
 
@@ -167,6 +171,10 @@ export function SignupStep1() {
     useEffect(() => {
         setIsSendButtonDisabled(!!errors?.email || !email.trim()); //유효성 검사 통과해야 send 버튼 활성화
     }, [errors, email]);
+
+    useEffect(() => {
+        setIsVerifyButtonDisabled(!authNum.trim());
+    }, [authNum]);
 
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -228,18 +236,6 @@ export function SignupStep1() {
                 disabled={isNextButtonDisabled}
             >Next
             </button>
-            <button
-                onClick={() => {
-                    if (sendMessageVisiblity === true) {
-                        setSendMessageVisiblity(false);
-                    } else {
-                        setSendMessageVisiblity(true);
-                    }
-                }}
-                type='button'
-            >
-                test button
-            </button>
         </form >
     );
 }
@@ -247,7 +243,13 @@ export function SignupStep1() {
 export function SignupStep2() {
     const { errors, validateField } = UseVaildate<UserValidateError>(userSchema);
     const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(true);
-    const [passwordVisible, setPasswordVisible] = useState<boolean>(true);
+    const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
+    const [checkButtonDisabled, setCheckButtonDisabled] = useState<boolean>(true);
+    const [canUseId, setCanUseId] = useState<boolean>(false);
+    const [idDuplicateMessage, setidDuplicateMessage] = useState<string>('');
+    const [messageColor, setMessageColor] = useState<string>('');
+
+
 
     const userId = useSignupStore(state => state.userId);
     const setuserId = useSignupStore(state => state.setuserId);
@@ -261,17 +263,50 @@ export function SignupStep2() {
         validateField(name, value);
         if (name === 'userId') {
             setuserId(value);  // userId만 업데이트
+            setidDuplicateMessage(''); // userId가 변경되면 중복 메시지 초기화
+            setCanUseId(false); // userId가 변경되면 중복 확인 여부 초기화화
         } else if (name === 'password') {
             setpassword(value);  // password만 업데이트
         }
     };
 
+    const CheckIdDuplicateHandler = async () => {
+        axios({
+            method: 'get',
+            url: `${process.env.NEXT_PUBLIC_ROOT_API}/users/checkUserId`,
+            params: {
+                userId: userId
+            },
+            responseType: 'json'
+        }).then(function (response) {
+            //이미 있는 경우 true 반환
+            if (response.data === true) {
+                setCanUseId(false);
+                setidDuplicateMessage('This ID is already exist');
+                setMessageColor('text-red-500');
+            }
+            else {
+                setCanUseId(true);
+                setidDuplicateMessage('This ID is available');
+                setMessageColor('text-green-500');
+            }
+        }).catch(function (error) {
+            console.log(error);
+        });
+    }
+
     useEffect(() => {
         const isFormValid = userId.trim() && password.trim();  // userId와 password가 공백이 아니어야 활성화
         const hasErrors = !!errors?.userId || !!errors?.password;  // errors가 있으면 비활성화
+        const passIdDuplicate = !canUseId;
 
-        setIsButtonDisabled(hasErrors || !isFormValid);  // 오류가 있거나 유효성 검사 실패시 비활성화
-    }, [errors, userId, password]);
+        setIsButtonDisabled(hasErrors || !isFormValid || passIdDuplicate);  // 오류가 있거나 유효성 검사 실패시 비활성화
+    }, [errors, userId, password, canUseId]);
+
+    useEffect(() => {
+        setCheckButtonDisabled(!userId.trim() || !!errors?.userId);
+    }, [userId, errors]);
+
 
     const PasswordToggle = () => {
         setPasswordVisible(!passwordVisible);
@@ -296,12 +331,18 @@ export function SignupStep2() {
                     onChange={handleChange}
                     value={userId}
                     className='auth-placeholder grow text-left' />
-                <button className='flex items-center justify-center verify-button-send verify-button nav-text-button'>
+                <button className='flex items-center justify-center verify-button-send verify-button nav-text-button'
+                    type='button'
+                    onClick={CheckIdDuplicateHandler}
+                    disabled={checkButtonDisabled}
+                >
                     Check
                 </button>
             </label>
             <div>
                 {errors?.userId && <ValidateSpan message={errors?.userId[0]} error={!!errors?.userId}></ValidateSpan>}
+                {idDuplicateMessage && <ValidateSpan message={idDuplicateMessage} error={!!idDuplicateMessage}
+                    className={messageColor}></ValidateSpan>}
             </div>
 
             <label htmlFor="password" className="flex auth-input-label items-center">
@@ -352,16 +393,54 @@ export function SignupStep3() {
     const setuserName = useSignupStore(state => state.setuserName);
     const router = useRouter();
 
+    const [canUseUserName, setCanUseuserName] = useState<boolean>(false);
+    const [userNameDuplicateMessage, setUserNameDuplcateMessage] = useState<string>('');
+    const [messageColor, setMessageColor] = useState<string>('');
+    const [checkButtonDisabled, setCheckButtonDisabled] = useState<boolean>(true);
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         validateField(name, value);
-        setuserName(value);
+        if (name === 'userName') {
+            setuserName(value);
+            setUserNameDuplcateMessage('');
+            setCanUseuserName(false);
+        }
     };
 
+    const CheckUserNameDuplicateHandler = async () => {
+        axios({
+            method: 'get',
+            url: `${process.env.NEXT_PUBLIC_ROOT_API}/users/checkUserName`,
+            params: {
+                userName: userName
+            },
+            responseType: 'json'
+        }).then(function (response) {
+            //이미 있는 경우 true 반환
+            if (response.data === true) {
+                setCanUseuserName(false);
+                setUserNameDuplcateMessage('This userName is already exist');
+                setMessageColor('text-red-500');
+            }
+            else {
+                setCanUseuserName(true);
+                setUserNameDuplcateMessage('This userName is available');
+                setMessageColor('text-green-500');
+            }
+        }).catch(function (error) {
+            console.log(error);
+        });
+    }
+
     useEffect(() => {
-        setIsButtonDisabled(!!errors?.userName || !userName.trim());
+        setIsButtonDisabled(!!errors?.userName || !userName.trim() || !canUseUserName);
         console.log(userName);
-    }, [errors, userName]);
+    }, [errors, userName, canUseUserName]);
+
+    useEffect(() => {
+        setCheckButtonDisabled(!userName.trim() || !!errors?.userName);
+    }, [userName, errors]);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -371,7 +450,7 @@ export function SignupStep3() {
 
     return (
         <form onSubmit={handleSubmit} className='flex flex-col gap-[0.75rem] flex-grow'>
-            {/* <label htmlFor='profileImage' className='flex items-center gap-8'>
+            <label htmlFor='profileImage' className='flex items-center gap-8'>
                 <button type='button'>
                     <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="60" cy="60" r="60" fill="#F1F3F6" />
@@ -386,7 +465,7 @@ export function SignupStep3() {
                     </svg>
                 </button>
                 <span className='signup-text signup-text-gray'>Set Your Profile Image</span>
-            </label> */}
+            </label>
             <label htmlFor="userName" className="flex auth-input-label items-center">
                 <input
                     id="userName"
@@ -398,12 +477,17 @@ export function SignupStep3() {
                     className='auth-placeholder grow text-left' />
                 <button
                     type='button'
-                    className='flex items-center justify-center verify-button-send verify-button nav-text-button'>
+                    className='flex items-center justify-center verify-button-send verify-button nav-text-button'
+                    onClick={CheckUserNameDuplicateHandler}
+                    disabled={checkButtonDisabled}
+                >
                     Check
                 </button>
             </label>
             <div>
                 {errors?.userName && <ValidateSpan message={errors?.userName[0]} error={!!errors?.userName}></ValidateSpan>}
+                {userNameDuplicateMessage && <ValidateSpan message={userNameDuplicateMessage} error={!!userNameDuplicateMessage}
+                    className={messageColor}></ValidateSpan>}
             </div>
             <button className='auth-button auth-button-id sign-up-button-text'
                 type='submit'
@@ -646,9 +730,9 @@ export function SignupStep5() {
         e.preventDefault();
         setAllergyTypes(selectedAllergies);
         //직전에 업데이트 해줬으므로 여기서 불러옴
-        const {allergyTypes}=useSignupStore.getState();
+        const { allergyTypes } = useSignupStore.getState();
         //post 요청 로직 넣어야함
-        const signupData= { 
+        const signupData = {
             userId,
             email,
             password,
