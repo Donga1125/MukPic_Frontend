@@ -1,3 +1,5 @@
+/* 게시글 부분 */
+
 .post-component-wrapper {
   display: flex;
   flex-direction: column;
@@ -103,6 +105,26 @@
   letter-spacing: -0.01875rem;
 }
 
-.testBlue {
-  background-color: blue;
+/* 뱃지들 */
+
+.food-category-badge {
+  width: auto;
+  display: flex;
+  padding: 0.125rem 0.75rem;
+  justify-content: center;
+  align-items: center;
+  gap: 0.625rem;
+  border-radius: 3.125rem;
+  border: 1px solid #0a0c10;
+  background: #fff;
+}
+
+.food-category-badge-text {
+  color: #0a0c10;
+  font-feature-settings: "liga" off, "clig" off;
+  font-family: SUIT;
+  font-size: 0.75rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
 }

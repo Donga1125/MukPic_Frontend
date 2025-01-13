@@ -4,7 +4,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import '@/app/globals.css'
-import '@/app/(css)/login.module.css'
+import '@/app/(css)/auth.css'
 
 
 
@@ -87,7 +87,8 @@ export default function LoginForm() {
                     required
                     onChange={(e) => setUserId(e.target.value)}
                     value={userId}
-                    className='auth-placeholder grow text-left' />
+                    className='auth-placeholder grow text-left'
+                    />
             </label>
             <label htmlFor="password" className="flex auth-input-label">
                 <input type={passwordVisible ? 'text' : 'password'}

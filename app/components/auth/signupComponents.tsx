@@ -1,15 +1,12 @@
 'use client';
 import { emailSchema, userNameSchema, userSchema } from "@/schemas/auth";
-import { WideButton } from "../button";
 import { UseVaildate } from "@/app/hooks/useVaildate";
 import { EmailValidateError, UserNameValidateError, UserValidateError } from "@/app/types/signupValidate";
-import { boolean, set } from "zod";
-import React, { use, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSignupStore } from "@/app/types/signupStore";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { error } from "console";
-import { Input } from "postcss";
+import { string } from "zod";
 
 
 type Props = {
@@ -92,7 +89,7 @@ export function SignupStep1() {
     const setemail = useSignupStore(state => state.setemail);
     const [authNum, setAuthNum] = useState<string>('');
     const [isSendButtonDisabled, setIsSendButtonDisabled] = useState<boolean>(true);
-    const emailSendMessage = 'Verification code has been sent to your email';
+    const [emailSendMessage, setemailSendMessage] = useState<string>('');
     const [sendMessageVisiblity, setSendMessageVisiblity] = useState<boolean>(false);
     const router = useRouter();
     const { errors, validateField } = UseVaildate<EmailValidateError>(emailSchema);
@@ -101,6 +98,7 @@ export function SignupStep1() {
     const [inputBorderColor, setInputBorderColor] = useState<string>('border-none');
     const [emailVerifyMessage, setEmailVerifyMessage] = useState<string>('');
     const [messageColor, setMessageColor] = useState<string>('');
+    const [emailSendMessageColor, setEmailSendMessageColor] = useState<string>('text-green-500');
 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -114,7 +112,7 @@ export function SignupStep1() {
     const sendEmail = async () => {
 
         console.log(email);
-        axios.post(`${process.env.NEXT_PUBLIC_ROOT_API}/register/email`,
+        axios.post(`${process.env.NEXT_PUBLIC_ROOT_API}/users/checkEmail`, //이메일 요청 엔드포인트 수정
             {
                 email: email
             },
@@ -125,6 +123,14 @@ export function SignupStep1() {
             }
         ).then(function (response) {
             if (response.status === 200) {
+                setEmailSendMessageColor('text-green-500');
+                setemailSendMessage('Verification code has been sent to your email');
+                setSendMessageVisiblity(true);
+            }
+
+            if (response.status === 403) {
+                setEmailSendMessageColor('text-red-500');
+                setemailSendMessage('Email already exists');
                 setSendMessageVisiblity(true);
             }
         }).catch(function (error) {
@@ -155,7 +161,7 @@ export function SignupStep1() {
                 setIsNextButtonDisabled(false);
             }
         }).catch(function (error) {
-            if (error.response.status === 400) {
+            if (error.response.status === 409) {
                 console.log(error.data);
                 setMessageColor('text-red-500');
                 setInputBorderColor('border-red-500 border-opacity-100');
@@ -205,7 +211,9 @@ export function SignupStep1() {
             </label>
             <div>
                 {errors?.email && <ValidateSpan message={errors?.email[0]} error={!!errors?.email}></ValidateSpan>}
-                {emailSendMessage && <ValidateSpan message={emailSendMessage} error={sendMessageVisiblity}></ValidateSpan>}
+                {emailSendMessage && <ValidateSpan message={emailSendMessage} error={sendMessageVisiblity}
+                    className={emailSendMessageColor}
+                ></ValidateSpan>}
             </div>
 
             {sendMessageVisiblity && (<label htmlFor="authNum"
@@ -542,7 +550,13 @@ export function Dropdown({ options, buttonName, isMultiSelect, onSelect }: Dropd
     // 항목 선택
     const selectItem = (item: string) => {
         if (isMultiSelect) {
-            if (!selectedItems.includes(item)) {
+            if (selectedItems.includes(item)) {
+                // 체크 해제: 선택된 항목에서 제거
+                const newSelectedItems = selectedItems.filter((selected) => selected !== item);
+                setSelectedItems(newSelectedItems);
+                onSelect(newSelectedItems); // 부모로 선택된 항목 전달
+            } else {
+                // 체크: 선택된 항목에 추가
                 const newSelectedItems = [...selectedItems, item];
                 setSelectedItems(newSelectedItems);
                 onSelect(newSelectedItems); // 부모로 선택된 항목 전달
@@ -597,13 +611,17 @@ export function Dropdown({ options, buttonName, isMultiSelect, onSelect }: Dropd
                         {options.map((option) => (
                             <li
                                 key={option}
-                                className="dropdown-item"
+                                className="dropdown-item flex"
                                 onClick={() => selectItem(option)}
                             >
-                                {option}
+                                <span className="flex flex-1">{option}</span>
                                 {/* 여기에 체크박스 추가 */}
                                 {isMultiSelect ? (
-                                    <input type="text" />
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedItems.includes(option)}
+                                        onChange={() => selectItem(option)}
+                                        className="dropdown-checkbox" />
                                 ) :
                                     (
                                         null
@@ -643,7 +661,7 @@ export function Dropdown({ options, buttonName, isMultiSelect, onSelect }: Dropd
 export function SignupStep4() {
     const [selectedCountry, setSelectedCountry] = useState<string | null>(null); // 지역 선택 상태
     const [selectedReligions, setSelectedReligions] = useState<string | null>(null); // 종교 선택 상태
-    const [selectedFoodHabits, setSelectedFoodHabits] = useState<string[]>([]); // 식습관 선택 상태
+    const [selectedDietaryPreferences, setSelectedDietaryPreferences] = useState<string[]>([]); // 식습관 선택 상태
     const [selectedChronicDisease, setSelectedChronicDisease] = useState<string[]>([]); // 만성질환 선택 상태
     const router = useRouter();
 
@@ -652,7 +670,13 @@ export function SignupStep4() {
     const setDietaryPreferences = useSignupStore(state => state.setDietaryPreferences);
     const setChronicDiseaseTypes = useSignupStore(state => state.setChronicDiseaseTypes);
 
-    const isFormValid = selectedCountry && selectedReligions && selectedFoodHabits.length > 0;
+    const countryList: string[] = ["Korea", "USA", "China", "Japan", "Germany", "France"];
+    const religionList: string[] = ["Christianity", "Buddhism", "Catholicism", "Islam",
+        "Hinduism", "Atheism"];
+    const dietaryPreferences: string[] = ["No food to cover", 'Halal', 'Kosher', "Vegetarian", "Vegan",
+        "Pescatarian", "Low-Spice tolerance", "No Alcohol"];
+    const chronicDiseaseList: string[] = ['N/A', 'Cancer', 'Diabetes', 'Osteoporosis','Heart Disease'];
+    const isFormValid = selectedCountry && selectedReligions && selectedDietaryPreferences.length > 0;
 
 
 
@@ -661,13 +685,13 @@ export function SignupStep4() {
 
         setSelectedCountry(selectedCountry);
         setSelectedReligions(selectedReligions);
-        setSelectedFoodHabits(selectedFoodHabits);
+        setSelectedDietaryPreferences(selectedDietaryPreferences);
         setSelectedChronicDisease(selectedChronicDisease);
 
         // useSignupStore 상태 업데이트
         setNationality(selectedCountry ?? "");  // 국가 정보 설정
         setReligion(selectedReligions ?? "");   // 종교 정보 설정
-        setDietaryPreferences(selectedFoodHabits);  // 식습관 설정
+        setDietaryPreferences(selectedDietaryPreferences);  // 식습관 설정
         setChronicDiseaseTypes(selectedChronicDisease);  // 만성질환 설정
 
 
@@ -679,9 +703,7 @@ export function SignupStep4() {
         <form onSubmit={handleSubmit} className='signup-text signup-text-black flex-grow flex flex-col gap-[8rem]'>
             <div>
                 <Dropdown
-                    options={[
-                        "Korea", "USA", "China", "Japan", "Germany", "France"
-                    ]}
+                    options={countryList}
                     buttonName="Select Your Country"
                     isMultiSelect={false}
                     onSelect={(selected) => setSelectedCountry(selected as string | null)}
@@ -689,9 +711,7 @@ export function SignupStep4() {
             </div>
             <div>
                 <Dropdown
-                    options={[
-                        "Christianity", "Buddhism", "Catholicism", "Islam", "Hinduism", "Atheism"
-                    ]}
+                    options={religionList}
                     buttonName="Select Your Religion"
                     isMultiSelect={false}
                     onSelect={(selected) => setSelectedReligions(selected as string | null)}
@@ -699,20 +719,15 @@ export function SignupStep4() {
             </div>
             <div>
                 <Dropdown
-                    options={[
-                        "No food to cover", "Vegetarian", "Vegan", "Pescatarian", "Low-Spice tolerance", "No Alcohol",
-                        "No Pork", "No Beef", 'halal', 'kosher', 'No Nuts', 'No Dairy', 'No Gluten', 'No Shellfish', 'No Soy'
-                    ]}
+                    options={dietaryPreferences}
                     buttonName="Select Your Food Habits"
                     isMultiSelect={true}
-                    onSelect={(selected) => setSelectedFoodHabits(selected as string[])}
+                    onSelect={(selected) => setSelectedDietaryPreferences(selected as string[])}
                 />
             </div>
             <div>
                 <Dropdown
-                    options={[
-                        'Cancer', '당뇨', '기타등등...'
-                    ]}
+                    options={chronicDiseaseList}
                     buttonName="Select Your Chronic Disease"
                     isMultiSelect={true}
                     onSelect={(selected) => setSelectedChronicDisease(selected as string[])}
@@ -754,6 +769,8 @@ export function SignupStep5() {
         setAllergyTypes(selectedAllergies);
         //직전에 업데이트 해줬으므로 여기서 불러옴
         const { allergyTypes } = useSignupStore.getState();
+
+        //일반 회원가입시 로직직
         //post 요청 로직 넣어야함
         const signupData = {
             userId,
@@ -788,6 +805,15 @@ export function SignupStep5() {
             alert('The error occurred. Please try again from the beginning.');
             console.log(error);
         });
+
+        // else{
+        //     //소셜 회원가입시 로직
+        //     patch 요청 보내기
+        //     const signupData = {
+        //         userId,
+        //         email,
+        //         userName,
+        // }
     }
 
 
