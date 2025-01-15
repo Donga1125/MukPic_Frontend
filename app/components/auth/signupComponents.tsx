@@ -62,14 +62,14 @@ export function SignupStep() {
                 <div className="form-control primary">
                     <label className="cursor-pointer label">
                         <span className="label-text">개인정보 및 민감정보 사용 동의</span>
-                        <input type="checkbox" className="checkbox checkbox-xs"
+                        <input type="checkbox" className='dropdown-checkbox'
                             onChange={(e) => checkboxChange(e, setpersonalInfoAgree)} />
                     </label>
                 </div>
                 <div className="form-control">
                     <label className="cursor-pointer label">
                         <span className="label-text">이용 약관 동의</span>
-                        <input type="checkbox" className="checkbox checkbox-xs"
+                        <input type="checkbox" className='dropdown-checkbox'
                             onChange={(e) => checkboxChange(e, settermsAgree)} />
                     </label>
                 </div>
