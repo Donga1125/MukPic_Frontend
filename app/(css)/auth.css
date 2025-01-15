@@ -1,77 +1,55 @@
-/* app/globals.css */
-
-/* Tailwind 기본 스타일 적용 */
-@import url("https://cdn.noonnu.cc/fonts/suit/1.0.0/SUIT.css");
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-button:disabled {
-  cursor: not-allowed; /* 비활성화 상태 커서 */
-  opacity: 0.5; /* 투명도 조정 */
+input {
+  border: none;
+  outline: none;
+  cursor: text;
+  color: #0b0b0b;
+  font-feature-settings: "liga" off, "clig" off;
+  font-family: SUIT;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.375rem; /* 137.5% */
+  letter-spacing: -0.01875rem;
+  background: #f1f3f6;
 }
 
-.root-wrapper {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background-color: white;
-  justify-content: center;
-  align-items: center;
-  margin: 0 auto;
-  max-width: 390; /* 확인용으로  일단 390px */
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #f1f3f6 inset;
+  -webkit-text-fill-color: #0b0b0b;
 }
 
-.main-container {
-  display: flex;
-  flex-direction: column;
+input:focus::placeholder {
+  opacity: 0 !important;
+}
+
+.auth-container {
+  display: flex; /* flex 컨테이너로 설정 */
+  flex-direction: column; /* 자식 요소들이 세로로 배치되도록 설정 */
+  height: 100%; /* 부모 요소가 화면 높이를 차지하도록 설정 */
   flex-grow: 1;
   background-color: white;
   width: 94%;
-  justify-content: center;
+  justify-content: start; /* 자식 요소들이 상단부터 배치되도록 설정 */
   margin: 0 auto;
   padding: 0;
+  border: none;
 }
 
-/* 상단 내브바*/
-.root-topNav {
-  max-height: 3.5rem;
-  background-color: white;
-}
+/* 텍스트 있는 post 버튼 css */
 
-/* 웹뷰 및 모바일 최적화 */
-@media {
-  body {
-    font-size: 16px;
-    font-family: "SUIT", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-      "Helvetica Neue", Arial, sans-serif;
-  }
-}
-
-.text-and-icon-button {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
+.verify-button {
+  height: 2.125rem;
+  flex-shrink: 0;
   border-radius: 3.125rem;
   background: #1e252f;
-  color: white;
-  width: 5rem;
-  height: 2rem;
+}
+.verify-button-send {
+  width: 3.875rem;
+}
+.verify-button-verify {
+  width: 4.375rem;
 }
 
-/* 상단 내비게이션 바 text 부분 css community,search 등등 */
-
-.bot-nav {
-  width: 80%;
-  max-width: 21.25rem;
-  height: 4.25rem;
-  flex-shrink: 0;
-  border-radius: 6.25rem;
-  background: #1e252f;
-  box-shadow: 0px 4px 16px 0px rgba(166, 168, 178, 0.5);
-}
-
-<<<<<<< HEAD
 .auth-button {
   display: flex;
   width: 100%;
@@ -83,7 +61,7 @@ button:disabled {
   flex-shrink: 0;
   border-radius: 6.25rem;
   margin-top: auto;
-  margin-bottom:0.75rem;
+  margin-bottom: 0.75rem;
 }
 .auth-button-id {
   background: #0a0c10;
@@ -234,62 +212,20 @@ input.auth-placeholder::placeholder {
   border-radius: 6.25rem;
   border: 1px solid #1e252f;
 }
-
-=======
->>>>>>> dev
-/* 텍스트 스타일 */
-
-.root-text {
-  text-align: center;
-  font-feature-settings: "liga" off, "clig" off;
-  font-family: SUIT;
-  line-height: normal;
-  /* 
-  color:
-  font-size:
-  font-weight:
-  font-style:
-  */
-}
-
-.nav-text {
-  color: var(--Gray-gray-900, #0b0b0b);
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
-.nav-text-search {
-  color: #0a0c10;
-  font-size: 1.5rem;
-  font-style: normal;
-  font-weight: 600;
-}
-
-.botnav-text {
-  color: gray;
-  font-size: 0.875rem;
-  font-weight: 400;
-}
-
-.nav-logo {
-  color: #1e252f;
-  font-size: 1.5rem;
-  font-style: normal;
-  font-weight: 900;
-}
-
-.nav-text-button {
-  color: #fff;
+.login-text {
   font-size: 1rem;
   font-style: normal;
-  font-weight: 400;
+  font-weight: 500;
+  line-height: 1.375rem; /* 137.5% */
+  letter-spacing: -0.01875rem;
+}
+.login-text-id {
+  color: #fff;
+}
+.login-text-google {
+  color: #000;
 }
 
-.logo-box {
-  height: 9rem;
-}
-
-<<<<<<< HEAD
 .login-logo {
   color: var(--Gray-gray-900, #0b0b0b);
   font-family: SUIT;
@@ -358,96 +294,59 @@ input.auth-placeholder::placeholder {
   font-weight: 400;
 }
 
-/* 뱃지들 */
-
-.food-category-badge {
-  width: auto;
-  display: flex;
-  padding: 0.125rem 0.75rem;
-  justify-content: center;
-  align-items: center;
-  gap: 0.625rem;
-  border-radius: 3.125rem;
-  border: 1px solid #0a0c10;
-  background: #fff;
-}
-
-.food-category-badge-text {
-  color: #0a0c10;
-  font-feature-settings: "liga" off, "clig" off;
-  font-family: SUIT;
-  font-size: 0.75rem;
-  font-style: normal;
-  font-weight: 400;
-  line-height: normal;
-}
-
-/* 뱃지들 */
-
-.food-category-badge {
-  width: auto;
-  display: flex;
-  padding: 0.125rem 0.75rem;
-  justify-content: center;
-  align-items: center;
-  gap: 0.625rem;
-  border-radius: 3.125rem;
-  border: 1px solid #0a0c10;
-  background: #fff;
-}
-
-.food-category-badge-text {
-  color: #0a0c10;
-  font-feature-settings: "liga" off, "clig" off;
-  font-family: SUIT;
-  font-size: 0.75rem;
-  font-style: normal;
-  font-weight: 400;
-  line-height: normal;
-}
-
 input[type="checkbox"] {
-  all: unset;
-  -webkit-appearance: checkbox; /* 크롬 및 사파리에서 기본 체크박스 스타일 활성화 */
-  appearance: none; /* 기본 체크박스 모양을 재활성화 */
-  width: 0.9375rem;
-  height: 0.9375rem;
+  all: unset; /* 기본 스타일 초기화 */
+  width: 0.875rem;
+  height: 0.875rem;
   flex-shrink: 0;
-  position: relative;
-  border-radius: 0.25rem;
-  border: 1px solid #758595;
+  border-radius: 0.125rem;
+  border: 1px solid #000;
+  background-color: white; /* 기본 배경 색 */
+  position: relative; /* 체크 표시를 추가할 수 있도록 설정 */
+  cursor: pointer; /* 클릭할 수 있도록 설정 */
 }
 
-=======
->>>>>>> dev
-/* 
-.svg {
-  width: 100%;
-  height: auto;
-<<<<<<< HEAD
-} */
-=======
-} */
-
-/* info 페이지에서만 적용 */
-.info-main-container {
-  width: 100%;
-  max-width: 24.375rem; /* 기존 480px에서 420px로 줄여 여백 감소 */
-  margin: 0 auto; /* 중앙 정렬 */
-  padding: 8px; /* 내부 여백 */
-  background-color: white; /* 흰 배경 */
-  border-radius: 8px; /* 모서리 둥글기 */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* 기존 shadow-md */
+/* 체크박스에 체크 표시 추가 */
+input[type="checkbox"]:checked {
+  background-color: black;
+}
+input[type="checkbox"]:checked::before {
+  content: "\2713";
+  position: absolute;
+  color: white; /* 체크 표시 색 */
+  font-size: 0.75rem; /* 체크 표시 크기 */
+  top: 50%; /* 세로 중앙 */
+  left: 50%; /* 가로 중앙 */
+  transform: translate(-50%, -50%); /* 가운데 정렬 */
 }
 
-.mukpic-main-container {
-  max-width: 24.375rem; /* 페이지 전체 넓이로 확장 */
-  width: 100%; /* 부모 요소에 맞게 조정 */
-  padding: 16px; /* 여백 추가 */
-  background-color: #ffffff; /* 흰색 배경 */
-  margin: 0 auto; /* 중앙 정렬 */
-  border-radius: 8px; /* 둥근 모서리 */
-  box-shadow: none; /* 그림자 제거 */
+/* 마우스 호버 상태 */
+input[type="checkbox"]:hover {
+  opacity: 0.6; /* 마우스 호버 시 투명도 조정 */
 }
 
->>>>>>> dev
+/* 클릭 중인 상태 */
+input[type="checkbox"]:active {
+  opacity: 0.6; /* 클릭 중일 때 투명도 조정 */
+}
+
+.dropdown-checkbox {
+  margin-right: 1.5rem !important;
+}
+
+.camera-circle {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex-shrink: 0;
+  position: absolute;
+  right: 0rem;
+  bottom:0.25rem;
+  overflow: visible;
+}
+.camera-icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  overflow: visible;
+  transform: translate(-50%, -50%); ;
+}
