@@ -53,10 +53,10 @@ export default function LoginForm() {
                 console.log("Response Data:", response.data); // 서버 응답 데이터
                 console.log("Response Token:", response.data.token); // 서버 응답 토큰
                 console.log("Response Status:", response.status); // 서버 응답 상태
-                console.log("Response 헤더 authorization:", response.headers.Authorization); // 서버 응답 상태 텍스트
+                console.log("Response 헤더 authorization:", response.headers['authorization']); // 서버 응답 상태 텍스트
 
                 //token 저장
-                localStorage.setItem('Authorization', response.headers.Authorization);
+                localStorage.setItem('Authorization', response.headers['authorization']);
 
                 // 로그인 성공시 메인페이지로
                 window.location.href = '/';

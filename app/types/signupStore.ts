@@ -12,6 +12,7 @@ interface SignupState {
     allergyTypes: string[];
     chronicDiseaseTypes: string[];
     dietaryPreferences: string[];
+    image: string;
 
     setuserId: (userId: string) => void;
     setemail: (email: string) => void;
@@ -23,6 +24,8 @@ interface SignupState {
     setAllergyTypes: (allergyTypes: string[]) => void;
     setChronicDiseaseTypes: (chronicDiseaseTypes: string[]) => void;
     setDietaryPreferences: (dietaryPreferences: string[]) => void;
+    setImage: (image: string) => void;
+
 
 }
 
@@ -37,6 +40,7 @@ export const useSignupStore = create<SignupState>((set) => ({
     allergyTypes: [],
     chronicDiseaseTypes: [],
     dietaryPreferences: [],
+    image: 'noImage',
 
     setuserId: (userId: string) => set({ userId }),
     setemail: (email: string) => set({ email }),
@@ -48,7 +52,7 @@ export const useSignupStore = create<SignupState>((set) => ({
     setAllergyTypes: (allergyTypes: string[]) => set({ allergyTypes }),
     setChronicDiseaseTypes: (chronicDiseaseTypes: string[]) => set({ chronicDiseaseTypes }),
     setDietaryPreferences: (dietaryPreferences: string[]) => set({ dietaryPreferences }),
-
+    setImage: (image: string) => set({ image }),
 
 }));
 

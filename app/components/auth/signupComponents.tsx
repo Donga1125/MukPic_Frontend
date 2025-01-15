@@ -128,12 +128,15 @@ export function SignupStep1() {
                 setSendMessageVisiblity(true);
             }
 
-            if (response.status === 403) {
+            if (response.status === 409) {
                 setEmailSendMessageColor('text-red-500');
                 setemailSendMessage('Email already exists');
                 setSendMessageVisiblity(true);
             }
         }).catch(function (error) {
+            setEmailSendMessageColor('text-red-500');
+            setemailSendMessage('Failed to send verification code please try again');
+            setSendMessageVisiblity(true);
             console.log(error);
         });
     }
@@ -161,7 +164,7 @@ export function SignupStep1() {
                 setIsNextButtonDisabled(false);
             }
         }).catch(function (error) {
-            if (error.response.status === 409) {
+            if (error.response.status === 400) {
                 console.log(error.data);
                 setMessageColor('text-red-500');
                 setInputBorderColor('border-red-500 border-opacity-100');
@@ -258,6 +261,8 @@ export function SignupStep2() {
     const [idDuplicateMessage, setidDuplicateMessage] = useState<string>('');
     const [messageColor, setMessageColor] = useState<string>('');
 
+    //재가입을 위한 유저 이메일 체크용 상태관리에서 이메일 받아오기
+    const email = useSignupStore(state => state.email);
 
 
     const userId = useSignupStore(state => state.userId);
@@ -284,7 +289,8 @@ export function SignupStep2() {
             method: 'get',
             url: `${process.env.NEXT_PUBLIC_ROOT_API}/users/checkUserId`,
             params: {
-                userId: userId
+                userId: userId,
+                email: email
             },
             responseType: 'json'
         }).then(function (response) {
@@ -400,9 +406,16 @@ export function SignupStep3() {
     const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(true);
     const userName = useSignupStore(state => state.userName);
     const setuserName = useSignupStore(state => state.setuserName);
-    //유저 프로파일 이미지
-    // const [userProfileImage, setUserProfileImage] = useState<string>('');
     const router = useRouter();
+    //이미지 상태관리 (디폴트값 : noImage)
+    const setImage = useSignupStore(state => state.setImage);
+
+    //이미지 업로드
+    const [profileImage, setProfileImage] = useState<File | null>(null); // 선택한 이미지 파일
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null); // 미리보기 URL
+
+    //이메일 체크용
+    const email = useSignupStore(state => state.email);
 
     const [canUseUserName, setCanUseuserName] = useState<boolean>(false);
     const [userNameDuplicateMessage, setUserNameDuplcateMessage] = useState<string>('');
@@ -424,7 +437,8 @@ export function SignupStep3() {
             method: 'get',
             url: `${process.env.NEXT_PUBLIC_ROOT_API}/users/checkUserName`,
             params: {
-                userName: userName
+                userName: userName,
+                email: email
             },
             responseType: 'json'
         }).then(function (response) {
@@ -453,29 +467,118 @@ export function SignupStep3() {
         setCheckButtonDisabled(!userName.trim() || !!errors?.userName);
     }, [userName, errors]);
 
+    //폼 제출 시 이미지 제출도 저장
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        if (profileImage) {
+            axios({
+                method: 'post',
+                url: `${process.env.NEXT_PUBLIC_ROOT_API}/images/upload`,
+                data: {
+                    file: profileImage,
+                    imagerType: 'PROFILE',
+                },
+            }).then(function (response) {
+                if (response.status === 200) {
+                    setImage(response.data);
+                }
+            }).catch(function (error) {
+                console.log(error);
+            });
+        }
+        else{
+            setImage('noImage');
+        }
+
         router.push('/signup/step4');
     }
+
+    //이미지 업로드 포스트 요청
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // 선택한 파일을 상태에 저장
+        setProfileImage(file);
+
+        // 미리보기 URL 생성
+        const previewUrl = URL.createObjectURL(file);
+        setPreviewUrl(previewUrl);
+    };
 
 
     return (
         <form onSubmit={handleSubmit} className='flex flex-col gap-[0.75rem] flex-grow'>
-            <label htmlFor='profileImage' className='flex items-center gap-8'>
-                <button type='button'>
-                    <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="60" cy="60" r="60" fill="#F1F3F6" />
+            {/* 이미지 업로드용 숨겨진 input */}
+            <input
+                id="fileInput"
+                type="file"
+                accept="image/*"
+                style={{
+                    display: "none", // input을 숨기기
+                }}
+                onChange={handleFileChange} // 파일 선택 시 처리
+            />
+            <label className='flex items-center gap-8'>
+                {/* 원형 미리보기 이미지 및 아이콘 */}
+                <div
+                    style={{
+                        width: "6.25rem",
+                        height: "6.25rem",
+                        borderRadius: "50%",
+                        backgroundColor: "#F1F3F6",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        cursor: "pointer", // 클릭 시 커서 변경
+                        position: "relative",
+                        overflow: previewUrl ? 'hidden' : 'visible'
+                    }}
+                    onClick={() => document.getElementById('fileInput')?.click()} // 클릭 시 파일 선택
+                >
+                    {previewUrl ? (
+                        <img
+                            src={previewUrl}
+                            alt="미리보기"
+                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                    ) : null}
+                    {previewUrl ?
+                        null :
+                        (
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                className='camera-circle'
+                            >
+                                <circle cx="12" cy="12" r="11.5" fill="white" stroke="#C7C7CC" />
 
-                        <g transform="translate(90, 90)">
-                            <circle cx="12" cy="12" r="11.5" fill="white" stroke="#C7C7CC" />
-                            <g transform="translate(4, 4)">
-                                <path d="M8 10C9.10457 10 10 9.10457 10 8C10 6.89543 9.10457 6 8 6C6.89543 6 6 6.89543 6 8C6 9.10457 6.89543 10 8 10Z" fill="#8E8E93" />
-                                <path d="M12.8 3.22222H10.898L10.154 2.39722C9.932 2.14667 9.608 2 9.272 2H6.728C6.392 2 6.068 2.14667 5.84 2.39722L5.102 3.22222H3.2C2.54 3.22222 2 3.77222 2 4.44444V11.7778C2 12.45 2.54 13 3.2 13H12.8C13.46 13 14 12.45 14 11.7778V4.44444C14 3.77222 13.46 3.22222 12.8 3.22222ZM8 11.1667C6.344 11.1667 5 9.79778 5 8.11111C5 6.42444 6.344 5.05556 8 5.05556C9.656 5.05556 11 6.42444 11 8.11111C11 9.79778 9.656 11.1667 8 11.1667Z" fill="#8E8E93" />
-                            </g>
-                        </g>
-                    </svg>
-                </button>
-                <span className='signup-text signup-text-gray'>Set Your Profile Image</span>
+                                <svg
+                                    className="camera-icon"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="24"
+                                    height="24"
+                                    viewBox="-4 -4 24 24"
+                                    fill="none"
+                                >
+                                    <g clip-path="url(#clip0_112_2331)">
+                                        <path d="M8 10C9.10457 10 10 9.10457 10 8C10 6.89543 9.10457 6 8 6C6.89543 6 6 6.89543 6 8C6 9.10457 6.89543 10 8 10Z" fill="#8E8E93" />
+                                        <path d="M12.8 3.22222H10.898L10.154 2.39722C9.932 2.14667 9.608 2 9.272 2H6.728C6.392 2 6.068 2.14667 5.84 2.39722L5.102 3.22222H3.2C2.54 3.22222 2 3.77222 2 4.44444V11.7778C2 12.45 2.54 13 3.2 13H12.8C13.46 13 14 12.45 14 11.7778V4.44444C14 3.77222 13.46 3.22222 12.8 3.22222ZM8 11.1667C6.344 11.1667 5 9.79778 5 8.11111C5 6.42444 6.344 5.05556 8 5.05556C9.656 5.05556 11 6.42444 11 8.11111C11 9.79778 9.656 11.1667 8 11.1667Z" fill="#8E8E93" />
+                                    </g>
+                                    <defs>
+                                        <clipPath id="clip0_112_2331">
+                                            <rect width="16" height="16" fill="white" />
+                                        </clipPath>
+                                    </defs>
+                                </svg>
+                            </svg>
+                        )
+                    }
+                </div>
+
+                {/* 텍스트 */}
+                <span className='signup-text signup-text-gray'>
+                    Set Your Profile Image
+                </span>
             </label>
             <label htmlFor="userName" className="flex auth-input-label items-center">
                 <input
@@ -672,14 +775,208 @@ export function SignupStep4() {
     const setDietaryPreferences = useSignupStore(state => state.setDietaryPreferences);
     const setChronicDiseaseTypes = useSignupStore(state => state.setChronicDiseaseTypes);
 
-    const countryList: string[] = ["Korea", "USA", "China", "Japan", "Germany", "France"];
-    const religionList: string[] = ["Christianity", "Buddhism", "Catholicism", "Islam",
-        "Hinduism", "Atheism"];
+    const countryList: string[] = [
+        "Afghanistan",
+        "Albania",
+        "Algeria",
+        "Andorra",
+        "Angola",
+        "Antigua and Barbuda",
+        "Argentina",
+        "Armenia",
+        "Australia",
+        "Austria",
+        "Azerbaijan",
+        "Bahamas",
+        "Bahrain",
+        "Bangladesh",
+        "Barbados",
+        "Belarus",
+        "Belgium",
+        "Belize",
+        "Benin",
+        "Bhutan",
+        "Bolivia",
+        "Bosnia and Herzegovina",
+        "Botswana",
+        "Brazil",
+        "Brunei",
+        "Bulgaria",
+        "Burkina Faso",
+        "Burundi",
+        "Cabo Verde",
+        "Cambodia",
+        "Cameroon",
+        "Canada",
+        "Central African Republic",
+        "Chad",
+        "Chile",
+        "China",
+        "Colombia",
+        "Comoros",
+        "Congo (Congo-Brazzaville)",
+        "Costa Rica",
+        "Croatia",
+        "Cuba",
+        "Cyprus",
+        "Czechia (Czech Republic)",
+        "Denmark",
+        "Djibouti",
+        "Dominica",
+        "Dominican Republic",
+        "Ecuador",
+        "Egypt",
+        "El Salvador",
+        "Equatorial Guinea",
+        "Eritrea",
+        "Estonia",
+        "Eswatini (fmr. Swaziland)",
+        "Ethiopia",
+        "Fiji",
+        "Finland",
+        "France",
+        "Gabon",
+        "Gambia",
+        "Georgia",
+        "Germany",
+        "Ghana",
+        "Greece",
+        "Grenada",
+        "Guatemala",
+        "Guinea",
+        "Guinea-Bissau",
+        "Guyana",
+        "Haiti",
+        "Holy See",
+        "Honduras",
+        "Hungary",
+        "Iceland",
+        "India",
+        "Indonesia",
+        "Iran",
+        "Iraq",
+        "Ireland",
+        "Israel",
+        "Italy",
+        "Jamaica",
+        "Japan",
+        "Jordan",
+        "Kazakhstan",
+        "Kenya",
+        "Kiribati",
+        "Korea (North)",
+        "Korea (South)",
+        "Kosovo",
+        "Kuwait",
+        "Kyrgyzstan",
+        "Laos",
+        "Latvia",
+        "Lebanon",
+        "Lesotho",
+        "Liberia",
+        "Libya",
+        "Liechtenstein",
+        "Lithuania",
+        "Luxembourg",
+        "Madagascar",
+        "Malawi",
+        "Malaysia",
+        "Maldives",
+        "Mali",
+        "Malta",
+        "Marshall Islands",
+        "Mauritania",
+        "Mauritius",
+        "Mexico",
+        "Micronesia",
+        "Moldova",
+        "Monaco",
+        "Mongolia",
+        "Montenegro",
+        "Morocco",
+        "Mozambique",
+        "Myanmar (Burma)",
+        "Namibia",
+        "Nauru",
+        "Nepal",
+        "Netherlands",
+        "New Zealand",
+        "Nicaragua",
+        "Niger",
+        "Nigeria",
+        "North Macedonia",
+        "Norway",
+        "Oman",
+        "Pakistan",
+        "Palau",
+        "Palestine State",
+        "Panama",
+        "Papua New Guinea",
+        "Paraguay",
+        "Peru",
+        "Philippines",
+        "Poland",
+        "Portugal",
+        "Qatar",
+        "Romania",
+        "Russia",
+        "Rwanda",
+        "Saint Kitts and Nevis",
+        "Saint Lucia",
+        "Saint Vincent and the Grenadines",
+        "Samoa",
+        "San Marino",
+        "Sao Tome and Principe",
+        "Saudi Arabia",
+        "Senegal",
+        "Serbia",
+        "Seychelles",
+        "Sierra Leone",
+        "Singapore",
+        "Slovakia",
+        "Slovenia",
+        "Solomon Islands",
+        "Somalia",
+        "South Africa",
+        "South Sudan",
+        "Spain",
+        "Sri Lanka",
+        "Sudan",
+        "Suriname",
+        "Sweden",
+        "Switzerland",
+        "Syria",
+        "Tajikistan",
+        "Tanzania",
+        "Thailand",
+        "Timor-Leste",
+        "Togo",
+        "Tonga",
+        "Trinidad and Tobago",
+        "Tunisia",
+        "Turkey",
+        "Turkmenistan",
+        "Tuvalu",
+        "Uganda",
+        "Ukraine",
+        "United Arab Emirates",
+        "United Kingdom",
+        "United States of America",
+        "Uruguay",
+        "Uzbekistan",
+        "Vanuatu",
+        "Venezuela",
+        "Vietnam",
+        "Yemen",
+        "Zambia",
+        "Zimbabwe"
+    ];
+    const religionList: string[] = ["Atheism", "Christianity", "Buddhism", "Catholicism", "Islam",
+        "Hinduism"];
     const dietaryPreferences: string[] = ["No food to cover", 'Halal', 'Kosher', "Vegetarian", "Vegan",
-        "Pescatarian", "Low-Spice tolerance", "No Alcohol", 'Gluten-Free', 'Lactose-Free', 'Low-Carb'];
-    const chronicDiseaseList: string[] = ['N/A', 'Cancer', 'Diabetes', 'Osteoporosis', 'Heart Disease'];
+        "Pescatarian", "Low Spice tolerance", "No Alcohol", 'Gluten Free', 'Lactose Free', 'Low Carb'];
+    const chronicDiseaseList: string[] = ['No Disease', 'Cancer', 'Diabetes', 'Osteoporosis', 'Heart Disease'];
     const isFormValid = selectedCountry && selectedReligions && selectedDietaryPreferences.length > 0;
-
 
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -690,11 +987,11 @@ export function SignupStep4() {
         setSelectedDietaryPreferences(selectedDietaryPreferences);
         setSelectedChronicDisease(selectedChronicDisease);
 
-        // useSignupStore 상태 업데이트
+        // useSignupStore 상태 업데이트 (대문자로 변환)
         setNationality(selectedCountry ?? "");  // 국가 정보 설정
-        setReligion(selectedReligions ?? "");   // 종교 정보 설정
-        setDietaryPreferences(selectedDietaryPreferences);  // 식습관 설정
-        setChronicDiseaseTypes(selectedChronicDisease);  // 만성질환 설정
+        setReligion((selectedReligions ?? "").toUpperCase());   // 종교 정보 설정
+        setDietaryPreferences(selectedDietaryPreferences.map(str => str.toUpperCase()));  // 식습관 설정
+        setChronicDiseaseTypes(selectedChronicDisease.map(str => str.toUpperCase())); // 만성질환 설정
 
 
         router.push('/signup/step5');
@@ -758,21 +1055,28 @@ export function SignupStep5() {
     const router = useRouter();
     const setAllergyTypes = useSignupStore(state => state.setAllergyTypes);
     // 최종 회원 가입을 위한 상태 가져오기
-    const { userId, email, password, userName, nationality, religion, agree, chronicDiseaseTypes, dietaryPreferences } = useSignupStore.getState();
+    const { userId, email, password, userName, nationality, religion, agree, chronicDiseaseTypes, dietaryPreferences,image } = useSignupStore.getState();
 
     // 모든 알레르기 리스트 합치기기
     const allAllergies = [...seaFoodAllergieList, ...fruitAllergieList, ...nutsAllergieList, ...meatAllergieList, ...etcAllergieList];
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setAllergyTypes(selectedAllergies);
+        setAllergyTypes(selectedAllergies.map(str => str.toUpperCase()));
+        // 알러지 없을 경우 NOALLERGIE 추가
+        if (selectedAllergies.length === 0) {
+            setAllergyTypes(['NOALLERGIE']);
+        }
         const { allergyTypes } = useSignupStore.getState();
 
         const signupData = {
+            userId, email, password, userName, nationality, religion, agree, allergyTypes, chronicDiseaseTypes, dietaryPreferences, image
+        };
+        const noImageSignupData = {
             userId, email, password, userName, nationality, religion, agree, allergyTypes, chronicDiseaseTypes, dietaryPreferences
         };
 
-        axios.post(`${process.env.NEXT_PUBLIC_ROOT_API}/users/register`, signupData)
+        axios.post(`${process.env.NEXT_PUBLIC_ROOT_API}/users/register`, (image==='noImage'? noImageSignupData : signupData))
             .then(response => {
                 if (response.data.success) {
                     alert('All set! Welcome aboard!');
@@ -801,9 +1105,9 @@ export function SignupStep5() {
 
     //검색창 외 클릭시 드롭다운 숨김
     const handleClickOutside = (e: MouseEvent) => {
-            if (inputRef.current && !inputRef.current.contains(e.target as Node)) {
-                setShowDropdown(false);
-            }
+        if (inputRef.current && !inputRef.current.contains(e.target as Node)) {
+            setShowDropdown(false);
+        }
     };
 
     // 검색어에 따라 필터링된 알레르기 리스트
@@ -842,7 +1146,7 @@ export function SignupStep5() {
                         </svg>
                     </button>
                 </label>
-                {showDropdown && filteredAllergies.length > 0 ?(
+                {showDropdown && filteredAllergies.length > 0 ? (
                     <div className="relative  max-h-60 overflow-y-auto mt-0 rounded-lg bg-[#F1F3F6] shadow-lg border border-[#E0E0E0] z-10">
                         <ul>
                             {filteredAllergies.map((allergy) => (
@@ -859,7 +1163,7 @@ export function SignupStep5() {
                             ))}
                         </ul>
                     </div>
-                ): null}
+                ) : null}
             </div>
 
             {/* 버튼들을 나열 */}
