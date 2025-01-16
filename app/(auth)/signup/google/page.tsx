@@ -19,7 +19,6 @@ export default function SignUp() {
                 alert('Error! please try agian (디버그용 메시지 : 토큰 호출 실패)');
                 console.log(error);
             });
-        
     }, [])
 
     return (

@@ -4,6 +4,7 @@ import { ReactNode } from 'react';
 import Link from 'next/link';
 import '@/app/globals.css';
 import '@/app/(css)/auth.css';
+import '@/app/(css)/community.css';
 
 interface WideButtonProps {
     children: ReactNode;
