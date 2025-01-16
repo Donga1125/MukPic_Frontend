@@ -11,11 +11,6 @@
   "dependencies": {
     "@types/classnames": "^2.3.0",
     "axios": "^1.7.9",
-<<<<<<< HEAD
-    "classnames": "^2.5.1",
-    "daisyui": "^4.12.23",
-=======
->>>>>>> dev
     "js-cookie": "^3.0.5",
     "next": "^15.1.4",
     "next-auth": "^4.24.11",

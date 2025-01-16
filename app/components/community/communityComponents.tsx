@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
-import styles from '@/app/(css)/community.module.css';
 import "@/app/globals.css";
+import "@/app/(css)/community.css";
 
 type FoodCategoryBadgeProps = {
     children: ReactNode;
@@ -20,16 +20,22 @@ export function TextAndIconButton({ icon, children }: TextAndIconButtonProps) {
 
 }
 
-type ViewAiResearchButtonProps = {
-    icon?: ReactNode;
-    children?: ReactNode;
-}
 
-export function ViewAiResearchButton({ icon, children }: ViewAiResearchButtonProps) {
+
+export function ViewAiResearchButton() {
     return (
-        <button className='view-ai-research-button flex gap-2 items-center '>
-            <span className='view-ai-research-button-text'>{children}</span>
-            {icon}
+        <button className='view-ai-research-button'>
+            <span className='view-ai-research-button-text'>View Ai Research <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <g clip-path="url(#clip0_113_5030)">
+                    <path d="M12.9167 11.6667H12.2583L12.025 11.4417C13.025 10.275 13.5417 8.68337 13.2583 6.9917C12.8667 4.67503 10.9333 2.82503 8.6 2.5417C5.075 2.10837 2.10834 5.07503 2.54167 8.60003C2.825 10.9334 4.675 12.8667 6.99167 13.2584C8.68334 13.5417 10.275 13.025 11.4417 12.025L11.6667 12.2584V12.9167L15.2083 16.4584C15.55 16.8 16.1083 16.8 16.45 16.4584C16.7917 16.1167 16.7917 15.5584 16.45 15.2167L12.9167 11.6667ZM7.91667 11.6667C5.84167 11.6667 4.16667 9.9917 4.16667 7.9167C4.16667 5.8417 5.84167 4.1667 7.91667 4.1667C9.99167 4.1667 11.6667 5.8417 11.6667 7.9167C11.6667 9.9917 9.99167 11.6667 7.91667 11.6667Z" fill="white" />
+                </g>
+                <defs>
+                    <clipPath id="clip0_113_5030">
+                        <rect width="20" height="20" fill="white" />
+                    </clipPath>
+                </defs>
+            </svg>
+            </span>
         </button>
     )
 
@@ -37,7 +43,7 @@ export function ViewAiResearchButton({ icon, children }: ViewAiResearchButtonPro
 
 export function FoodCategoryBadge({ children }: FoodCategoryBadgeProps) {
     return (
-        <span className={`${styles['food-category-badge']} food-category-badge-text`}>
+        <span className='food-category-badge food-category-badge-text'>
             {children}
         </span>
     );
@@ -62,13 +68,7 @@ export function PostComponents() {
                 {/* 이미지 부분 */}
                 <div className='post-img-wrapper'>
                     <img src="/testImg/test-food.jpg" alt="img_error" className="img"></img>
-                    <ViewAiResearchButton icon={
-                        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M10.9167 9.6667H10.2583L10.025 9.4417C11.025 8.27503 11.5417 6.68337 11.2583 4.9917C10.8667 2.67503 8.93334 0.825033 6.6 0.5417C3.075 0.108366 0.108336 3.07503 0.541669 6.60003C0.825003 8.93337 2.675 10.8667 4.99167 11.2584C6.68334 11.5417 8.275 11.025 9.44167 10.025L9.66667 10.2584V10.9167L13.2083 14.4584C13.55 14.8 14.1083 14.8 14.45 14.4584C14.7917 14.1167 14.7917 13.5584 14.45 13.2167L10.9167 9.6667ZM5.91667 9.6667C3.84167 9.6667 2.16667 7.9917 2.16667 5.9167C2.16667 3.8417 3.84167 2.1667 5.91667 2.1667C7.99167 2.1667 9.66667 3.8417 9.66667 5.9167C9.66667 7.9917 7.99167 9.6667 5.91667 9.6667Z" fill="white" />
-                        </svg>
-                    }>
-                        View Ai Reserch
-                    </ViewAiResearchButton>
+                    <ViewAiResearchButton></ViewAiResearchButton>
                 </div>
                 <PostContents />
                 {/* 내용 부분 */}
@@ -80,16 +80,11 @@ export function PostComponents() {
 export function PostContents() {
 
     return (
-        <div>
+        <div className='post-contents-wrapper-row'>
             {/* 음식 카테고리 뱃지 입력받아서 넣기 */}
-            <div className='gap-[0.5rem]'>
+            <div className='post-contents-left'>
                 <div className='flex-row flex gap-2 justify-between'>
                     <FoodCategoryBadge>snacks</FoodCategoryBadge>
-
-                    {/* 좋아요 수 */}
-                    <span className={`${styles.baseFont} inline-flex align-middle gap-1`}><svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3.33329 5.99996V14H0.666626V5.99996H3.33329ZM5.99996 14C5.64634 14 5.3072 13.8595 5.05715 13.6094C4.8071 13.3594 4.66663 13.0202 4.66663 12.6666V5.99996C4.66663 5.63329 4.81329 5.29996 5.05996 5.05996L9.44663 0.666626L10.1533 1.37329C10.3333 1.55329 10.4466 1.79996 10.4466 2.07329L10.4266 2.28663L9.79329 5.33329H14C14.74 5.33329 15.3333 5.93329 15.3333 6.66663V7.99996C15.3333 8.17329 15.3 8.33329 15.24 8.48663L13.2266 13.1866C13.0266 13.6666 12.5533 14 12 14H5.99996ZM5.99996 12.6666H12.02L14 7.99996V6.66663H8.13996L8.89329 3.11996L5.99996 6.01996V12.6666Z" fill="black" />
-                    </svg> 12k</span>
                 </div>
                 <div>
                     <span className='post-content-text'>컨텐츠 제목 및 내용🥵🥵🥵 </span>
@@ -109,11 +104,16 @@ export function PostContents() {
                     <span className="comment-date-text">9 days ago</span>
                 </div>
             </div>
-
-            <div>
-                {/* 좋아요 부분 */}
+            <div className='post-contents-right'>
+                {/* 좋아요 수 */}
+                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" fill="none">
+                    <circle cx="18" cy="18" r="18" fill="#E0E4EB" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M3.33334 5.99996V14H0.666672V5.99996H3.33334ZM6.00001 14C5.64638 14 5.30724 13.8595 5.0572 13.6094C4.80715 13.3594 4.66667 13.0202 4.66667 12.6666V5.99996C4.66667 5.63329 4.81334 5.29996 5.06001 5.05996L9.44667 0.666626L10.1533 1.37329C10.3333 1.55329 10.4467 1.79996 10.4467 2.07329L10.4267 2.28663L9.79334 5.33329H14C14.74 5.33329 15.3333 5.93329 15.3333 6.66663V7.99996C15.3333 8.17329 15.3 8.33329 15.24 8.48663L13.2267 13.1866C13.0267 13.6666 12.5533 14 12 14H6.00001ZM6.00001 12.6666H12.02L14 7.99996V6.66663H8.14001L8.89334 3.11996L6.00001 6.01996V12.6666Z" fill="#92A2B9" />
+                    </svg>
+                </svg>
+                <span className='like-text'>12k</span>
             </div>
-
         </div>
     )
 }
