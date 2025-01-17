@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import "@/app/globals.css";
+import TopNav from "@/app/components/TopNav";
 import { ReactNode } from "react";
-
+import { TextAndIconButton, TextLogoButtonForNav } from "@/app/components/button";
 
 
 export const metadata: Metadata = {
@@ -22,10 +23,7 @@ export default function Layout({ children }: LayoutProps) {
 
             <body>
                 <div className="root-wrapper">
-
-                    {/* 상단 바 */}
-                    {children}
-                    {/* 하단 네비게이션 */}
+                        {children}
                 </div>
 
             </body>
