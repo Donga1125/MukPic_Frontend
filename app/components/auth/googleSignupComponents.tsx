@@ -31,6 +31,10 @@ export function ValidateSpan({ message, error, className }: Props) {
     );
 }
 
+function FormatStringArray(input: string[]): string[] {
+    return input.map((str) => str.replace(/\s+/g, "_").toUpperCase());
+}
+
 export function DropDownIcon() {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
@@ -677,10 +681,11 @@ export function GoogleSignupStep4() {
         setSelectedChronicDisease(selectedChronicDisease);
 
         // useSignupStore 상태 업데이트 (대문자로 변환)
+        // 배열의 경우 공백 사이에 _를 추가하고 대문자로 변환해주는 FormatStringArray 함수 사용
         setNationality(selectedCountry ?? "");  // 국가 정보 설정
         setReligion((selectedReligions ?? "").toUpperCase());   // 종교 정보 설정
-        setDietaryPreferences(selectedDietaryPreferences.map(str => str.toUpperCase()));  // 식습관 설정
-        setChronicDiseaseTypes(selectedChronicDisease.map(str => str.toUpperCase())); // 만성질환 설정
+        FormatStringArray(selectedDietaryPreferences);  // 식습관 설정
+        FormatStringArray(selectedChronicDisease); // 만성질환 설정
 
 
         router.push('/signup/google/step5');
@@ -751,7 +756,8 @@ export function GoogleSignupStep5() {
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setAllergyTypes(selectedAllergies.map(str => str.toUpperCase()));
+        // formatStringArray 함수 사용해서 알러지들 공백에 _ 추가하고 대문자로 변환환
+        FormatStringArray(selectedAllergies);
         // 알러지 없을 경우 NOALLERGIE 추가
         if (selectedAllergies.length === 0) {
             setAllergyTypes(['NOALLERGIE']);

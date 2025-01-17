@@ -32,6 +32,10 @@ export function ValidateSpan({ message, error, className }: Props) {
     );
 }
 
+// 공백에 _를 추가하는 함수
+function FormatStringArray(input: string[]): string[] {
+    return input.map((str) => str.replace(/\s+/g, "_").toUpperCase());
+}
 
 export function SignupStep() {
 
@@ -487,7 +491,7 @@ export function SignupStep3() {
                 console.log(error);
             });
         }
-        else{
+        else {
             setImage('noImage');
         }
 
@@ -990,8 +994,8 @@ export function SignupStep4() {
         // useSignupStore 상태 업데이트 (대문자로 변환)
         setNationality(selectedCountry ?? "");  // 국가 정보 설정
         setReligion((selectedReligions ?? "").toUpperCase());   // 종교 정보 설정
-        setDietaryPreferences(selectedDietaryPreferences.map(str => str.toUpperCase()));  // 식습관 설정
-        setChronicDiseaseTypes(selectedChronicDisease.map(str => str.toUpperCase())); // 만성질환 설정
+        FormatStringArray(selectedDietaryPreferences);  // 식습관 설정
+        FormatStringArray(selectedChronicDisease); // 만성질환 설정
 
 
         router.push('/signup/step5');
@@ -1055,14 +1059,14 @@ export function SignupStep5() {
     const router = useRouter();
     const setAllergyTypes = useSignupStore(state => state.setAllergyTypes);
     // 최종 회원 가입을 위한 상태 가져오기
-    const { userId, email, password, userName, nationality, religion, agree, chronicDiseaseTypes, dietaryPreferences,image } = useSignupStore.getState();
+    const { userId, email, password, userName, nationality, religion, agree, chronicDiseaseTypes, dietaryPreferences, image } = useSignupStore.getState();
 
     // 모든 알레르기 리스트 합치기기
     const allAllergies = [...seaFoodAllergieList, ...fruitAllergieList, ...nutsAllergieList, ...meatAllergieList, ...etcAllergieList];
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setAllergyTypes(selectedAllergies.map(str => str.toUpperCase()));
+        setAllergyTypes(FormatStringArray(selectedAllergies));
         // 알러지 없을 경우 NOALLERGIE 추가
         if (selectedAllergies.length === 0) {
             setAllergyTypes(['NOALLERGIE']);
@@ -1076,7 +1080,7 @@ export function SignupStep5() {
             userId, email, password, userName, nationality, religion, agree, allergyTypes, chronicDiseaseTypes, dietaryPreferences
         };
 
-        axios.post(`${process.env.NEXT_PUBLIC_ROOT_API}/users/register`, (image==='noImage'? noImageSignupData : signupData))
+        axios.post(`${process.env.NEXT_PUBLIC_ROOT_API}/users/register`, (image === 'noImage' ? noImageSignupData : signupData))
             .then(response => {
                 if (response.data.success) {
                     alert('All set! Welcome aboard!');
