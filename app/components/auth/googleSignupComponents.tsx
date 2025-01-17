@@ -780,7 +780,7 @@ export function GoogleSignupStep5() {
                 requestData,
                 {
                     headers: {
-                        Authorization: `Bearer ${token}`, // Authorization 헤더
+                        Authorization: token, // Authorization 헤더 Bearer 저장할때 추가 돼 있어서 토큰만 넣게 수정했음
                     },
                 }
             )

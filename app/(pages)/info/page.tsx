@@ -19,7 +19,6 @@ export default function InfoPage() {
   const [response, setResponse] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false); // 로딩 상태 추가
-  const token = process.env.NEXT_PUBLIC_AUTH_TOKEN || "";
 
   useEffect(() => {
     const fetchData = async () => {
@@ -28,14 +27,17 @@ export default function InfoPage() {
         return;
       }
 
+      // 로컬스토리지에서 Authorization 값 가져오기
+      const token = localStorage.getItem("Authorization");
+
       setLoading(true); // 로딩 시작
       try {
         const result = await axios.post(
-          `${process.env.NEXT_PUBLIC_ROOT_API}url/analyze`,
+          `${process.env.NEXT_PUBLIC_ROOT_API}/url/analyze`,
           { imageUrl },
           {
             headers: {
-              Authorization: `Bearer ${token}`,
+              Authorization: token,
             },
           }
         );

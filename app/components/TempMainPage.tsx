@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
@@ -107,6 +107,16 @@ export default function MainPage() {
     Cheesecake: "/images/Cheesecake.jpg",
   };
 
+  useEffect(() => {
+    const token = localStorage.getItem("Authorization");
+
+    if (!token) {
+      console.error("Access Token is missing. Redirecting to login...");
+      setError("Access Token is missing. Please log in again.");
+      router.push("/login"); // 토큰이 없으면 로그인 페이지로 이동
+    }
+  }, [router]);
+
   const handleSnapClick = async () => {
     try {
       setLoading(true);
@@ -127,7 +137,7 @@ export default function MainPage() {
           Bap: "COMMUNITY",
           Myeon: "COMMUNITY",
           Snacks: "COMMUNITY",
-          Cafe: "PROFILE",
+          Cafe: "COMMUNITY",
         };
   
         const imageType = imageTypeMapping[selectedCategory] || "COMMUNITY"; // 기본값 COMMUNITY  
@@ -137,14 +147,15 @@ export default function MainPage() {
         uploadFormData.append("type", imageType);
 
         const apiUrl = process.env.NEXT_PUBLIC_ROOT_API;
-        const token = process.env.NEXT_PUBLIC_AUTH_TOKEN;
+        // 로컬스토리지에서 Authorization 값 가져오기
+        const token = localStorage.getItem('Authorization') || '';
 
         try {
-          const uploadResponse = await fetch(`${apiUrl}images/upload`, {
+          const uploadResponse = await fetch(`${apiUrl}/images/upload`, {
             method: "POST",
             body: uploadFormData,
             headers: {
-              Authorization: `Bearer ${token}`,
+              Authorization: token,
             },
           });
 
