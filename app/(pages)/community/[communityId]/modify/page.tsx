@@ -86,7 +86,6 @@ export default function BoardDetail() {
                 console.error('게시글 이미지 등록 api 에러: ', error);
             })
         }
-
     }
 
 
