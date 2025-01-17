@@ -491,6 +491,7 @@ export function SignupStep3() {
             setImage('noImage');
         }
 
+
         router.push('/signup/step4');
     }
 

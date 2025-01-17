@@ -1,6 +1,44 @@
-import { ReactNode } from "react";
-import '@/app/(css)/community.module.css';
+'use client';
+import { ReactNode, useCallback, useEffect, useState } from "react";
 import "@/app/globals.css";
+import "@/app/(css)/community.css";
+import axios from "axios";
+
+interface CommunityPost {
+    communityKey: number;
+    title: string;
+    content: string;
+    imageUrls: string[]; // 이미지 URL 배열
+    likeCount: number;
+}
+
+interface Pageable {
+    pageNumber: number;
+    pageSize: number;
+    offset: number;
+    paged: boolean;
+    unpaged: boolean;
+}
+
+interface Sort {
+    empty: boolean;
+    sorted: boolean;
+    unsorted: boolean;
+}
+
+interface CommunityApiResponse {
+    content: CommunityPost[]; // 게시글 배열
+    pageable: Pageable; // 페이지 정보
+    totalPages: number;
+    totalElements: number;
+    last: boolean; // 마지막 페이지 여부
+    size: number; // 요청당 글 개수
+    number: number; // 현재 페이지 번호
+    sort: Sort; // 정렬 정보
+    numberOfElements: number; // 현재 페이지에서 가져온 게시글 수
+    first: boolean; // 첫 페이지 여부
+    empty: boolean; // 게시글이 비어있는지 여부
+}
 
 type FoodCategoryBadgeProps = {
     children: ReactNode;
@@ -20,16 +58,22 @@ export function TextAndIconButton({ icon, children }: TextAndIconButtonProps) {
 
 }
 
-type ViewAiResearchButtonProps = {
-    icon?: ReactNode;
-    children?: ReactNode;
-}
 
-export function ViewAiResearchButton({ icon, children }: ViewAiResearchButtonProps) {
+
+export function ViewAiResearchButton() {
     return (
-        <button className='view-ai-research-button flex gap-2 items-center '>
-            <span className='view-ai-research-button-text'>{children}</span>
-            {icon}
+        <button className='view-ai-research-button'>
+            <span className='view-ai-research-button-text'>View Ai Research <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <g clip-path="url(#clip0_113_5030)">
+                    <path d="M12.9167 11.6667H12.2583L12.025 11.4417C13.025 10.275 13.5417 8.68337 13.2583 6.9917C12.8667 4.67503 10.9333 2.82503 8.6 2.5417C5.075 2.10837 2.10834 5.07503 2.54167 8.60003C2.825 10.9334 4.675 12.8667 6.99167 13.2584C8.68334 13.5417 10.275 13.025 11.4417 12.025L11.6667 12.2584V12.9167L15.2083 16.4584C15.55 16.8 16.1083 16.8 16.45 16.4584C16.7917 16.1167 16.7917 15.5584 16.45 15.2167L12.9167 11.6667ZM7.91667 11.6667C5.84167 11.6667 4.16667 9.9917 4.16667 7.9167C4.16667 5.8417 5.84167 4.1667 7.91667 4.1667C9.99167 4.1667 11.6667 5.8417 11.6667 7.9167C11.6667 9.9917 9.99167 11.6667 7.91667 11.6667Z" fill="white" />
+                </g>
+                <defs>
+                    <clipPath id="clip0_113_5030">
+                        <rect width="20" height="20" fill="white" />
+                    </clipPath>
+                </defs>
+            </svg>
+            </span>
         </button>
     )
 
@@ -37,9 +81,9 @@ export function ViewAiResearchButton({ icon, children }: ViewAiResearchButtonPro
 
 export function FoodCategoryBadge({ children }: FoodCategoryBadgeProps) {
     return (
-        <div className="food-category-badge">
-            <span className="food-category-badge-text">{children}</span>
-        </div>
+        <span className='food-category-badge food-category-badge-text'>
+            {children}
+        </span>
     );
 }
 
@@ -48,67 +92,112 @@ export function FoodCategoryBadge({ children }: FoodCategoryBadgeProps) {
 
 
 export function PostComponents() {
+    const [posts, setPosts] = useState<CommunityPost[]>([]);
+    const [page, setPage] = useState<number>(0);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isLast, setIsLast] = useState<boolean>(false);
+
+    const fetchPosts = useCallback(async () => {
+        if (isLoading || isLast) return; // 로딩 중이거나 마지막 페이지면 요청하지 않음
+
+        setIsLoading(true);
+        try {
+            const response = await axios.get<CommunityApiResponse>(
+                `${process.env.NEXT_PUBLIC_ROOT_API}/community`, {
+                params: {
+                    category: "RICE", // 카테고리 선택 (예: RICE, NOODLE)
+                    sortBy: "latest", // 정렬 방식 (예: latest, popular)
+                    page,
+                    size: 10, // 한 번에 가져올 게시글 수
+                },
+            });
+
+            const { content, last } = response.data;
+
+            setPosts((prevPosts) => [...prevPosts, ...content]); // 게시글 병합
+            setIsLast(last); // 마지막 페이지 여부 업데이트
+            setPage((prevPage) => prevPage + 1); // 다음 페이지로 이동
+        } catch (error) {
+            console.error("데이터를 가져오는 중 오류가 발생했습니다:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [page, isLoading, isLast]);
+
+    useEffect(() => {
+        fetchPosts(); // 초기 렌더링 시 데이터 요청
+    }, [fetchPosts]);
 
     return (
         <div className="post-component-wrapper">
-            <div className='post-contents-wrapper self-center gap-2'>
-                {/* 프로필 부분 */}
-                <div className='post-profile-wrapper mt-2'>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" fill="none">
-                        <circle cx="18" cy="18" r="17.5" fill="#F1F3F6" stroke="#E0E4EB" />
-                    </svg>
-                    <span className='post-profile-text flex-none'>UserName</span>
-                </div>
-                {/* 이미지 부분 */}
-                <div className='post-img-wrapper'>
-                    <img src="/testImg/test-food.jpg" alt="img_error" className="img"></img>
-                    <ViewAiResearchButton icon={
-                        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M10.9167 9.6667H10.2583L10.025 9.4417C11.025 8.27503 11.5417 6.68337 11.2583 4.9917C10.8667 2.67503 8.93334 0.825033 6.6 0.5417C3.075 0.108366 0.108336 3.07503 0.541669 6.60003C0.825003 8.93337 2.675 10.8667 4.99167 11.2584C6.68334 11.5417 8.275 11.025 9.44167 10.025L9.66667 10.2584V10.9167L13.2083 14.4584C13.55 14.8 14.1083 14.8 14.45 14.4584C14.7917 14.1167 14.7917 13.5584 14.45 13.2167L10.9167 9.6667ZM5.91667 9.6667C3.84167 9.6667 2.16667 7.9917 2.16667 5.9167C2.16667 3.8417 3.84167 2.1667 5.91667 2.1667C7.99167 2.1667 9.66667 3.8417 9.66667 5.9167C9.66667 7.9917 7.99167 9.6667 5.91667 9.6667Z" fill="white" />
-                        </svg>
-                    }>
-                        View Ai Reserch
-                    </ViewAiResearchButton>
-                </div>
-                <PostContents />
-                {/* 내용 부분 */}
-            </div>
+            {posts.map((post) => (
+                <PostContent key={post.communityKey} post={post} />
+            ))}
+            {isLoading && <p>Loading...</p>}
+            {isLast && <p>마지막 게시글입니다.</p>}
         </div>
     );
 }
 
-export function PostContents() {
+export function PostContent({ post }: { post: CommunityPost }) {
+
+    const DetailPostHandler = () => {
+        console.log('게시글 상세보기 페이지로 이동');
+        
+    }
 
     return (
-        <div>
-            {/* 음식 카테고리 뱃지 입력받아서 넣기 */}
-            <div className='gap-[0.5rem]'>
-                <div>
-                    <FoodCategoryBadge>snacks</FoodCategoryBadge>
-                </div>
-                <div>
-                    <span className='post-content-text'>컨텐츠 제목 및 내용🥵🥵🥵 </span>
-                </div>
-                <div className='post-date-wrapper'>
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M6.75 16.5C6.55109 16.5 6.36032 16.421 6.21967 16.2803C6.07902 16.1397 6 15.9489 6 15.75V13.5H3C2.60218 13.5 2.22064 13.342 1.93934 13.0607C1.65804 12.7794 1.5 12.3978 1.5 12V3C1.5 2.1675 2.175 1.5 3 1.5H15C15.3978 1.5 15.7794 1.65804 16.0607 1.93934C16.342 2.22064 16.5 2.60218 16.5 3V12C16.5 12.3978 16.342 12.7794 16.0607 13.0607C15.7794 13.342 15.3978 13.5 15 13.5H10.425L7.65 16.2825C7.5 16.425 7.3125 16.5 7.125 16.5H6.75ZM7.5 12V14.31L9.81 12H15V3H3V12H7.5Z" fill="#5A6E8C" />
-                    </svg>
-                    {/* 댓글 수 */}
-                    <span className='comment-date-text'>12</span>
+        <div className='post-contents-wrapper self-center gap-2'
+            onClick={DetailPostHandler}> 
+            {/* 프로필 부분 */}
+            <div className='post-profile-wrapper mt-2'>
+                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" fill="none">
+                    <circle cx="18" cy="18" r="17.5" fill="#F1F3F6" stroke="#E0E4EB" />
+                </svg>
+                <span className='post-profile-text flex-none'>UserName</span>
+            </div>
+            {/* 이미지 부분 */}
+            <div className='post-img-wrapper'>
+                <img src="/testImg/test-food.jpg" alt="img_error" className="img"></img>
+                <ViewAiResearchButton></ViewAiResearchButton>
+            </div>
+            <div className='post-contents-wrapper-row'>
+                {/* 음식 카테고리 뱃지 입력받아서 넣기 */}
+                <div className='post-contents-left'>
+                    <div className='flex-row flex gap-2 justify-between'>
+                        <FoodCategoryBadge>snacks</FoodCategoryBadge>
+                    </div>
+                    {/* 컨텐츠 제목 */}
+                    <div>
+                        <span className='post-content-text'>{post.title}</span>
+                    </div>
+                    <div className='post-date-wrapper'>
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6.75 16.5C6.55109 16.5 6.36032 16.421 6.21967 16.2803C6.07902 16.1397 6 15.9489 6 15.75V13.5H3C2.60218 13.5 2.22064 13.342 1.93934 13.0607C1.65804 12.7794 1.5 12.3978 1.5 12V3C1.5 2.1675 2.175 1.5 3 1.5H15C15.3978 1.5 15.7794 1.65804 16.0607 1.93934C16.342 2.22064 16.5 2.60218 16.5 3V12C16.5 12.3978 16.342 12.7794 16.0607 13.0607C15.7794 13.342 15.3978 13.5 15 13.5H10.425L7.65 16.2825C7.5 16.425 7.3125 16.5 7.125 16.5H6.75ZM7.5 12V14.31L9.81 12H15V3H3V12H7.5Z" fill="#5A6E8C" />
+                        </svg>
+                        {/* 댓글 수 */}
+                        <span className='comment-date-text'>12</span>
 
-                    <svg xmlns="http://www.w3.org/2000/svg" width="1" height="14" viewBox="0 0 1 14" fill="none">
-                        <path d="M1 0.5V13.5H0V0.5H1Z" fill="#5A6E8C" />
-                    </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1" height="14" viewBox="0 0 1 14" fill="none">
+                            <path d="M1 0.5V13.5H0V0.5H1Z" fill="#5A6E8C" />
+                        </svg>
 
-                    {/* 몇분 전 등록했는지 등록시간 - 현재시간 */}
-                    <span className="comment-date-text">9 days ago</span>
+                        {/* 몇분 전 등록했는지 등록시간 - 현재시간 */}
+                        <span className="comment-date-text">9 days ago</span>
+                    </div>
+                </div>
+                <div className='post-contents-right'>
+                    {/* 좋아요 수 */}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" fill="none">
+                        <circle cx="18" cy="18" r="18" fill="#E0E4EB" />
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M3.33334 5.99996V14H0.666672V5.99996H3.33334ZM6.00001 14C5.64638 14 5.30724 13.8595 5.0572 13.6094C4.80715 13.3594 4.66667 13.0202 4.66667 12.6666V5.99996C4.66667 5.63329 4.81334 5.29996 5.06001 5.05996L9.44667 0.666626L10.1533 1.37329C10.3333 1.55329 10.4467 1.79996 10.4467 2.07329L10.4267 2.28663L9.79334 5.33329H14C14.74 5.33329 15.3333 5.93329 15.3333 6.66663V7.99996C15.3333 8.17329 15.3 8.33329 15.24 8.48663L13.2267 13.1866C13.0267 13.6666 12.5533 14 12 14H6.00001ZM6.00001 12.6666H12.02L14 7.99996V6.66663H8.14001L8.89334 3.11996L6.00001 6.01996V12.6666Z" fill="#92A2B9" />
+                        </svg>
+                    </svg>
+                    <span className='like-text'>{post.likeCount}</span>
                 </div>
             </div>
-
-            <div>
-                {/* 좋아요 부분 */}
-            </div>
-
+            {/* 내용 부분 */}
         </div>
     )
 }
