@@ -280,11 +280,13 @@ input.auth-placeholder::placeholder {
 }
 
 .validate-error-text {
+  padding-left:1.25rem;
   color: #fa0c38;
   font-size: 0.75rem;
   font-weight: 500;
   line-height: 0.875rem; /* 116.667% */
   letter-spacing: -0.01875rem;
+  text-align: left;
 }
 
 .login-form-text-sm {

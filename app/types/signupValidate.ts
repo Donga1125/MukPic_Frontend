@@ -9,5 +9,4 @@ export type UserNameValidateError = {
 export type UserValidateError = {
     userId?: string[];
     password?: string[];
-    
 }
