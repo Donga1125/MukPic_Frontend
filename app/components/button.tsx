@@ -4,6 +4,7 @@ import { ReactNode } from 'react';
 import Link from 'next/link';
 import '@/app/globals.css';
 import '@/app/(css)/auth.css';
+import '@/app/(css)/community.css';
 
 interface WideButtonProps {
     children: ReactNode;
@@ -72,7 +73,7 @@ type LoginButtonProps = {
     textClassName?: string;
     icon?: ReactNode;
     href?: string;
-    onClick?: () => void; 
+    onClick?: () => void;
 }
 
 // 네비게이션 바 버튼 컴포넌트
@@ -140,28 +141,29 @@ export const LoginButton = ({
     icon,
     href,
     onClick,
-  }: LoginButtonProps) => {
+}: LoginButtonProps) => {
     return href ? (
-      <a href={href} className={buttonClassName}>
-        {icon && <span>{icon}</span>}
-        <span className={textClassName}>{text}</span>
-      </a>
+        <a href={href} className={buttonClassName}>
+            {icon && <span>{icon}</span>}
+            <span className={textClassName}>{text}</span>
+        </a>
     ) : (
-      <button className={buttonClassName} onClick={onClick}>
-        {icon && <span>{icon}</span>}
-        <span className={textClassName}>{text}</span>
-      </button>
+        <button className={buttonClassName} onClick={onClick}>
+            {icon && <span>{icon}</span>}
+            <span className={textClassName}>{text}</span>
+        </button>
     );
-  };
+};
 
 type TextAndIconButtonProps = {
     icon?: ReactNode;
     href?: string;
     type?: 'button' | 'submit' | 'reset';
+    children?: ReactNode;
 }
 
 
-export function TextAndIconButton({ icon, href, type }: TextAndIconButtonProps) {
+export function TextAndIconButton({ icon, href, type, children }: TextAndIconButtonProps) {
     return (
         <button className='text-and-icon-button flex gap-2 items-center justify-center'>
             {icon}

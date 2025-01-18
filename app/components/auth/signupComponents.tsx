@@ -498,6 +498,7 @@ export function SignupStep3() {
             });
         }
 
+
         router.push('/signup/step4');
     }
 

@@ -44,10 +44,15 @@ export default function SignUp() {
                         console.error("Tokens are missing in the response headers.");
                     }
                 }
-            } catch (error) {
-                console.error("Error fetching tokens:", error);
-            }
-        };
+
+            }).catch(function (error) {
+                alert('Error! please try agian (디버그용 메시지 : 토큰 호출 실패)');
+                console.log(error);
+            });
+    }, [])
+
+    return (
+
 
         fetchTokens();
     }, [searchParams, router]);
