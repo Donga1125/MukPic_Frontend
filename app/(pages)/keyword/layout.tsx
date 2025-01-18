@@ -8,6 +8,7 @@ import { SearchButtonForNav, TextButtonForNav } from "@/app/components/button";
 
 export const metadata: Metadata = {
     title: "MukPic-Keyword",
+    description: "MukPic Keyword Page",
 };
 
 //기본 레이아웃
@@ -23,13 +24,8 @@ type LayoutProps = {
 
 export default function Layout({ children }: LayoutProps) {
     return (
-        <html lang="en">
-            <body>
-                <head>
-                    <link href="https://cdn.jsdelivr.net/gh/sun-typeface/SUIT@2/fonts/static/woff2/SUIT.css" rel="stylesheet"></link>
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
-                </head>
-                {/* 메인 */}
+        
+                /* 메인 */
                 <div className="root-wrapper">
                     <TopNav
                         leftButton={
@@ -45,16 +41,10 @@ export default function Layout({ children }: LayoutProps) {
                     />
                     <div className="info-main-container flex-1 bg-white">
                         {/* 상단 내비게이션 필요한 버튼 넣어서 사용용 */}
-
                         {/* 메인 페이지 내용 */}
                         {children}
-
-
                         {/* 하단 네비게이션 */}
                     </div>
                 </div>
-
-            </body>
-        </html >
     );
 }

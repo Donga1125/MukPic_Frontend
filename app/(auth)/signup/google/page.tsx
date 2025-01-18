@@ -2,7 +2,6 @@
 // 그리고 사용자가 이 페이지를 확인 후 step3로 따로 추가요청을 해서 넘어가는건 비효율적인것 같아서
 // 토큰이 저장 돼 있으면 step3로 바로 리다이렉트
 'use client';
-
 import { useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import axios from "axios";
@@ -45,14 +44,11 @@ export default function SignUp() {
                     }
                 }
 
-            }).catch(function (error) {
-                alert('Error! please try agian (디버그용 메시지 : 토큰 호출 실패)');
+            } catch (error) {
+                alert('Error! please try again (디버그용 메시지 : 토큰 호출 실패)');
                 console.log(error);
-            });
-    }, [])
-
-    return (
-
+            }
+        };
 
         fetchTokens();
     }, [searchParams, router]);
