@@ -1,6 +1,9 @@
-import "@/app/globals.css";
 import { ReactNode } from "react";
 
+export const metadata={
+    title: 'MukPic-Login',
+    description: 'LoginPage to MukPic',
+}
 
 
 
@@ -9,19 +12,10 @@ type LayoutProps = {
 
 };
 
-export default function Layout({ children }: LayoutProps) {
+export default function LoginLayout({ children }: LayoutProps) {
     return (
-        <html lang="en">
-            <head>
-                <link href="https://cdn.jsdelivr.net/gh/sun-typeface/SUIT@2/fonts/static/woff2/SUIT.css" rel="stylesheet"></link>
-                <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
-            </head>
-            <body>
-                <div className="root-wrapper root-text">
-                    {children}
-                </div>
-
-            </body>
-        </html>
+        <div className="root-wrapper">
+            {children}
+        </div>
     );
 }

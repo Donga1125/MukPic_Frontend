@@ -1,5 +1,5 @@
 'use client';
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface AnalysisResult {
@@ -13,6 +13,7 @@ interface AnalysisResult {
 
 export default function KeywordPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const query = searchParams.get("query"); // URL에서 전달받은 데이터 가져오기
   const [response, setResponse] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -29,17 +30,22 @@ export default function KeywordPage() {
     const fetchData = async () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_ROOT_API; // 환경 변수에서 API URL 가져오기
-        const token = process.env.NEXT_PUBLIC_AUTH_TOKEN; // 환경 변수에서 AUTH 토큰 가져오기
+        // 로컬스토리지에서 Authorization 값 가져오기
+        const token = localStorage.getItem("Authorization");
 
         if (!apiUrl) {
           throw new Error("API URL is not defined.");
         }
 
-        const response = await fetch(`${apiUrl}search/info`, {
+        if (!token) {
+          throw new Error("Authorization token is missing. Please log in again.");
+        }
+
+        const response = await fetch(`${apiUrl}/search/info`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // 인증 토큰 추가
+            Authorization: token, // 인증 토큰 추가
           },
           body: JSON.stringify({ keyword: query }),
         });
@@ -57,6 +63,10 @@ export default function KeywordPage() {
 
     fetchData();
   }, [query]);
+
+  const handleConfirmClick = () => {
+    router.push("/"); // 메인페이지로 이동
+  };
 
   return (
     <main className="w-full bg-white px-4 py-6 min-h-screen">
@@ -113,6 +123,17 @@ export default function KeywordPage() {
               ))}
             </ul>
           </div>
+
+          {/* 확인 버튼 추가 */}
+          <div className="mt-8 flex justify-center">
+            <button
+              className="px-6 py-3 bg-blue-500 text-white font-bold rounded-md"
+              onClick={handleConfirmClick}
+            >
+              확인
+            </button>
+          </div>
+
         </section>
       )}
     </main>

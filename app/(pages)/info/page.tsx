@@ -1,7 +1,7 @@
 "use client";
 
 import axios from "axios";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface AnalysisResult {
@@ -15,11 +15,11 @@ interface AnalysisResult {
 
 export default function InfoPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const imageUrl = searchParams.get("imageUrl"); // URL에서 imageUrl 가져오기
   const [response, setResponse] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false); // 로딩 상태 추가
-  const token = process.env.NEXT_PUBLIC_AUTH_TOKEN || "";
 
   useEffect(() => {
     const fetchData = async () => {
@@ -28,14 +28,17 @@ export default function InfoPage() {
         return;
       }
 
+      // 로컬스토리지에서 Authorization 값 가져오기
+      const token = localStorage.getItem("Authorization");
+
       setLoading(true); // 로딩 시작
       try {
         const result = await axios.post(
-          `${process.env.NEXT_PUBLIC_ROOT_API}url/analyze`,
+          `${process.env.NEXT_PUBLIC_ROOT_API}/url/analyze`,
           { imageUrl },
           {
             headers: {
-              Authorization: `Bearer ${token}`,
+              Authorization: token,
             },
           }
         );
@@ -49,6 +52,18 @@ export default function InfoPage() {
 
     fetchData();
   }, [imageUrl]);
+
+  const handleConfirmClick = () => {
+    router.push("/"); // 메인페이지로 이동
+  };
+
+  const handlePostClick = () => {
+    if (imageUrl) {
+      router.push(`/community/post?imageUrl=${encodeURIComponent(imageUrl)}`); // 글쓰기 페이지로 이동, imageUrl 포함
+    } else {
+      setError("Error: Unable to proceed without image URL.");
+    }
+  };
 
   if (!imageUrl) {
     return (
@@ -125,6 +140,23 @@ export default function InfoPage() {
               ))}
             </ul>
           </div>
+
+          {/* 확인 버튼 및 글쓰기 버튼 */}
+          <div className="mt-8 flex justify-center space-x-4">
+            <button
+              className="px-6 py-3 bg-blue-500 text-white font-bold rounded-md"
+              onClick={handleConfirmClick}
+            >
+              OK
+            </button>
+            <button
+              className="px-6 py-3 bg-green-500 text-white font-bold rounded-md"
+              onClick={handlePostClick}
+            >
+              POST
+            </button>
+          </div>
+
         </section>
       )}
 

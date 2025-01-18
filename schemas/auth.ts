@@ -27,9 +27,10 @@ export const userSchema = z.object({
         .refine((val) => /\d/.test(val), {
             message: '최소 한 개의 숫자가 포함되어야 합니다.',
         })
-        .refine((val) => /[!@#$%^&*(),.?":{}|<>]/.test(val), {
-            message: '최소 한 개의 특수문자가 포함되어야 합니다.',
-        }),
+        //임시로 특수문자는 안받게 해놨음
+        // .refine((val) => /[!@#$%^&*(),.?":{}|<>]/.test(val), {
+        //     message: '최소 한 개의 특수문자가 포함되어야 합니다.',
+        // }),
     
 });
 

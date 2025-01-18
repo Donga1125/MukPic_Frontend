@@ -6,6 +6,7 @@ import { userNameSchema } from "@/schemas/auth";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { set } from "zod";
 
 
 type Props = {
@@ -29,6 +30,10 @@ export function ValidateSpan({ message, error, className }: Props) {
             {message}
         </span>
     );
+}
+
+function FormatStringArray(input: string[]): string[] {
+    return input.map((str) => str.replace(/\s+/g, "_").toUpperCase());
 }
 
 export function DropDownIcon() {
@@ -196,9 +201,6 @@ export function GoogleSignupStep3() {
             }).catch(function (error) {
                 console.log(error);
             });
-        }
-        else {
-            setImage('noImage');
         }
 
         router.push('/signup/google/step4');
@@ -662,10 +664,10 @@ export function GoogleSignupStep4() {
     ];
     const religionList: string[] = ["Atheism", "Christianity", "Buddhism", "Catholicism", "Islam",
         "Hinduism"];
-    const dietaryPreferences: string[] = ["No food to cover", 'Halal', 'Kosher', "Vegetarian", "Vegan",
+    const dietaryPreferences: string[] = ['Halal', 'Kosher', "Vegetarian", "Vegan",
         "Pescatarian", "Low Spice tolerance", "No Alcohol", 'Gluten Free', 'Lactose Free', 'Low Carb'];
-    const chronicDiseaseList: string[] = ['No Disease', 'Cancer', 'Diabetes', 'Osteoporosis', 'Heart Disease'];
-    const isFormValid = selectedCountry && selectedReligions && selectedDietaryPreferences.length > 0;
+    const chronicDiseaseList: string[] = ['Cancer', 'Diabetes', 'Osteoporosis', 'Heart Disease'];
+    const isFormValid = selectedCountry && selectedReligions;
 
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -677,10 +679,11 @@ export function GoogleSignupStep4() {
         setSelectedChronicDisease(selectedChronicDisease);
 
         // useSignupStore 상태 업데이트 (대문자로 변환)
-        setNationality(selectedCountry ?? "");  // 국가 정보 설정
+        // 배열의 경우 공백 사이에 _를 추가하고 대문자로 변환해주는 FormatStringArray 함수 사용
+        setNationality((selectedCountry ?? "").toUpperCase());  // 국가 정보 설정
         setReligion((selectedReligions ?? "").toUpperCase());   // 종교 정보 설정
-        setDietaryPreferences(selectedDietaryPreferences.map(str => str.toUpperCase()));  // 식습관 설정
-        setChronicDiseaseTypes(selectedChronicDisease.map(str => str.toUpperCase())); // 만성질환 설정
+        setDietaryPreferences(FormatStringArray(selectedDietaryPreferences));  // 식습관 설정
+        setChronicDiseaseTypes(FormatStringArray(selectedChronicDisease)); // 만성질환 설정
 
 
         router.push('/signup/google/step5');
@@ -744,54 +747,56 @@ export function GoogleSignupStep5() {
     const router = useRouter();
     const setAllergyTypes = useSignupStore(state => state.setAllergyTypes);
     // 최종 회원 가입을 위한 상태 가져오기
-    const { userName, nationality, religion, agree, chronicDiseaseTypes, dietaryPreferences, image } = useSignupStore.getState();
+    const { userName, nationality, religion, chronicDiseaseTypes, dietaryPreferences, image } = useSignupStore.getState();
 
     // 모든 알레르기 리스트 합치기기
     const allAllergies = [...seaFoodAllergieList, ...fruitAllergieList, ...nutsAllergieList, ...meatAllergieList, ...etcAllergieList];
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setAllergyTypes(selectedAllergies.map(str => str.toUpperCase()));
-        // 알러지 없을 경우 NOALLERGIE 추가
-        if (selectedAllergies.length === 0) {
-            setAllergyTypes(['NOALLERGIE']);
-        }
+        // formatStringArray 함수 사용해서 알러지들 공백에 _ 추가하고 대문자로 변환환
+        setAllergyTypes(FormatStringArray(selectedAllergies));
         const { allergyTypes } = useSignupStore.getState();
 
+
         const signupData = {
-            userName, image, nationality, religion, agree, allergyTypes, chronicDiseaseTypes, dietaryPreferences
+            userName, nationality, religion,
+            ...(allergyTypes && allergyTypes.length > 0 && { allergyTypes }), // 배열의 경우 빈 배열 제외
+            ...(chronicDiseaseTypes && chronicDiseaseTypes.length > 0 && { chronicDiseaseTypes }),
+            ...(dietaryPreferences && dietaryPreferences.length > 0 && { dietaryPreferences }),
+            ...(image && { image }),
         };
-        const noImageSignupData = {
-            userName, nationality, religion, agree, allergyTypes, chronicDiseaseTypes, dietaryPreferences
-        };
+
 
         if (localStorage.getItem('googleLoginToken') != null) {
-            const token = localStorage.getItem('googleLoginToken');
-            const requestData = image === 'noImage' ? noImageSignupData : signupData;
 
+            const token = localStorage.getItem('googleLoginToken');
+            const requestData = signupData;
+            console.log(requestData);
+            
             axios.patch(
                 `${process.env.NEXT_PUBLIC_ROOT_API}/users/editUserInfo`,
                 requestData,
                 {
                     headers: {
-                        Authorization: `Bearer ${token}`, // Authorization 헤더
+                        Authorization: token, // Authorization 헤더 Bearer 저장할때 추가 돼 있어서 토큰만 넣게 수정했음
                     },
                 }
             )
                 .then((response) => {
-                    if (response.data.success) {
+                    if (response.status === 200) {
                         // 회원가입 성공 시 로컬스토리지 초기화 및 환영 메시지 출력
                         localStorage.removeItem('googleLoginToken');
                         alert('All set! Welcome aboard!');
                         router.push('/login');
                     } else {
-                        alert('The error occurred. Please try again from the beginning.');
+                        alert('reponse오류 : ' + response);
+                        console.log(response.status);
                     }
 
                 })
                 .catch((error) => {
-                    alert('The error occurred. Please try again from the beginning.');
-                    console.error(error); // 콘솔에 에러 출력
+                    console.error('catch로 빠져나옴' + error); // 콘솔에 에러 출력
                 });
         }
     };

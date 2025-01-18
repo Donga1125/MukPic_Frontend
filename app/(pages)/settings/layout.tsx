@@ -5,7 +5,8 @@ import { ReactNode } from "react";
 
 
 export const metadata: Metadata = {
-    title: "MukPic-Search",
+    title: "MukPic-Settings",
+    description: "settings page",
 };
 
 //기본 레이아웃
@@ -22,25 +23,14 @@ type LayoutProps = {
 
 export default function Layout({ children }: LayoutProps) {
     return (
-        <html lang="en">
-            <body>
-                
-                {/* 메인 */}
-              
-       
-                    <div className="main-container flex-1 bg-white rounded-lg shadow-md">
-                        {/* 상단 내비게이션 필요한 버튼 넣어서 사용용 */}
 
-                        {/* 메인 페이지 내용 */}
-                        {children}
+        <div className="main-container flex-1 bg-white rounded-lg shadow-md" >
+            {/* 상단 내비게이션 필요한 버튼 넣어서 사용용 */}
 
+            {/* 메인 페이지 내용 */}
+            {children}
+            {/* 하단 네비게이션 */}
+        </div >
 
-                        {/* 하단 네비게이션 */}
-                    </div>
-                    
-   
-
-            </body>
-        </html >
     );
 }
