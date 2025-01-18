@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import '@/app/globals.css'
 import '@/app/(css)/auth.css'
+import { useRouter } from "next/navigation";
 
 
 
@@ -15,6 +16,7 @@ export default function LoginForm() {
     const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
     const [rememberMe, setRememberMe] = useState<boolean>(false);
     const [isButtonDisabled, setisButtonDisabled] = useState<boolean>(true);
+    const router = useRouter();
 
     // 비밀번호 보이기/숨기기
     const passwordToggle = () => {
@@ -36,45 +38,45 @@ export default function LoginForm() {
             setErrorMessage('아이디와 비밀번호를 입력해주세요');
             return;
         }
+        else {
 
-        //로그인 post request
-        axios.post(`${process.env.NEXT_PUBLIC_ROOT_API}/auth/login`,
-            {
-                userId: userId,
-                password: password
-            },
-            {
-                headers: {
-                    'Content-Type': 'application/json',
+            //로그인 post request
+            axios.post(`${process.env.NEXT_PUBLIC_ROOT_API}/auth/login`,
+                {
+                    userId: userId,
+                    password: password
                 },
-            })
-            .then(function (response) {
-                console.log("Request Data:", { userId, password }); // 요청 데이터
-                console.log("Response Data:", response.data); // 서버 응답 데이터
-                console.log("Response Token:", response.data.token); // 서버 응답 토큰
-                console.log("Response Status:", response.status); // 서버 응답 상태
-                console.log("Response 헤더 authorization:", response.headers['authorization']); // 서버 응답 상태 텍스트
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    timeout: 1000,
+                })
+                .then(function (response) {
+                    if (response.status === 0) {
+                        console.log("response status 0 나옴");
+                    }
+                    if (response.status === 200) {
+                        console.log(response);
+                        console.log("Request Data:", { userId, password }); // 요청 데이터
+                        console.log("Response Data:", response.data); // 서버 응답 데이터
+                        console.log("Response Token:", response.data.token); // 서버 응답 토큰
+                        console.log("Response Status:", response.status); // 서버 응답 상태
+                        console.log("Response 헤더 authorization:", response.headers['authorization']); // 서버 응답 상태 텍스트
 
-                //token 저장
-                localStorage.setItem('Authorization', response.headers['authorization']);
+                        //token 저장
+                        localStorage.setItem('Authorization', response.headers['authorization']);
+                        console.log("로그인 성공!", localStorage.getItem('Authorization'));
 
-                // 로그인 성공시 메인페이지로
-                window.location.href = '/';
-            })
-            .catch(function (error) {
-                if (error.response) {
-                    console.log('리스폰스 데이타', error.response.data);
-                    console.log('리스폰스 데이타', error.response.status);
-                    console.log('리스폰스 데이타', error.response.headers);
-                }
-                else if (error.request) {
-                    console.log('에러리퀘스트', error.request);
-                }
-                else {
-                    console.log('에러메시지', error.message);
-                }
-                console.log(error.config);
-            }) // 요청 데이터
+                        // 로그인 성공시 메인페이지로
+                        router.push('/');
+                    }
+                })
+                .catch(function (error) {
+                    setErrorMessage('아이디 또는 비밀번호가 일치하지 않습니다.');
+                    console.log('로그인 요청 실패!',error); // 요청 데이터
+                }) 
+        }
 
     };
 
@@ -88,7 +90,7 @@ export default function LoginForm() {
                     onChange={(e) => setUserId(e.target.value)}
                     value={userId}
                     className='auth-placeholder grow text-left'
-                    />
+                />
             </label>
             <label htmlFor="password" className="flex auth-input-label">
                 <input type={passwordVisible ? 'text' : 'password'}

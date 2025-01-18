@@ -116,13 +116,10 @@ export function SignupStep1() {
     const sendEmail = async () => {
 
         console.log(email);
-        axios.post(`${process.env.NEXT_PUBLIC_ROOT_API}/users/checkEmail`, //이메일 요청 엔드포인트 수정
+        axios.get(`${process.env.NEXT_PUBLIC_ROOT_API}/users/checkEmail`, //이메일 요청 엔드포인트 수정
             {
-                email: email
-            },
-            {
-                headers: {
-                    'Content-Type': 'application/json',
+                params: {
+                    email: email
                 }
             }
         ).then(function (response) {
@@ -132,9 +129,14 @@ export function SignupStep1() {
                 setSendMessageVisiblity(true);
             }
 
-            if (response.status === 409) {
+            else if (response.status === 409) {
                 setEmailSendMessageColor('text-red-500');
                 setemailSendMessage('Email already exists');
+                setSendMessageVisiblity(true);
+            }
+            else {
+                setEmailSendMessageColor('text-red-500');
+                setemailSendMessage('Failed to send verification code please try again');
                 setSendMessageVisiblity(true);
             }
         }).catch(function (error) {
@@ -166,6 +168,10 @@ export function SignupStep1() {
                 setEmailVerifyMessage('Email verification success!');
                 setInputBorderColor('border-green-500');
                 setIsNextButtonDisabled(false);
+            } else {
+                setMessageColor('text-red-500');
+                setInputBorderColor('border-red-500 border-opacity-100');
+                setEmailVerifyMessage('The verification code is incorrect. Please check again');
             }
         }).catch(function (error) {
             if (error.response.status === 400) {
@@ -490,9 +496,6 @@ export function SignupStep3() {
             }).catch(function (error) {
                 console.log(error);
             });
-        }
-        else {
-            setImage('noImage');
         }
 
         router.push('/signup/step4');
@@ -980,7 +983,7 @@ export function SignupStep4() {
     const dietaryPreferences: string[] = ["No food to cover", 'Halal', 'Kosher', "Vegetarian", "Vegan",
         "Pescatarian", "Low Spice tolerance", "No Alcohol", 'Gluten Free', 'Lactose Free', 'Low Carb'];
     const chronicDiseaseList: string[] = ['No Disease', 'Cancer', 'Diabetes', 'Osteoporosis', 'Heart Disease'];
-    const isFormValid = selectedCountry && selectedReligions && selectedDietaryPreferences.length > 0;
+    const isFormValid = selectedCountry && selectedReligions;
 
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -991,12 +994,13 @@ export function SignupStep4() {
         setSelectedDietaryPreferences(selectedDietaryPreferences);
         setSelectedChronicDisease(selectedChronicDisease);
 
-        // useSignupStore 상태 업데이트 (대문자로 변환)
-        setNationality(selectedCountry ?? "");  // 국가 정보 설정
+        // useSignupStore 상태 업데이트 (대문자로 변환, 공백에 _ 추가)
+        setNationality((selectedCountry ?? "").toUpperCase());  // 국가 정보 설정
         setReligion((selectedReligions ?? "").toUpperCase());   // 종교 정보 설정
-        FormatStringArray(selectedDietaryPreferences);  // 식습관 설정
-        FormatStringArray(selectedChronicDisease); // 만성질환 설정
+        setDietaryPreferences(FormatStringArray(selectedDietaryPreferences));  // 식습관 설정
+        setChronicDiseaseTypes(FormatStringArray(selectedChronicDisease)); // 만성질환 설정
 
+        console.log(selectedCountry, selectedReligions, selectedDietaryPreferences, selectedChronicDisease);
 
         router.push('/signup/step5');
     }
@@ -1058,6 +1062,7 @@ export function SignupStep5() {
 
     const router = useRouter();
     const setAllergyTypes = useSignupStore(state => state.setAllergyTypes);
+
     // 최종 회원 가입을 위한 상태 가져오기
     const { userId, email, password, userName, nationality, religion, agree, chronicDiseaseTypes, dietaryPreferences, image } = useSignupStore.getState();
 
@@ -1067,20 +1072,21 @@ export function SignupStep5() {
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setAllergyTypes(FormatStringArray(selectedAllergies));
-        // 알러지 없을 경우 NOALLERGIE 추가
-        if (selectedAllergies.length === 0) {
-            setAllergyTypes(['NOALLERGIE']);
-        }
         const { allergyTypes } = useSignupStore.getState();
 
+
         const signupData = {
-            userId, email, password, userName, nationality, religion, agree, allergyTypes, chronicDiseaseTypes, dietaryPreferences, image
-        };
-        const noImageSignupData = {
-            userId, email, password, userName, nationality, religion, agree, allergyTypes, chronicDiseaseTypes, dietaryPreferences
+            userId, email, password, userName, nationality, religion, agree,
+            ...(allergyTypes && allergyTypes.length > 0 && { allergyTypes }), // 배열의 경우 빈 배열 제외
+            ...(chronicDiseaseTypes && chronicDiseaseTypes.length > 0 && { chronicDiseaseTypes }),
+            ...(dietaryPreferences && dietaryPreferences.length > 0 && { dietaryPreferences }),
+            ...(image && { image }),
         };
 
-        axios.post(`${process.env.NEXT_PUBLIC_ROOT_API}/users/register`, (image === 'noImage' ? noImageSignupData : signupData))
+
+        console.log(signupData);
+
+        axios.post(`${process.env.NEXT_PUBLIC_ROOT_API}/users/register`, signupData)
             .then(response => {
                 if (response.data.success) {
                     alert('All set! Welcome aboard!');
@@ -1091,7 +1097,7 @@ export function SignupStep5() {
             })
             .catch(error => {
                 alert('The error occurred. Please try again from the beginning.');
-                console.log(error);
+                console.log('catch error : ', error);
             });
     };
 

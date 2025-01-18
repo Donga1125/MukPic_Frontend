@@ -9,6 +9,10 @@ export default function LoginPage() {
   const handleGoogleLogin = () => {
     const googleAuthUrl = `${process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI}`;
     console.log("Google Auth URL:", googleAuthUrl);
+    // 구글 회원가입에서 사용한 토큰 혹시 있으면 삭제해줌
+    if(localStorage.getItem('googleLoginToken')) {
+      localStorage.removeItem('googleLoginToken');
+    }
     window.location.href = googleAuthUrl;
   };
 
@@ -80,7 +84,7 @@ export default function LoginPage() {
         {/* 회원가입 링크 */}
         <div className="w-full max-w-sm mb-4 flex justify-center items-center">
           <span className="text-sm text-gray-500">No Account?</span>
-          <Link className="ml-2 text-sm text-blue-500 hover:underline" href="/signup">
+          <Link className="ml-2 text-sm hover:underline" href="/signup">
             Sign Up
           </Link>
         </div>
