@@ -1,5 +1,5 @@
 'use client';
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface AnalysisResult {
@@ -13,6 +13,7 @@ interface AnalysisResult {
 
 export default function KeywordPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const query = searchParams.get("query"); // URL에서 전달받은 데이터 가져오기
   const [response, setResponse] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -62,6 +63,10 @@ export default function KeywordPage() {
 
     fetchData();
   }, [query]);
+
+  const handleConfirmClick = () => {
+    router.push("/"); // 메인페이지로 이동
+  };
 
   return (
     <main className="w-full bg-white px-4 py-6 min-h-screen">
@@ -118,6 +123,17 @@ export default function KeywordPage() {
               ))}
             </ul>
           </div>
+
+          {/* 확인 버튼 추가 */}
+          <div className="mt-8 flex justify-center">
+            <button
+              className="px-6 py-3 bg-blue-500 text-white font-bold rounded-md"
+              onClick={handleConfirmClick}
+            >
+              확인
+            </button>
+          </div>
+
         </section>
       )}
     </main>
