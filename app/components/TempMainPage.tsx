@@ -69,7 +69,7 @@ export default function MainPage() {
     Dakgalbi: "/images/Dakgalbi.jpg",
     "Fried Chicken": "/images/Fried Chicken.jpg",
     "Bibimbap with Extra Veggies": "/images/Bibimbap.jpg",
-    Tteokbokki: "/images/Tteokbokki.jpg",
+    Tteokbokki: "/images/Tteokbokki.jpeg",
     Bulgogi: "/images/Bulgogi.jpg",
     "Kimchi Stew": "/images/kimchi Stew.jpg",
     Samgyeopsal: "/images/Samgyeopsal.jpg",
@@ -79,12 +79,12 @@ export default function MainPage() {
     "Bulgogi Rice": "/images/Bulgogi Rice.jpg",
     Gukbap: "/images/Gukbap.jpg",
     "Soy Sauce Egg Rice": "/images/Soy Sauce Egg Rice.jpg",
-    "Mushroom Rice Bowl": "/images/Mushroom Rice.jpg",
+    "Mushroom Rice Bowl": "/images/Mushroom Rice.jpeg",
     Omurice: "/images/Omurice.jpg",
     "Seaweed Rice Roll": "/images/Gimbap.jpg",
-    Jajangmyeon: "/images/Jajangmyeon.jpg",
-    Kalguksu: "/images/Kalguksu.jpg",
-    Jjamppong: "/images/Jjamppong.jpg",
+    Jajangmyeon: "/images/Jajangmyeon.jpeg",
+    Kalguksu: "/images/Kalguksu.jpeg",
+    Jjamppong: "/images/Jjamppong.jpeg",
     Naengmyeon: "/images/Naengmyeon.jpg",
     Udon: "/images/Udon.jpg",
     "Spicy Cold Noodles": "/images/Spicy Cold Noodles.jpg",
@@ -94,14 +94,14 @@ export default function MainPage() {
     "Corn Dog": "/images/Corn Dog.jpg",
     Gimbap: "/images/Gimbap.jpg",
     "Fish Cake Skewers": "/images/Fish Cake Skewers.jpg",
-    "Sweet Potato Fries": "/images/Sweet Potato Fries.jpg",
+    "Sweet Potato Fries": "/images/Sweet Potato Fries.jpeg",
     "Rice Cakes": "/images/Rice Cakes.jpg",
     Manduguk: "/images/Manduguk.jpg",
     Espresso: "/images/Espresso.jpg",
     Cappuccino: "/images/Cappuccino.jpg",
     Bingsu: "/images/Bingsu.jpg",
     Macaron: "/images/Macaron.jpg",
-    "Iced Americano": "/images/Iced Americano.jpg",
+    "Iced Americano": "/images/Iced Americano.jpeg",
     "Matcha Latte": "/images/Matcha Latte.jpg",
     Affogato: "/images/Affogato.jpg",
     Cheesecake: "/images/Cheesecake.jpg",
@@ -191,7 +191,10 @@ export default function MainPage() {
         </div>
         <div className="flex-1 border border-gray-300 rounded-3xl p-6 flex flex-col items-center justify-center shadow-md">
           <p className="text-lg font-bold mb-2">Create a Post</p>
-          <button className="bg-black text-white font-semibold px-4 py-2 rounded-md">
+          <button
+            className="bg-black text-white font-semibold px-4 py-2 rounded-md"
+            onClick={() => router.push("/community/1")} // 여기에 원하는 boardId를 입력
+          >
             Post
           </button>
         </div>
