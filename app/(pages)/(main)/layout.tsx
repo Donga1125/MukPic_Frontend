@@ -45,7 +45,7 @@ export default function Layout({ children }: LayoutProps) {
           <div className="main-container mukpic-main-container">
             {/* 메인 페이지 내용 */}
             {children}
-            
+
           </div>
           {/* 하단 네비게이션 */}
           <AddBotNav></AddBotNav>
