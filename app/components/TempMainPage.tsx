@@ -146,7 +146,6 @@ export default function MainPage() {
         uploadFormData.append("type", imageType);
 
         const apiUrl = process.env.NEXT_PUBLIC_ROOT_API;
-        const token = localStorage.getItem("Authorization") || "";
 
         try {
           const uploadResponse = await fetch(`${apiUrl}/images/upload`, {
