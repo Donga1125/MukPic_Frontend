@@ -1,11 +1,13 @@
-'use client';
+"use client";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { AxiosError } from "axios";
 
 export default function SearchPage() {
-  const [searchQuery, setSearchQuery] = useState<string>(""); // 검색어 상태
-  const [loading, setLoading] = useState<boolean>(false); // 로딩 상태
-  const [error, setError] = useState<string | null>(null); // 에러 상태
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   const handleSearch = async () => {
@@ -18,8 +20,7 @@ export default function SearchPage() {
     setError(null);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_ROOT_API; // 환경 변수에서 API URL 가져오기
-      // 로컬스토리지에서 Authorization 값 가져오기
+      const apiUrl = process.env.NEXT_PUBLIC_ROOT_API;
       const token = localStorage.getItem("Authorization");
 
       if (!apiUrl) {
@@ -30,24 +31,29 @@ export default function SearchPage() {
         throw new Error("Authorization token is missing. Please log in again.");
       }
 
-      // API 호출
       const response = await fetch(`${apiUrl}/search/info`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: token, // 인증 토큰 추가
+          Authorization: token,
         },
         body: JSON.stringify({ keyword: searchQuery }),
       });
 
-      if (!response.ok) throw new Error("Failed to fetch search results.");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch search results.");
+      }
 
-      const data = await response.json();
-
-      // 데이터를 전달하며 `/keyword` 페이지로 이동
       router.push(`/keyword?query=${encodeURIComponent(searchQuery)}`);
-    } catch (err: any) {
-      setError(err.message || "An error occurred during the search.");
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        setError(error.response?.data?.error || "Something went wrong");
+      } else if (error instanceof Error) {
+        setError(error.message || "An unexpected error occurred");
+      } else {
+        setError("An unknown error occurred");
+      }
     } finally {
       setLoading(false);
     }
