@@ -197,12 +197,13 @@ export function GoogleSignupStep3() {
             }).then(function (response) {
                 if (response.status === 200) {
                     setImage(response.data);
+                    router.push('/signup/google/step4');
                 }
             }).catch(function (error) {
-                console.log(error);
+                console.log('image upload error catch',error);
             });
         }
-
+        console.log('프로필 이미지 등록 실패', profileImage?.type, profileImage);
         router.push('/signup/google/step4');
     }
 
