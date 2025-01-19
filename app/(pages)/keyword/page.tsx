@@ -1,6 +1,8 @@
-'use client';
+"use client";
+
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { AxiosError } from "axios";
 
 interface AnalysisResult {
   foodName: string;
@@ -14,7 +16,7 @@ interface AnalysisResult {
 export default function KeywordPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const query = searchParams.get("query"); // URL에서 전달받은 데이터 가져오기
+  const query = searchParams.get("query");
   const [response, setResponse] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,8 +31,7 @@ export default function KeywordPage() {
 
     const fetchData = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_ROOT_API; // 환경 변수에서 API URL 가져오기
-        // 로컬스토리지에서 Authorization 값 가져오기
+        const apiUrl = process.env.NEXT_PUBLIC_ROOT_API;
         const token = localStorage.getItem("Authorization");
 
         if (!apiUrl) {
@@ -45,7 +46,7 @@ export default function KeywordPage() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: token, // 인증 토큰 추가
+            Authorization: token,
           },
           body: JSON.stringify({ keyword: query }),
         });
@@ -54,8 +55,14 @@ export default function KeywordPage() {
 
         const data = await response.json();
         setResponse(data);
-      } catch (err: any) {
-        setError(err.message || "Failed to fetch data.");
+      } catch (error: unknown) {
+        if (error instanceof AxiosError) {
+          setError(error.response?.data?.error || "Something went wrong");
+        } else if (error instanceof Error) {
+          setError(error.message || "An unexpected error occurred");
+        } else {
+          setError("An unknown error occurred");
+        }
       } finally {
         setLoading(false);
       }
@@ -65,7 +72,7 @@ export default function KeywordPage() {
   }, [query]);
 
   const handleConfirmClick = () => {
-    router.push("/"); // 메인페이지로 이동
+    router.push("/");
   };
 
   return (
@@ -124,16 +131,14 @@ export default function KeywordPage() {
             </ul>
           </div>
 
-          {/* 확인 버튼 추가 */}
           <div className="mt-8 flex justify-center">
             <button
               className="px-6 py-3 bg-blue-500 text-white font-bold rounded-md"
               onClick={handleConfirmClick}
             >
-              확인
+              OK
             </button>
           </div>
-
         </section>
       )}
     </main>
