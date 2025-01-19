@@ -3,21 +3,16 @@
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
+import { Suspense } from 'react';
 
 const GoogleCallback = () => {
-    const searchParams = useSearchParams();  // Next.js의 useSearchParams
-    const [isClient, setIsClient] = useState(false);
+    const searchParams = useSearchParams(); // Next.js의 useSearchParams
+    const router = useRouter(); // Next.js의 useRouter
     const [accessToken, setAccessToken] = useState<string | null>(null);
 
     useEffect(() => {
-        setIsClient(true);
-    }, []);
-
-    useEffect(() => {
-        if (!isClient) return;
-
-        const code = searchParams.get('code');  // 'code' 파라미터 추출
+        const code = searchParams.get('code'); // 'code' 파라미터 추출
 
         if (code) {
             const getToken = async () => {
@@ -35,11 +30,15 @@ const GoogleCallback = () => {
 
             getToken();
         }
-    }, [isClient, searchParams]);
-
-    if (!isClient) return null;
+    }, [searchParams, router]);
 
     return <div>Loading...</div>;
 };
 
-export default GoogleCallback;
+const SuspendedGoogleCallback = () => (
+    <Suspense fallback={<div>Loading...</div>}>
+        <GoogleCallback />
+    </Suspense>
+);
+
+export default SuspendedGoogleCallback;

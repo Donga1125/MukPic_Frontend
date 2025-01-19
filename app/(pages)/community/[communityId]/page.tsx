@@ -1,5 +1,5 @@
 'use client';
-import '@/app/(css)/test.css';
+
 import { SvgButtonForNav } from '@/app/components/button';
 import { FoodCategoryBadge, ViewAiResearchButton } from '@/app/components/community/communityComponents';
 import TopNav from '@/app/components/TopNav';
