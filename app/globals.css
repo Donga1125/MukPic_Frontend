@@ -1,21 +1,152 @@
+/* app/globals.css */
+
+/* Tailwind 기본 스타일 적용 */
+@import url("https://cdn.noonnu.cc/fonts/suit/1.0.0/SUIT.css");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+button:disabled {
+  cursor: not-allowed; /* 비활성화 상태 커서 */
+  opacity: 0.5; /* 투명도 조정 */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+.root-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: white;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  max-width: 390; /* 확인용으로  일단 390px */
+}
+
+.main-container {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  background-color: white;
+  width: 94%;
+  justify-content: center;
+  margin: 0 auto;
+  padding: 0;
+}
+
+/* 상단 내브바*/
+.root-topNav {
+  max-height: 3.5rem;
+  background-color: white;
+}
+
+/* 웹뷰 및 모바일 최적화 */
+@media {
+  body {
+    font-size: 16px;
+    font-family: "SUIT", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, sans-serif;
+    font-feature-settings: "liga" off, "clig" off;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+.text-and-icon-button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border-radius: 3.125rem;
+  background: #1e252f;
+  color: white;
+  width: 5rem;
+  height: 2rem;
+}
+
+/* 상단 내비게이션 바 text 부분 css community,search 등등 */
+
+.bot-nav {
+  width: 80%;
+  max-width: 21.25rem;
+  height: 4.25rem;
+  flex-shrink: 0;
+  border-radius: 6.25rem;
+  background: #1e252f;
+  box-shadow: 0px 4px 16px 0px rgba(166, 168, 178, 0.5);
+}
+
+/* 텍스트 스타일 */
+
+.root-text {
+  text-align: center;
+  font-feature-settings: "liga" off, "clig" off;
+  font-family: SUIT;
+  line-height: normal;
+  /* 
+  color:
+  font-size:
+  font-weight:
+  font-style:
+  */
+}
+
+.nav-text {
+  color: var(--Gray-gray-900, #0b0b0b);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.nav-text-search {
+  color: #0a0c10;
+  font-size: 1.5rem;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.botnav-text {
+  color: gray;
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+.nav-logo {
+  color: #1e252f;
+  font-size: 1.5rem;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.nav-text-button {
+  color: #fff;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.logo-box {
+  height: 9rem;
+}
+
+/* 
+.svg {
+  width: 100%;
+  height: auto;
+} */
+
+/* info 페이지에서만 적용 */
+.info-main-container {
+  width: 100%;
+  max-width: 24.375rem; /* 기존 480px에서 420px로 줄여 여백 감소 */
+  margin: 0 auto; /* 중앙 정렬 */
+  padding: 8px; /* 내부 여백 */
+  background-color: white; /* 흰 배경 */
+  border-radius: 8px; /* 모서리 둥글기 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* 기존 shadow-md */
+}
+
+.mukpic-main-container {
+  max-width: 24.375rem; /* 페이지 전체 넓이로 확장 */
+  width: 100%; /* 부모 요소에 맞게 조정 */
+  padding: 16px; /* 여백 추가 */
+  background-color: #ffffff; /* 흰색 배경 */
+  margin: 0 auto; /* 중앙 정렬 */
+  border-radius: 8px; /* 둥근 모서리 */
+  box-shadow: none; /* 그림자 제거 */
 }
