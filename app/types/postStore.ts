@@ -1,4 +1,3 @@
-import { set } from "zod";
 import { create } from "zustand";
 
 interface PostState {
@@ -6,12 +5,12 @@ interface PostState {
   content: string;
   images: File[];
   category: string;
-  imageUrls: string[];
+  imageUrl: string[];
 
   setTitle: (title: string) => void;
   setContent: (content: string) => void;
   setImages: (images: File[]) => void;
-  setImageUrl: (imageUrl: string[]) => void; //
+  setImageUrl: (imageUrl: string[]) => void;
   setCategory: (category: string) => void;
 }
 
@@ -20,11 +19,11 @@ export const usePostStore = create<PostState>((set) => ({
   content: "",
   images: [],
   category: "",
-  imageUrls: [],
+  imageUrl: [],
 
   setTitle: (title: string) => set({ title }),
   setContent: (content: string) => set({ content }),
   setImages: (images: File[]) => set({ images }),
   setCategory: (category: string) => set({ category }),
-  setImageUrl: (imageUrls: string[]) => set({ imageUrls }),
+  setImageUrl: (imageUrl: string[]) => set({ imageUrl }),
 }));

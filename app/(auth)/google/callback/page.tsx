@@ -3,12 +3,12 @@
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 const GoogleCallback = () => {
     const searchParams = useSearchParams();  // Next.js의 useSearchParams
     const [isClient, setIsClient] = useState(false);
-    const [accessToken, setAccessToken] = useState<string | null>(null);
+    const router = useRouter();
 
     useEffect(() => {
         setIsClient(true);
@@ -24,9 +24,8 @@ const GoogleCallback = () => {
                 try {
                     const response = await axios.post('/api/get-google-token', { code });
                     if (response.data.accessToken) {
-                        setAccessToken(response.data.accessToken);
                         localStorage.setItem('access_token', response.data.accessToken);
-                        router.push('/dashboard');
+                        router.push('/');
                     }
                 } catch (error) {
                     console.error('Error fetching the access token', error);
@@ -35,7 +34,7 @@ const GoogleCallback = () => {
 
             getToken();
         }
-    }, [isClient, searchParams]);
+    }, [isClient, searchParams, router]);
 
     if (!isClient) return null;
 

@@ -4,9 +4,9 @@ import { useSignupStore } from "@/app/types/signupStore";
 import { UserNameValidateError } from "@/app/types/signupValidate";
 import { userNameSchema } from "@/schemas/auth";
 import axios from "axios";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { set } from "zod";
 
 
 type Props = {
@@ -197,12 +197,13 @@ export function GoogleSignupStep3() {
             }).then(function (response) {
                 if (response.status === 200) {
                     setImage(response.data);
+                    router.push('/signup/google/step4');
                 }
             }).catch(function (error) {
-                console.log(error);
+                console.log('image upload error catch', error);
             });
         }
-
+        console.log('프로필 이미지 등록 실패', profileImage?.type, profileImage);
         router.push('/signup/google/step4');
     }
 
@@ -250,10 +251,13 @@ export function GoogleSignupStep3() {
                     onClick={() => document.getElementById('fileInput')?.click()} // 클릭 시 파일 선택
                 >
                     {previewUrl ? (
-                        <img
+                        <Image
                             src={previewUrl}
                             alt="미리보기"
                             style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                            layout="intrinsic"
+                            width={400}
+                            height={300}
                         />
                     ) : null}
                     {previewUrl ?
@@ -773,7 +777,7 @@ export function GoogleSignupStep5() {
             const token = localStorage.getItem('googleLoginToken');
             const requestData = signupData;
             console.log(requestData);
-            
+
             axios.patch(
                 `${process.env.NEXT_PUBLIC_ROOT_API}/users/editUserInfo`,
                 requestData,

@@ -5,65 +5,78 @@ import TopNav from "@/app/components/TopNav";
 import { usePostStore } from "@/app/types/postStore";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 
 export default function Post() {
     const router = useRouter();
-    const [imageUrls, setImageUrls] = useState<string[]>([]);
     const title = usePostStore((state) => state.title);
     const content = usePostStore((state) => state.content);
     const images = usePostStore((state) => state.images);
     const category = usePostStore((state) => state.category);
 
     const UploadHandler = () => {
+        console.log('페이지 쪽 상태관리 images', images);
 
+        // 이미지 등록 포스트 요청
+        if (images.length !== 0 && category !== '' && title !== '' && content !== '') {
+            // 이미지 업로드 요청을 각각 보내는 배열
+            const uploadPromises = images.map((image) => {
+                const uploadFormData = new FormData();
+                uploadFormData.append("file", image);
+                uploadFormData.append("type", 'COMMUNITY');
 
-        //이미지 등록 포스트 요청
-        if (images.length != 0 && category != '' && title != '' && content != '') {
-            axios({
-                method: 'post',
-                url: `${process.env.NEXT_PUBLIC_ROOT_API}/images/upload`,
-                data: {
-                    file: images,
-                    type: 'COMMUNITY',
-                }
-            }).then((resposne) => {
-                setImageUrls(resposne.data);
-            }).catch((error) => {
-                alert('Image Upload Error');
-                console.log(error);
+                return axios({
+                    method: 'post',
+                    url: `${process.env.NEXT_PUBLIC_ROOT_API}/images/upload`,
+                    data: uploadFormData
+                }).then((response) => {
+                    return response.data; // 서버에서 반환한 이미지 URL 배열
+                });
             });
 
-            // 글 등록 포스트 요청
-            axios({
-                method: 'post',
-                url: `${process.env.NEXT_PUBLIC_ROOT_API}/community`,
-                headers: {
-                    // 헤더 토큰 추가
-                    Authorization: `Bearer ${localStorage.getItem('Authorization')}`,
-                },
-                data: {
-                    title: title,
-                    content: content,
-                    imageUrl: imageUrls,
-                    category: category,
-                }
-            }).then((response) => {
-                if (response.status === 200) {
-                    alert('Upload Success');
+            // 모든 이미지 업로드가 완료된 후 커뮤니티 게시글 등록
+            Promise.all(uploadPromises)
+                .then((uploadedImageUrlsArrays) => {
+                    // uploadedImageUrlsArrays는 배열 안에 배열이 있을 수 있으므로, 이를 평평하게(flatten) 만듭니다
+                    const uploadedImageUrls = [].concat(...uploadedImageUrlsArrays);
+                    console.log('업로드된 이미지 URLs:', uploadedImageUrls);
+
+                    const formData = { title, content, uploadedImageUrls, category };
+                    console.log('formData:', formData);
+
+                    // 게시글 등록 API 호출
+                    axios({
+                        method: 'post',
+                        url: `${process.env.NEXT_PUBLIC_ROOT_API}/community`,
+                        headers: {
+                            Authorization: `${localStorage.getItem('Authorization')}`,
+                        },
+                        data: {
+                            title: title,
+                            content: content,
+                            imageUrl: uploadedImageUrls, // 평평하게 만든 이미지 URL 배열
+                            category: category,
+                        }
+                    }).then((response) => {
+                        if (response.status === 200) {
+                            alert('Upload Success');
+                            location.href = '/community';
+                        }
+                    }).catch((error) => {
+                        alert('Upload Error');
+                        console.log('post upload error', error);
+                        router.push('/community');
+                    });
+                })
+                .catch((error) => {
+                    alert('Image Upload Error');
+                    console.log('image upload error', error);
                     router.push('/community');
-                }
-            }).catch((error) => {
-                alert('Upload Error');
-                console.log(error);
-                router.push('/community');
-            });
-        }
-        // 작성 안하고 등록할 경우
-        else {
+                });
+        } else {
+            // 필수 항목이 누락되었을 경우
             alert('Please fill in all the blanks');
         }
-    }
+    };
 
     return (
         <>
@@ -87,9 +100,9 @@ export default function Post() {
                     onClick={UploadHandler}>
                     <span className='nav-text-button'>Upload</span>
                 </button>}
-            /> 
+            />
             <div className='community-container flex-1' style={{ background: '#F1F3F6' }}>
-                <Write />
+                    <Write />
             </div>
         </>
 

@@ -3,7 +3,7 @@ import '@/app/(css)/community.css';
 import { useEffect, useRef, useState } from 'react';
 import '@/app/(css)/auth.css';
 import { usePostStore } from '@/app/types/postStore';
-import { set } from 'zod';
+import Image from 'next/image';
 
 const DropDownIcon = () => {
     return (
@@ -20,7 +20,7 @@ const ReverseDropdownIcon = () => {
     );
 }
 type CategorySelectDropdownProps = {
-    defaultItem: string; // 기본 선택 항목
+    defaultItem?: string; // 기본 선택 항목
     options: string[]; // 드롭다운 옵션 목록
     onSelect: (item: string) => void; // 선택된 항목 전달 콜백
 };
@@ -31,7 +31,7 @@ export function CategorySelectDropdown({
     onSelect,
 }: CategorySelectDropdownProps) {
     const [isOpen, setIsOpen] = useState(false); // 드롭다운 열림 상태
-    const [selectedItem, setSelectedItem] = useState<string>(defaultItem); // 기본 선택 항목
+    const [selectedItem, setSelectedItem] = useState<string>(defaultItem ? defaultItem : ''); // 기본 선택 항목
     const dropdownRef = useRef<HTMLDivElement>(null); // 드롭다운 외부 클릭 감지
 
     // 드롭다운 열기/닫기 토글
@@ -92,6 +92,8 @@ export function AddImage() {
 
     const images = usePostStore((state) => state.images);
     const setImages = usePostStore((state) => state.setImages);
+    const imageUrl = usePostStore((state) => state.imageUrl);
+    const setImageUrl = usePostStore((state) => state.setImageUrl);
 
     // 이미지 추가 핸들러
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -103,8 +105,19 @@ export function AddImage() {
 
     // 이미지 삭제 핸들러
     const removeImage = (index: number) => {
-        setImages(images.filter((_, i) => i !== index)); // 선택된 이미지를 삭제
+        if (index < imageUrl.length) {
+            setImageUrl(imageUrl.filter((_, i) => i !== index));  // imageUrls에서 삭제
+        } else {
+            setImages(images.filter((_, i) => i !== (index - imageUrl.length)));  // images에서 삭제
+        }
     };
+
+
+
+    // 이미지 상태 확인용용
+    // useEffect(() => {
+    //     console.log('현재 이미지 상태 : ', images);
+    // }, [images]); // images 상태가 변경될 때마다 실행
 
     return (
         <div className='add-image-container'>
@@ -133,21 +146,42 @@ export function AddImage() {
                 </label>
             </div>
 
-            {/* 이미지 미리보기 */}
+            {/* 이미지 미리보기 - imageUrls */}
+            {imageUrl.length > 0 && (
+                <>
+                    {imageUrl.map((imageUrl, index) => (
+                        <div className="image-preview relative" key={index}>
+                            <Image
+                                src={imageUrl} // URL 기반 이미지
+                                alt={`preview-${index}`}
+                                className="preview-img"
+                                layout="intrinsic"
+                                width={400}
+                                height={300}
+                            />
+                            <button className="remove-image-btn" onClick={() => removeImage(index)}>
+                                {/* 삭제 버튼 */}
+                            </button>
+                        </div>
+                    ))}
+                </>
+            )}
+
+            {/* 이미지 미리보기 - images (로컬 파일) */}
             {images.length > 0 && (
                 <>
                     {images.map((image, index) => (
-                        <div className="image-preview" key={index}>
-                            <img
-                                src={URL.createObjectURL(image)}
+                        <div className="image-preview relative" key={index}>
+                            <Image
+                                src={URL.createObjectURL(image)} // Object URL 생성
                                 alt={`preview-${index}`}
                                 className="preview-img"
+                                layout="intrinsic"
+                                width={400}
+                                height={300}
                             />
-                            <button className="remove-image-btn" onClick={() => removeImage(index)}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                    <circle cx="10" cy="10" r="10" fill="#2E2E34" />
-                                    <path d="M10.5 11.5166L7.35828 14.6583C7.15967 14.8569 6.9069 14.9562 6.59995 14.9562C6.29301 14.9562 6.04023 14.8569 5.84162 14.6583C5.64301 14.4597 5.5437 14.2069 5.5437 13.9C5.5437 13.593 5.64301 13.3402 5.84162 13.1416L8.9833 10L5.84162 6.88538C5.64301 6.68677 5.5437 6.434 5.5437 6.12705C5.5437 5.82011 5.64301 5.56733 5.84162 5.36872C6.04023 5.17011 6.29301 5.0708 6.59995 5.0708C6.9069 5.0708 7.15967 5.17011 7.35828 5.36872L10.5 8.5104L13.6145 5.36872C13.8131 5.17011 14.0659 5.0708 14.3729 5.0708C14.6798 5.0708 14.9326 5.17011 15.1312 5.36872C15.3479 5.58538 15.4562 5.84268 15.4562 6.14059C15.4562 6.43851 15.3479 6.68677 15.1312 6.88538L11.9895 10L15.1312 13.1416C15.3298 13.3402 15.4291 13.593 15.4291 13.9C15.4291 14.2069 15.3298 14.4597 15.1312 14.6583C14.9145 14.875 14.6572 14.9833 14.3593 14.9833C14.0614 14.9833 13.8131 14.875 13.6145 14.6583L10.5 11.5166Z" fill="white" />
-                                </svg>
+                            <button className="remove-image-btn" onClick={() => removeImage(index + imageUrl.length)}>
+                                {/* 삭제 버튼 */}
                             </button>
                         </div>
                     ))}
@@ -187,7 +221,7 @@ export function Write() {
             <CategorySelectDropdown
                 defaultItem="Category" // 기본 선택 값 설정
                 options={categoryList} // 드롭다운 옵션 전달
-                onSelect={(item) => setCategory(item)} // 선택된 항목 category로로 콜백
+                onSelect={(item) => setCategory(item.toUpperCase())} // 선택된 항목 category로로 콜백
             />
             {/* 타이틀 */}
             <label htmlFor="title" className='flex auth-input-label' >

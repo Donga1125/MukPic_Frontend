@@ -80,12 +80,13 @@ type LoginButtonProps = {
 
 type SvgButtonForNavProps = {
     children: ReactNode;
+    onClick?: () => void;
 }
 
-export function SvgButtonForNav({ children }: SvgButtonForNavProps) {
+export function SvgButtonForNav({ children, onClick }: SvgButtonForNavProps) {
 
     return (
-        <button>
+        <button onClick={onClick}>
             {children}
         </button>
     );
@@ -160,12 +161,15 @@ type TextAndIconButtonProps = {
     href?: string;
     type?: 'button' | 'submit' | 'reset';
     children?: ReactNode;
+    onclick?: () => void;
 }
 
 
-export function TextAndIconButton({ icon, href, type, children }: TextAndIconButtonProps) {
+export function TextAndIconButton({ icon, type, children, onclick }: TextAndIconButtonProps) {
     return (
-        <button className='text-and-icon-button flex gap-2 items-center justify-center'>
+        <button className='text-and-icon-button flex gap-2 items-center justify-center'
+            onClick={onclick}
+            type={type}>
             {icon}
             <span className='nav-text-button'>{children}</span>
         </button>
