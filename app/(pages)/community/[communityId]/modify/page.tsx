@@ -29,7 +29,7 @@ export default function BoardDetail() {
     const content = usePostStore(state => state.content);
     const images = usePostStore(state => state.images);
     const category = usePostStore(state => state.category);
-    // const imageUrl = usePostStore(state => state.imageUrls);
+    const imageUrl = usePostStore(state => state.imageUrl);
     const setTitle = usePostStore(state => state.setTitle);
     const setContent = usePostStore(state => state.setContent);
     // const setImages = usePostStore(state => state.setImages);
@@ -58,11 +58,10 @@ export default function BoardDetail() {
                 method: 'post',
                 url: `${process.env.NEXT_PUBLIC_ROOT_API}/images/upload`,
                 data: {
-                    images: images,
+                    file: images,
                     type: 'COMMUNITY'
                 }
             }).then((response) => {
-                setImageUrl(response.data);
                 axios({
                     method: 'patch',
                     url: `${process.env.NEXT_PUBLIC_ROOT_API}/community/${communityId}`,
@@ -71,12 +70,15 @@ export default function BoardDetail() {
                         title: title,
                         content: content,
                         // 필요하면 카테고리 추가
-                        imageUrls: response.data,
+                        imageUrls: [...imageUrl, ...response.data],
                         likecount: post?.likeCount
+                    },
+                    headers: {
+                        Authorization: `${localStorage.getItem('Authorization')}`
                     }
                 }).then((response) => {
                     if (response.status === 200) {
-                        alert('수정되었습니다.');
+                        alert('Item successfully modified.');
                         router.push(`/community/${communityId}`);
                     }
                 }).catch((error) => {
@@ -95,8 +97,16 @@ export default function BoardDetail() {
 
         if (communityId) {
             console.log('use effect 작동 체크 communityId: ', communityId);
-            axios.get(`${process.env.NEXT_PUBLIC_ROOT_API}/community/${communityId}`)
+            axios.get(`${process.env.NEXT_PUBLIC_ROOT_API}/community/${communityId}`,
+                { 
+                    headers: 
+                    { 
+                        Authorization: `${localStorage.getItem('Authorization')}`
+                    } 
+                }
+            )
                 .then((response) => {
+                    if(response.status === 200) {
                     setPost(response.data);
                     // 정보 불러오면서 상태 업데이트
                     setTitle(response.data.title);
@@ -104,13 +114,20 @@ export default function BoardDetail() {
                     setImageUrl(response.data.imageUrls);
                     setCategory(''); // 카테고리 정보는 없음
                     setLoading(false);
+                    }
+                    if(response.status === 401) {
+                        alert('You do not have permission to view this.');
+                        router.push('/community');
+                    }
                 })
                 .catch((error) => {
-                    console.error('게시글 상세정보 조회 api 에러러: ', error);
+                    alert('You do not have permission to view this.');
+                    router.push(`/community/${communityId}`);
+                    console.error('게시글 상세정보 조회 api 에러: ', error);
                 });
         }
 
-    }, [communityId, setTitle, setCategory, setContent, setImageUrl]); // communityId가 변경될 때마다 호출
+    }, [communityId, setTitle, setCategory, setContent, setImageUrl, router]); // communityId가 변경될 때마다 호출
 
     // 로딩 상태와 에러 처리
     if (loading) return <div>Loading...</div>;

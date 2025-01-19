@@ -1,45 +1,54 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const emailSchema = z.object({
-    email: z.string().email({ message: '이메일 형식이 아닙니다.' }),
+  email: z.string().email({ message: "Invalid email format." }),
 });
 
-
-
-
 export const userSchema = z.object({
-    userId: z
-        .string()
-        .min(4, { message: '아이디는 4자 이상이어야 합니다.' })
-        .refine((val) => /[a-zA-Z]/.test(val), {
-            message: '최소 한 개의 영문자가 포함되어야 합니다.',
-        })
-        .refine((val) => /^[a-zA-Z0-9]+$/.test(val), {
-            message: '영문자와 숫자만 포함해야 합니다.',
-        }),
-        password: z
-        .string()
-        .min(8, { message: '비밀번호는 8자 이상이어야 합니다.' })
-        .max(20, { message: '비밀번호는 20자 이하여야 합니다.' })
-        .refine((val) => /[a-zA-Z]/.test(val), {
-            message: '최소 한 개의 알파벳이 포함되어야 합니다.',
-        })
-        .refine((val) => /\d/.test(val), {
-            message: '최소 한 개의 숫자가 포함되어야 합니다.',
-        })
-        //임시로 특수문자는 안받게 해놨음
-        // .refine((val) => /[!@#$%^&*(),.?":{}|<>]/.test(val), {
-        //     message: '최소 한 개의 특수문자가 포함되어야 합니다.',
-        // }),
-    
+  userId: z
+    .string()
+    .min(4, { message: "User ID must be at least 4 characters." })
+    .max(20, { message: "User ID must be at most 20 characters." })
+    .refine((val) => !/^\d/.test(val), {
+      message: "User ID cannot start with a number.",
+    })
+    .refine((val) => /[a-zA-Z]/.test(val), {
+      message: "User ID must contain at least one letter.",
+    })
+    .refine((val) => /^[a-zA-Z0-9]+$/.test(val), {
+      message: "User ID can only contain letters and numbers.",
+    }),
+  password: z
+    .string()
+    .min(8, { message: "Password must be at least 8 characters." })
+    .max(20, { message: "Password must be at most 20 characters." })
+    .refine((val) => /[a-zA-Z]/.test(val), {
+      message: "Password must contain at least one letter.",
+    })
+    .refine((val) => /\d/.test(val), {
+      message: "Password must contain at least one number.",
+    })
+    // Temporarily disallow special characters
+    .refine((val) => /[!@#$%^&*(),.?":{}|<>]/.test(val), {
+      message: "Password must contain at least one special character.",
+    }),
 });
 
 export const userNameSchema = z.object({
-    userName: z
-        .string()
-        .min(2, { message: '이름은 2자 이상이어야 합니다.' })
-        .max(20, { message: '이름은 20자 이하여야 합니다.' })
-        .refine((val) => /^[a-zA-Z가-힣]+$/.test(val), {
-            message: '이름은 한글 또는 영어로만 구성되어야 합니다.',
-        }),
+  userName: z
+    .string()
+    .min(2, { message: "User name must be at least 2 characters." })
+    .max(10, { message: "User name must be at most 20 characters." })
+    .refine((val) => !/^\d/.test(val), {
+      message: "User name cannot start with a number.",
+    })
+    .refine((val) => /^[a-zA-Z0-9가-힣]+$/.test(val), {
+      // 숫자 포함 허용
+      message:
+        "User name can only contain letters, numbers, or Korean characters.",
+    })
+    .refine((val) => /[a-zA-Z가-힣]/.test(val), {
+      // 숫자만 허용하지 않음
+      message: "User name cannot be composed of numbers only.",
+    }),
 });
