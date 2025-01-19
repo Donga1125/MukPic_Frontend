@@ -1,4 +1,3 @@
-import { set } from "zod";
 import { create } from "zustand";
 
 interface SignupState {

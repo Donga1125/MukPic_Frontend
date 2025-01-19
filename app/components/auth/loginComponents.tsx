@@ -14,7 +14,8 @@ export default function LoginForm() {
     const { userId, password, setUserId, setPassword } = userLoginStore();
     const [errorMessage, setErrorMessage] = useState<string>('');
     const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
-    const [rememberMe, setRememberMe] = useState<boolean>(false);
+    // 만약 localstorage 저장할지 session에 저장할지 구분해줄거라면 사용
+    // const [rememberMe, setRememberMe] = useState<boolean>(false);
     const [isButtonDisabled, setisButtonDisabled] = useState<boolean>(true);
     const router = useRouter();
 

@@ -6,10 +6,9 @@
   height: 100%; /* 부모 요소가 화면 높이를 차지하도록 설정 */
   flex-grow: 1;
   background-color: white;
-  width: 94%;
+  width: 100%;
   justify-content: start; /* 자식 요소들이 상단부터 배치되도록 설정 */
   margin: 0 auto;
-  padding: 0;
   border: none;
 }
 
@@ -24,6 +23,8 @@
   gap: 1.25rem;
   margin-top: 0.2rem;
   margin-bottom: 0.2rem;
+  padding-right: 3%;
+  padding-left: 3%;
 }
 .post-component-wrapper {
   display: flex;

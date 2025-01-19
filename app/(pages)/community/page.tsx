@@ -27,7 +27,7 @@ export default function BoardMain() {
                     Post
                 </TextAndIconButton>}
             />
-            <div className='flex-1 flex justify-center ' style={{ background: '#F1F3F6' }}>
+            <div className='flex justify-center' style={{ background: '#F1F3F6', width:'100%'}}>
                 <PostComponents></PostComponents>
             </div>
 

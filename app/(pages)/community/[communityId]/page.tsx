@@ -1,6 +1,6 @@
 'use client';
 import { SvgButtonForNav } from '@/app/components/button';
-import { FoodCategoryBadge, PostContent, ViewAiResearchButton } from '@/app/components/community/communityComponents';
+import { PostContent } from '@/app/components/community/communityComponents';
 import TopNav from '@/app/components/TopNav';
 import axios from 'axios';
 import { usePathname, useRouter } from 'next/navigation';

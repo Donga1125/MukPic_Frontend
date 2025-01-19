@@ -102,7 +102,7 @@ export default function Post() {
                 </button>}
             />
             <div className='community-container flex-1' style={{ background: '#F1F3F6' }}>
-                <Write />
+                    <Write />
             </div>
         </>
 

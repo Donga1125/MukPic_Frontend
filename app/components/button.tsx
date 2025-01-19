@@ -165,10 +165,11 @@ type TextAndIconButtonProps = {
 }
 
 
-export function TextAndIconButton({ icon, href, type, children, onclick }: TextAndIconButtonProps) {
+export function TextAndIconButton({ icon, type, children, onclick }: TextAndIconButtonProps) {
     return (
         <button className='text-and-icon-button flex gap-2 items-center justify-center'
-            onClick={onclick}>
+            onClick={onclick}
+            type={type}>
             {icon}
             <span className='nav-text-button'>{children}</span>
         </button>

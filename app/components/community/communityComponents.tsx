@@ -3,7 +3,7 @@ import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import "@/app/globals.css";
 import "@/app/(css)/community.css";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface CommunityPost {
     communityKey: number;
@@ -94,53 +94,54 @@ export function FoodCategoryBadge({ children }: FoodCategoryBadgeProps) {
 
 export function PostComponents() {
     const [posts, setPosts] = useState<CommunityPost[]>([]);
-    // 임시방편으로 페이지를 -1로 설정해서 첫 페이지를 불러오게 함
-    const [page, setPage] = useState<number>(-1);
+    const [page, setPage] = useState<number>(0);
     const [isLast, setIsLast] = useState<boolean>(false);
-    const router=useRouter();
 
     // 감지할 마지막 요소 Ref
     const observerRef = useRef<HTMLDivElement | null>(null);
 
-    const fetchPosts = async () => {
-        console.log('fetchPosts실행');
-        if (isLast) return; // 로딩 중이거나 마지막 페이지면 요청하지 않음
+    const fetchPosts = useCallback(() => {
+        if (isLast) return; // 이미 마지막 페이지면 요청하지 않음
 
-        try {
-            const response = await axios.get<CommunityApiResponse>(
-                `${process.env.NEXT_PUBLIC_ROOT_API}/community`, {
+        axios
+            .get<CommunityApiResponse>(`${process.env.NEXT_PUBLIC_ROOT_API}/community`, {
                 params: {
-                    category: "RICE", // 카테고리 선택 (예: RICE, NOODLE)
-                    sortBy: "latest", // 정렬 방식 (예: latest, popular)
+                    category: "RICE",
+                    sortBy: "latest",
                     page,
-                    size: 3, // 한 번에 가져올 게시글 수
+                    size: 3,
                 },
                 headers: {
                     Authorization: `${localStorage.getItem('Authorization')}`
                 }
+            })
+            .then((response) => {
+                if (response.status === 200) {
+                    const { content, last } = response.data;
+                    setPosts((prevPosts) => [...prevPosts, ...content]);
+                    setIsLast(last);
+                    setPage((prevPage) => prevPage + 1);
+                }
+            })
+            .catch((error) => {
+                console.error("데이터를 가져오는 중 오류가 발생했습니다: catch", error);
             });
-            if (response.status === 200) {
-                const { content, last } = response.data;
-                setPosts((prevPosts) => [...prevPosts, ...content]); // 게시글 병합
-                setIsLast(last); // 마지막 페이지 여부 업데이트
-                console.log('게시글 목록을 불러왔습니다.');
-            }
-            else {
-                console.log('게시글 목록을 불러오는데 실패했습니다.');
-            }
-        } catch (error) {
-            console.error("데이터를 가져오는 중 오류가 발생했습니다: catch", error);
-        }
-    };
-
-   
+    }, [isLast, page]); // isLast와 page 상태만 의존성으로 사용
 
     // 초기 데이터 로드
     useEffect(() => {
-        console.log('페이지 변경 : useEffect  fetchposts실행 page : ', page, '!isLast : ', !isLast);
-        if(page === 0) return;
-        fetchPosts();
-    }, [page]);
+        if (page === 0) {
+            fetchPosts(); // 처음 페이지일 때만 호출
+        }
+    }, [fetchPosts, page]);
+
+    // 페이지가 1 이상일 때만 fetchPosts 호출
+    const fetchNextPagePosts = useCallback(() => {
+        if (page > 0) {
+            fetchPosts(); // 페이지가 1 이상일 때만 호출
+        }
+    }, [page, fetchPosts]);
+
 
 
 
@@ -155,8 +156,7 @@ export function PostComponents() {
             (entries) => {
                 // 마지막 게시글이 반 정도 보이면 페이지 증가
                 if (entries[0].isIntersecting) {
-                    // 페이지 번호 증가
-                    setPage((prevPage) => prevPage + 1);
+                    fetchNextPagePosts();
                 }
             },
             {
@@ -166,17 +166,19 @@ export function PostComponents() {
             }
         );
 
-        if (observerRef.current) {
-            observer.observe(observerRef.current); // 마지막 게시글 참조를 관찰
+        const oberserRefCurrent = observerRef.current;
+
+        if (oberserRefCurrent) {
+            observer.observe(oberserRefCurrent); // 마지막 게시글 참조를 관찰
         }
 
         // Cleanup
         return () => {
-            if (observerRef.current) {
-                observer.unobserve(observerRef.current); // 관찰 해제
+            if (oberserRefCurrent) {
+                observer.unobserve(oberserRefCurrent); // 관찰 해제
             }
         };
-    }, [isLast]);
+    }, [isLast, fetchNextPagePosts]);
 
 
     return (
@@ -184,8 +186,7 @@ export function PostComponents() {
             {posts.map((post) => (
                 <PostContent key={post.communityKey} post={post} />
             ))}
-
-            {isLast && <p>no more post</p>}
+            {isLast && <p className='text-center'>no more post</p>}
             <div ref={observerRef} className="loading-placeholder h-1" />
         </div>
     );
@@ -202,7 +203,7 @@ export function PostContent({ post }: { post: CommunityPost }) {
     const DetailPostHandler = () => {
         console.log('게시글 상세보기 페이지로 이동');
         //뒤로가기 시 제대로 작동 안하는 것 때문에 임시로 이렇게 해놓음
-        location.href=`/community/${post.communityKey}`;
+        location.href = `/community/${post.communityKey}`;
     }
 
     // 일단 좋아요 요청 보내는것만.
@@ -250,8 +251,12 @@ export function PostContent({ post }: { post: CommunityPost }) {
             </div>
             {/* 이미지 부분 */}
             <div className='post-img-wrapper'>
-                <img src={post.imageUrls[0]} alt="img_error" className="img"
-                    onLoad={handleImageLoad}></img>
+                <Image src={post.imageUrls[0]} alt="img_error" className="img"
+                    onLoad={handleImageLoad}
+                    layout="intrinsic"
+                    width={400}
+                    height={300}
+                ></Image>
                 {imageLoaded && <ViewAiResearchButton></ViewAiResearchButton>}
             </div>
             <div className='post-contents-wrapper-row'>

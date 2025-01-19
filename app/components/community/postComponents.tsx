@@ -3,6 +3,7 @@ import '@/app/(css)/community.css';
 import { useEffect, useRef, useState } from 'react';
 import '@/app/(css)/auth.css';
 import { usePostStore } from '@/app/types/postStore';
+import Image from 'next/image';
 
 const DropDownIcon = () => {
     return (
@@ -149,11 +150,14 @@ export function AddImage() {
             {imageUrl.length > 0 && (
                 <>
                     {imageUrl.map((imageUrl, index) => (
-                        <div className="image-preview" key={index}>
-                            <img
-                                src={imageUrl}  // URL을 사용해 이미지를 미리보기
+                        <div className="image-preview relative" key={index}>
+                            <Image
+                                src={imageUrl} // URL 기반 이미지
                                 alt={`preview-${index}`}
                                 className="preview-img"
+                                layout="intrinsic"
+                                width={400}
+                                height={300}
                             />
                             <button className="remove-image-btn" onClick={() => removeImage(index)}>
                                 {/* 삭제 버튼 */}
@@ -167,11 +171,14 @@ export function AddImage() {
             {images.length > 0 && (
                 <>
                     {images.map((image, index) => (
-                        <div className="image-preview" key={index}>
-                            <img
-                                src={URL.createObjectURL(image)}  // 새로 업로드된 이미지는 object URL로 표시
+                        <div className="image-preview relative" key={index}>
+                            <Image
+                                src={URL.createObjectURL(image)} // Object URL 생성
                                 alt={`preview-${index}`}
                                 className="preview-img"
+                                layout="intrinsic"
+                                width={400}
+                                height={300}
                             />
                             <button className="remove-image-btn" onClick={() => removeImage(index + imageUrl.length)}>
                                 {/* 삭제 버튼 */}
