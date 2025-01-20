@@ -127,6 +127,7 @@ function InfoPageContent() {
       )}
     </main>
   );
+
 }
 
 export default function InfoPage() {
@@ -136,3 +137,4 @@ export default function InfoPage() {
     </Suspense>
   );
 }
+
