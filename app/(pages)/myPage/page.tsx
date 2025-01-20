@@ -23,6 +23,13 @@ interface UserInfoData {
   dietaryPreferences: string[];
 }
 
+interface PostData {
+  communityKey: string;
+  title: string; 
+  content: string;
+  imageUrls: string[]; 
+}
+
 const MyPage = () => {
   const [userInfo, setUserInfo] = useState<UserInfoData | null>(null);
   const [activeTab, setActiveTab] = useState<'liked' | 'myPost'>('liked');
@@ -171,10 +178,10 @@ const MyPage = () => {
             <PostDescription>{post.content}</PostDescription>
             <PostDetails>
               <Comments>
-                💬 {post.commentsCount || 0} Comments
+                💬 
               </Comments>
               <Likes>
-                👍 {post.likeCount || 0} Likes
+                👍 
               </Likes>
             </PostDetails>
           </PostContent>
