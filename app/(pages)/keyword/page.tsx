@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { AxiosError } from "axios";
 
 interface AnalysisResult {
@@ -13,20 +13,13 @@ interface AnalysisResult {
   allergyInformation: string;
 }
 
-export default function KeywordPage() {
-  const searchParams = useSearchParams();
+function KeywordContent({ query }: { query: string }) {
   const router = useRouter();
-  const query = searchParams.get("query");
   const [response, setResponse] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!query) {
-      setError("No query provided.");
-      return;
-    }
-
     setLoading(true);
 
     const fetchData = async () => {
@@ -75,72 +68,99 @@ export default function KeywordPage() {
     router.push("/");
   };
 
+  if (loading) {
+    return (
+      <div className="text-center mt-4">
+        <p className="text-blue-500">Loading...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center text-red-500 mt-4">
+        <p>{error}</p>
+      </div>
+    );
+  }
+
+  if (response) {
+    return (
+      <section className="max-w-3xl mx-auto">
+        <div className="text-center border-b-2 border-gray-300 pb-4">
+          <h2 className="text-2xl font-extrabold text-gray-800">
+            {response.foodName}
+          </h2>
+          <p className="text-sm text-gray-500">{response.engFoodName}</p>
+        </div>
+
+        <p className="text-gray-700 mt-4 leading-relaxed">
+          {response.foodDescription}
+        </p>
+
+        <div className="mt-6">
+          <h3 className="text-lg font-bold text-gray-800 border-b pb-2">
+            Allergy Information
+          </h3>
+          <p className="text-gray-700 mt-2">{response.allergyInformation}</p>
+        </div>
+
+        <div className="mt-6">
+          <h3 className="text-lg font-bold text-gray-800 border-b pb-2">
+            Ingredients
+          </h3>
+          <ul className="list-disc list-inside text-gray-700">
+            {response.ingredients.map((ingredient, index) => (
+              <li key={index}>{ingredient}</li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="mt-6">
+          <h3 className="text-lg font-bold text-gray-800 border-b pb-2">
+            Recipe
+          </h3>
+          <ul className="list-disc list-inside text-gray-700">
+            {response.recipe.map((step, index) => (
+              <li key={index}>{step}</li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="mt-8 flex justify-center">
+          <button
+            className="px-6 py-3 bg-blue-500 text-white font-bold rounded-md"
+            onClick={handleConfirmClick}
+          >
+            OK
+          </button>
+        </div>
+      </section>
+    );
+  }
+
+  return null;
+}
+
+export default function KeywordPage() {
+  const searchParams = useSearchParams();
+  const query = searchParams.get("query");
+
+  if (!query) {
+    return (
+      <main className="w-full bg-white px-4 py-6 min-h-screen">
+        <div className="text-center text-red-500 mt-4">
+          <p>No query provided.</p>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="w-full bg-white px-4 py-6 min-h-screen">
-      {loading && (
-        <div className="text-center mt-4">
-          <p className="text-blue-500">Loading...</p>
-        </div>
-      )}
-
-      {!loading && error && (
-        <div className="text-center text-red-500 mt-4">
-          <p>{error}</p>
-        </div>
-      )}
-
-      {!loading && response && (
-        <section className="max-w-3xl mx-auto">
-          <div className="text-center border-b-2 border-gray-300 pb-4">
-            <h2 className="text-2xl font-extrabold text-gray-800">
-              {response.foodName}
-            </h2>
-            <p className="text-sm text-gray-500">{response.engFoodName}</p>
-          </div>
-
-          <p className="text-gray-700 mt-4 leading-relaxed">
-            {response.foodDescription}
-          </p>
-
-          <div className="mt-6">
-            <h3 className="text-lg font-bold text-gray-800 border-b pb-2">
-              Allergy Information
-            </h3>
-            <p className="text-gray-700 mt-2">{response.allergyInformation}</p>
-          </div>
-
-          <div className="mt-6">
-            <h3 className="text-lg font-bold text-gray-800 border-b pb-2">
-              Ingredients
-            </h3>
-            <ul className="list-disc list-inside text-gray-700">
-              {response.ingredients.map((ingredient, index) => (
-                <li key={index}>{ingredient}</li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="mt-6">
-            <h3 className="text-lg font-bold text-gray-800 border-b pb-2">
-              Recipe
-            </h3>
-            <ul className="list-disc list-inside text-gray-700">
-              {response.recipe.map((step, index) => (
-                <li key={index}>{step}</li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="mt-8 flex justify-center">
-            <button
-              className="px-6 py-3 bg-blue-500 text-white font-bold rounded-md"
-              onClick={handleConfirmClick}
-            >
-              OK
-            </button>
-          </div>
-        </section>
-      )}
+      <Suspense fallback={<div className="text-center mt-4 text-blue-500">Loading...</div>}>
+        <KeywordContent query={query} />
+      </Suspense>
     </main>
   );
 }
