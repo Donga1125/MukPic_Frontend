@@ -122,7 +122,7 @@ export default function KeywordPage() {
 
           <div className="mt-6">
             <h3 className="text-lg font-bold text-gray-800 border-b pb-2">
-              Recipes
+              Recipe
             </h3>
             <ul className="list-disc list-inside text-gray-700">
               {response.recipe.map((step, index) => (
