@@ -2,7 +2,7 @@
 
 import axios, { AxiosError } from "axios";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Image from "next/image";
 
 interface AnalysisResult {
@@ -14,7 +14,7 @@ interface AnalysisResult {
   allergyInformation: string;
 }
 
-export default function InfoPage() {
+function InfoPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const imageUrl = searchParams.get("imageUrl");
@@ -134,7 +134,7 @@ export default function InfoPage() {
 
           <div className="mt-6">
             <h3 className="text-lg font-bold text-gray-800 border-b pb-2">
-              Recipes
+              Recipe
             </h3>
             <ul className="list-disc list-inside text-gray-700">
               {response.recipe.map((step, index) => (
@@ -166,5 +166,13 @@ export default function InfoPage() {
         </div>
       )}
     </main>
+  );
+}
+
+export default function InfoPage() {
+  return (
+    <Suspense fallback={<p className="text-center">Loading...</p>}>
+      <InfoPageContent />
+    </Suspense>
   );
 }

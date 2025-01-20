@@ -741,6 +741,7 @@ export function GoogleSignupStep5() {
     const [selectedAllergies, setSelectedAllergies] = useState<string[]>([]); // 알레르기 선택 상태
     const [AllergiesSearch, setAllergiesSearch] = useState<string>(''); // 검색어 상태
     const [showDropdown, setShowDropdown] = useState<boolean>(false); // 드롭다운 표시 여부
+    const inputRef = useRef<HTMLInputElement | null>(null);
 
     const seaFoodAllergieList = ['Fish', 'Crab', 'Shrimp', 'Squid', 'Abalone', 'Mussel', 'Oyster', 'Shellfish'];
     const fruitAllergieList = ['Peach', 'Tomato'];
@@ -825,7 +826,6 @@ export function GoogleSignupStep5() {
     };
 
     // 검색어에 따라 필터링된 알레르기 리스트
-    const inputRef = useRef(null);
     useEffect(() => {
         document.addEventListener("click", handleClickOutside);
         return () => {
