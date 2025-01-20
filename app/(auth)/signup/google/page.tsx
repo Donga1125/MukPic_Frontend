@@ -1,37 +1,65 @@
-'use client';
-import { GoogleSignup } from "@/app/components/auth/googleSignupComponents";
+"use client";
+
+import { useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import axios from "axios";
-import { useEffect } from "react";
+
+function SignUpContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  useEffect(() => {
+    const email = searchParams.get("email");
+    if (!email) {
+      console.error("Email parameter is missing.");
+      return;
+    }
+
+    const fetchTokens = async () => {
+      try {
+        // 이메일을 기반으로 토큰 요청
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_ROOT_API}/auth/email-login`,
+          { email },
+          { withCredentials: true } // 쿠키 포함
+        );
+
+        if (response.status === 200) {
+          const accessToken = response.headers["authorization"];
+
+          if (accessToken) {
+            // 로컬 스토리지에 토큰 저장
+            localStorage.setItem("googleLoginToken", accessToken);
+
+            console.log("Tokens stored successfully:", {
+              accessToken,
+            });
+
+            // 리디렉션
+            router.push("/signup/google/step3");
+          } else {
+            console.error("Tokens are missing in the response headers.");
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching tokens:", error);
+      }
+    };
+
+    fetchTokens();
+  }, [searchParams, router]);
+
+  return (
+    <div className="flex justify-center items-center logo-box">
+      <span className="login-logo">MUKPIC</span>
+    </div>
+  );
+}
 
 export default function SignUp() {
-
-    // 구글 회원가입 진행 시 첫 페이지에서 토큰 받아와서 저장
-    useEffect(() => {
-            axios({
-                method: 'get',
-                url: `${process.env.NEXT_PUBLIC_ROOT_API}/auth/token`,
-                responseType: 'json'
-            }).then(function (response) {
-                if(response.status === 200){
-                    localStorage.setItem('googleLoginToken', response.headers['Authorization']);
-                }
-            }).catch(function (error) {
-                alert('Error! please try agian (디버그용 메시지 : 토큰 호출 실패)');
-                console.log(error);
-            });
-    }, [])
-
-    return (
-
-        <>
-            <div className='flex justify-center items-center logo-box'>
-                <span className='login-logo'>MUKPIC</span>
-            </div>
-            <GoogleSignup></GoogleSignup>
-        </>
-
-    )
-
-
-
+  return (
+    <Suspense fallback={<div className="text-center">Loading...</div>}>
+      <SignUpContent />
+    </Suspense>
+  );
 }

@@ -1,8 +1,8 @@
+"use client";
 
-'use client';
-import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
-
+import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { AxiosError } from "axios";
 
 interface AnalysisResult {
   foodName: string;
@@ -13,34 +13,40 @@ interface AnalysisResult {
   allergyInformation: string;
 }
 
-// 동적 페이지 설정
-export const dynamic = "force-dynamic";
-
-const KeywordPageContent = () => {
+function KeywordPageContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const query = searchParams.get("query");
-
   const [response, setResponse] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!query) {
+      setError("No query provided.");
+      return;
+    }
+
     setLoading(true);
 
     const fetchData = async () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_ROOT_API;
-        const token = process.env.NEXT_PUBLIC_AUTH_TOKEN;
+        const token = localStorage.getItem("Authorization");
 
         if (!apiUrl) {
           throw new Error("API URL is not defined.");
         }
 
-        const response = await fetch(`${apiUrl}search/info`, {
+        if (!token) {
+          throw new Error("Authorization token is missing. Please log in again.");
+        }
+
+        const response = await fetch(`${apiUrl}/search/info`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+            Authorization: token,
           },
           body: JSON.stringify({ keyword: query }),
         });
@@ -49,8 +55,14 @@ const KeywordPageContent = () => {
 
         const data = await response.json();
         setResponse(data);
-      } catch (err: any) {
-        setError(err.message || "Failed to fetch data.");
+      } catch (error: unknown) {
+        if (error instanceof AxiosError) {
+          setError(error.response?.data?.error || "Something went wrong");
+        } else if (error instanceof Error) {
+          setError(error.message || "An unexpected error occurred");
+        } else {
+          setError("An unknown error occurred");
+        }
       } finally {
         setLoading(false);
       }
@@ -58,6 +70,18 @@ const KeywordPageContent = () => {
 
     fetchData();
   }, [query]);
+
+  const handleConfirmClick = () => {
+    router.push("/");
+  };
+
+  if (!query) {
+    return (
+      <div className="text-center text-red-500 mt-4">
+        <p>Error: No query provided.</p>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -109,9 +133,7 @@ const KeywordPageContent = () => {
 
         <div className="mt-6">
           <h3 className="text-lg font-bold text-gray-800 border-b pb-2">
-
-            Recipes
-
+            Recipe
           </h3>
           <ul className="list-disc list-inside text-gray-700">
             {response.recipe.map((step, index) => (
@@ -120,19 +142,25 @@ const KeywordPageContent = () => {
           </ul>
         </div>
 
+        <div className="mt-8 flex justify-center">
+          <button
+            className="px-6 py-3 bg-blue-500 text-white font-bold rounded-md"
+            onClick={handleConfirmClick}
+          >
+            OK
+          </button>
+        </div>
       </section>
     );
   }
 
   return null;
-
-};
+}
 
 export default function KeywordPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div className="text-center mt-4">Loading...</div>}>
       <KeywordPageContent />
     </Suspense>
-
   );
 }
