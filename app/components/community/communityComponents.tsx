@@ -4,13 +4,20 @@ import "@/app/globals.css";
 import "@/app/(css)/community.css";
 import axios from "axios";
 import Image from "next/image";
+import { formatDistanceToNow, parseISO } from "date-fns";
 
 interface CommunityPost {
     communityKey: number;
     title: string;
     content: string;
-    imageUrls: string[]; // 이미지 URL 배열
+    imageUrls: string[];
     likeCount: number;
+    profileImage: string;
+    userName: string;
+    createdAt: string;
+    updatedAt: string;
+    category: string;
+    liked: boolean;
 }
 
 interface Pageable {
@@ -96,6 +103,7 @@ export function PostComponents() {
     const [posts, setPosts] = useState<CommunityPost[]>([]);
     const [page, setPage] = useState<number>(0);
     const [isLast, setIsLast] = useState<boolean>(false);
+    const [category, setCategory] = useState<string>('ALL');
 
     // 감지할 마지막 요소 Ref
     const observerRef = useRef<HTMLDivElement | null>(null);
@@ -106,10 +114,10 @@ export function PostComponents() {
         axios
             .get<CommunityApiResponse>(`${process.env.NEXT_PUBLIC_ROOT_API}/community`, {
                 params: {
-                    category: "RICE",
+                    category: category,
                     sortBy: "latest",
                     page,
-                    size: 3,
+                    size: 1,
                 },
                 headers: {
                     Authorization: `${localStorage.getItem('Authorization')}`
@@ -119,6 +127,7 @@ export function PostComponents() {
                 if (response.status === 200) {
                     const { content, last } = response.data;
                     setPosts((prevPosts) => [...prevPosts, ...content]);
+                    console.log('게시글 데이터', content);
                     setIsLast(last);
                     setPage((prevPage) => prevPage + 1);
                 }
@@ -181,6 +190,7 @@ export function PostComponents() {
     }, [isLast, fetchNextPagePosts]);
 
 
+
     return (
         <div className="post-component-wrapper" >
             {posts.map((post) => (
@@ -239,15 +249,42 @@ export function PostContent({ post }: { post: CommunityPost }) {
         // })
     }
 
+    function TimeAgo({ timestamp }: { timestamp: string }) {
+        const parsedDate = parseISO(timestamp); // ISO 형식 문자열을 Date 객체로 변환
+        const timeAgo = formatDistanceToNow(parsedDate, { addSuffix: true }); // 현재 시간과 비교하여 시간 차이 계산
+        const createTime = timeAgo.replace(/^about\s/, '');
+
+        return createTime;
+    }
+
     return (
         <div className='post-contents-wrapper self-center gap-2'
             onClick={DetailPostHandler}>
             {/* 프로필 부분 */}
             <div className='post-profile-wrapper mt-2'>
-                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" fill="none">
-                    <circle cx="18" cy="18" r="17.5" fill="#F1F3F6" stroke="#E0E4EB" />
-                </svg>
-                <span className='post-profile-text flex-none'>UserName</span>
+                <div
+                    style={{
+                        width: "2.25rem",
+                        height: "2.25rem",
+                        borderRadius: "50%",
+                        backgroundColor: "#F1F3F6",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        cursor: "pointer", // 클릭 시 커서 변경
+                        position: "relative",
+                        overflow: 'hidden'
+                    }}
+                >
+                    <Image
+                        src='https://mukpic-image.s3.ap-northeast-2.amazonaws.com/COMMUNITY/5d50d16a-c597-4722-9844-8fe66a5dccdc.png'
+                        onLoad={handleImageLoad}
+                        alt="미리보기"
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        fill
+                    />
+                </div>
+                <span className='post-profile-text flex-none'>{post.userName}</span>
             </div>
             {/* 이미지 부분 */}
             <div className='post-img-wrapper'>
@@ -263,25 +300,25 @@ export function PostContent({ post }: { post: CommunityPost }) {
                 {/* 음식 카테고리 뱃지 입력받아서 넣기 */}
                 <div className='post-contents-left'>
                     <div className='flex-row flex gap-2 justify-between'>
-                        <FoodCategoryBadge>snacks</FoodCategoryBadge>
+                        <FoodCategoryBadge>{post.category}</FoodCategoryBadge>
                     </div>
                     {/* 컨텐츠 제목 */}
                     <div>
                         <span className='post-content-text'>{post.title}</span>
                     </div>
                     <div className='post-date-wrapper'>
-                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        {/* 원래는 댓글 수 작성한 공간 */}
+                        {/* <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M6.75 16.5C6.55109 16.5 6.36032 16.421 6.21967 16.2803C6.07902 16.1397 6 15.9489 6 15.75V13.5H3C2.60218 13.5 2.22064 13.342 1.93934 13.0607C1.65804 12.7794 1.5 12.3978 1.5 12V3C1.5 2.1675 2.175 1.5 3 1.5H15C15.3978 1.5 15.7794 1.65804 16.0607 1.93934C16.342 2.22064 16.5 2.60218 16.5 3V12C16.5 12.3978 16.342 12.7794 16.0607 13.0607C15.7794 13.342 15.3978 13.5 15 13.5H10.425L7.65 16.2825C7.5 16.425 7.3125 16.5 7.125 16.5H6.75ZM7.5 12V14.31L9.81 12H15V3H3V12H7.5Z" fill="#5A6E8C" />
                         </svg>
-                        {/* 댓글 수 */}
-                        <span className='comment-date-text'>12</span>
+                        <span className='comment-date-text'>12</span> */}
 
-                        <svg xmlns="http://www.w3.org/2000/svg" width="1" height="14" viewBox="0 0 1 14" fill="none">
+                        {/* <svg xmlns="http://www.w3.org/2000/svg" width="1" height="14" viewBox="0 0 1 14" fill="none">
                             <path d="M1 0.5V13.5H0V0.5H1Z" fill="#5A6E8C" />
-                        </svg>
+                        </svg> */}
 
                         {/* 몇분 전 등록했는지 등록시간 - 현재시간 */}
-                        <span className="comment-date-text">9 days ago</span>
+                        <span className="comment-date-text"> <TimeAgo timestamp={post.createdAt} /></span>
                     </div>
                 </div>
                 <div className='post-contents-right'>

@@ -193,7 +193,7 @@ export function AddImage() {
 }
 
 export function Write() {
-    const categoryList: string[] = ["Rice", "Noodle"]; // 드롭다운 옵션
+    const categoryList: string[] = ["Rice", "Noodle","Soup"]; // 드롭다운 옵션
     const setCategory = usePostStore((state) => state.setCategory);
     const title = usePostStore((state) => state.title);
     const setTitle = usePostStore((state) => state.setTitle);
