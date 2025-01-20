@@ -5,6 +5,8 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 
+export const dynamic = "force-dynamic"; // 동적 렌더링 강제 설정
+
 interface AnalysisResult {
   foodName: string;
   engFoodName: string;
@@ -16,33 +18,34 @@ interface AnalysisResult {
 
 export default function InfoPage() {
   const searchParams = useSearchParams();
+  const imageUrl = searchParams.get("imageUrl"); // 쿼리 파라미터에서 이미지 URL 가져오기
   const router = useRouter();
-  const imageUrl = searchParams.get("imageUrl");
   const [response, setResponse] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
+    // 데이터 가져오는 함수
     const fetchData = async () => {
       if (!imageUrl) {
         setError("Error: No image URL provided.");
         return;
       }
 
-      const token = localStorage.getItem("Authorization");
+      const token = localStorage.getItem("Authorization"); // 로컬 스토리지에서 토큰 가져오기
       setLoading(true);
 
       try {
         const result = await axios.post(
           `${process.env.NEXT_PUBLIC_ROOT_API}/url/analyze`,
-          { imageUrl },
+          { imageUrl }, // 요청 본문에 imageUrl 포함
           {
             headers: {
-              Authorization: token || "",
+              Authorization: token || "", // 토큰 설정
             },
           }
         );
-        setResponse(result.data);
+        setResponse(result.data); // 결과 데이터 상태에 저장
       } catch (error: unknown) {
         if (error instanceof AxiosError) {
           setError(error.response?.data?.error || "Something went wrong");
@@ -60,18 +63,19 @@ export default function InfoPage() {
   }, [imageUrl]);
 
   const handleConfirmClick = () => {
-    router.push("/");
+    router.push("/"); // 메인 페이지로 이동
   };
 
   const handlePostClick = () => {
     if (imageUrl) {
-      router.push(`/community/post`);
+      router.push(`/community/post`); // 커뮤니티 게시글 작성 페이지로 이동
     } else {
       setError("Error: Unable to proceed without image URL.");
     }
   };
 
   if (!imageUrl) {
+    // 이미지 URL이 없는 경우 에러 표시
     return (
       <main className="w-full bg-white px-4 py-6 text-center">
         <p className="text-red-500">Error: No image URL provided.</p>
@@ -79,21 +83,28 @@ export default function InfoPage() {
     );
   }
 
-  return (
-    <main className="w-full bg-white px-4 py-6">
-      {loading && (
-        <div className="flex justify-center items-center h-screen">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 border-opacity-75"></div>
-        </div>
-      )}
+  if (loading) {
+    // 로딩 상태 표시
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 border-opacity-75"></div>
+      </div>
+    );
+  }
 
-      {!loading && error && (
-        <div className="text-red-500 text-center">
-          <p>Error: {error}</p>
-        </div>
-      )}
+  if (error) {
+    // 에러 상태 표시
+    return (
+      <div className="text-red-500 text-center">
+        <p>Error: {error}</p>
+      </div>
+    );
+  }
 
-      {!loading && response && (
+  if (response) {
+    // API 결과 표시
+    return (
+      <main className="w-full bg-white px-4 py-6">
         <section className="max-w-3xl mx-auto">
           <Image
             src={imageUrl}
@@ -158,13 +169,9 @@ export default function InfoPage() {
             </button>
           </div>
         </section>
-      )}
+      </main>
+    );
+  }
 
-      {!loading && !response && !error && (
-        <div className="text-center">
-          <p>Loading or no data available...</p>
-        </div>
-      )}
-    </main>
-  );
+  return null; // 기본 반환값
 }
