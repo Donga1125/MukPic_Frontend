@@ -4,24 +4,28 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import { Suspense } from 'react';
 
 const GoogleCallback = () => {
-    const searchParams = useSearchParams(); // Next.js의 useSearchParams
-    const router = useRouter(); // Next.js의 useRouter
-    const [accessToken, setAccessToken] = useState<string | null>(null);
+    const searchParams = useSearchParams();  // Next.js의 useSearchParams
+    const [isClient, setIsClient] = useState(false);
+    const router = useRouter();
 
     useEffect(() => {
-        const code = searchParams.get('code'); // 'code' 파라미터 추출
+        setIsClient(true);
+    }, []);
+
+    useEffect(() => {
+        if (!isClient) return;
+
+        const code = searchParams.get('code');  // 'code' 파라미터 추출
 
         if (code) {
             const getToken = async () => {
                 try {
                     const response = await axios.post('/api/get-google-token', { code });
                     if (response.data.accessToken) {
-                        setAccessToken(response.data.accessToken);
                         localStorage.setItem('access_token', response.data.accessToken);
-                        router.push('/dashboard');
+                        router.push('/');
                     }
                 } catch (error) {
                     console.error('Error fetching the access token', error);
@@ -30,15 +34,11 @@ const GoogleCallback = () => {
 
             getToken();
         }
-    }, [searchParams, router]);
+    }, [isClient, searchParams, router]);
+
+    if (!isClient) return null;
 
     return <div>Loading...</div>;
 };
 
-const SuspendedGoogleCallback = () => (
-    <Suspense fallback={<div>Loading...</div>}>
-        <GoogleCallback />
-    </Suspense>
-);
-
-export default SuspendedGoogleCallback;
+export default GoogleCallback;

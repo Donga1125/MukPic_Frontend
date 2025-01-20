@@ -81,7 +81,7 @@ export default function MainPage() {
     "Soy Sauce Egg Rice": "/images/Soy Sauce Egg Rice.jpg",
     "Mushroom Rice Bowl": "/images/Mushroom Rice.jpeg",
     Omurice: "/images/Omurice.jpg",
-    "Seaweed Rice Roll": "/images/Gimbap.jpg",
+    Gimbap: "/images/Gimbap.jpg",
     Jajangmyeon: "/images/Jajangmyeon.jpeg",
     Kalguksu: "/images/Kalguksu.jpeg",
     Jjamppong: "/images/Jjamppong.jpeg",
@@ -92,7 +92,6 @@ export default function MainPage() {
     "Soy Sauce Noodles": "/images/Soy Sauce Noodles.jpg",
     Hotteok: "/images/Hotteok.jpg",
     "Corn Dog": "/images/Corn Dog.jpg",
-    Gimbap: "/images/Gimbap.jpg",
     "Fish Cake Skewers": "/images/Fish Cake Skewers.jpg",
     "Sweet Potato Fries": "/images/Sweet Potato Fries.jpeg",
     "Rice Cakes": "/images/Rice Cakes.jpg",
@@ -113,7 +112,7 @@ export default function MainPage() {
     if (!token) {
       console.error("Access Token is missing. Redirecting to login...");
       setError("Access Token is missing. Please log in again.");
-      router.push("/login"); // 토큰이 없으면 로그인 페이지로 이동
+      router.push("/login");
     }
   }, [router]);
 
@@ -139,38 +138,43 @@ export default function MainPage() {
           Snacks: "COMMUNITY",
           Cafe: "COMMUNITY",
         };
-  
-        const imageType = imageTypeMapping[selectedCategory] || "COMMUNITY"; // 기본값 COMMUNITY  
+
+        const imageType = imageTypeMapping[selectedCategory] || "COMMUNITY";
 
         const uploadFormData = new FormData();
         uploadFormData.append("file", file);
         uploadFormData.append("type", imageType);
 
         const apiUrl = process.env.NEXT_PUBLIC_ROOT_API;
-        // 로컬스토리지에서 Authorization 값 가져오기
-        const token = localStorage.getItem('Authorization') || '';
 
         try {
           const uploadResponse = await fetch(`${apiUrl}/images/upload`, {
             method: "POST",
             body: uploadFormData,
-            headers: {
-              Authorization: token,
-            },
           });
 
-          if (!uploadResponse.ok) throw new Error("이미지 업로드 실패");
+          if (!uploadResponse.ok) {
+            const errorData = await uploadResponse.json();
+            throw new Error(errorData.message || "Image upload failed.");
+          }
 
           const uploadedUrls: string[] = await uploadResponse.json();
           const imageUrl = uploadedUrls[0];
-
           router.push(`/info?imageUrl=${encodeURIComponent(imageUrl)}`);
-        } catch (apiError: any) {
-          setError(apiError.message || "API 호출 중 문제가 발생했습니다.");
+        } catch (error: unknown) {
+          if (error instanceof Error) {
+            setError(error.message || "An unexpected error occurred.");
+          } else {
+            setError("An unknown error occurred.");
+          }
         }
       };
-    } catch (error: any) {
-      setError(error.message || "알 수 없는 오류가 발생했습니다.");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(error.message || "An unexpected error occurred.");
+      } else {
+        setError("An unknown error occurred.");
+      }
     } finally {
       setLoading(false);
     }
@@ -193,7 +197,7 @@ export default function MainPage() {
           <p className="text-lg font-bold mb-2">Create a Post</p>
           <button
             className="bg-black text-white font-semibold px-4 py-2 rounded-md"
-            onClick={() => router.push("/community/1")} // 여기에 원하는 boardId를 입력
+            onClick={() => router.push("/community")}
           >
             Post
           </button>
@@ -221,29 +225,28 @@ export default function MainPage() {
         </div>
       </section>
 
-      <section style={{ marginTop: "1.5rem"}}>
+      <section style={{ marginTop: "1.5rem" }}>
         <div className="grid grid-cols-4 gap-x-4 gap-y-6">
           {foodData[selectedCategory]?.map((food, idx) => (
             <div
               key={idx}
               className="flex flex-col items-center"
               style={{
-                width: "4rem", // 부모 컨테이너의 고정 너비
-                height: "5rem", // 고정 높이
+                width: "4rem",
+                height: "5rem",
               }}
             >
               <div
                 className="w-16 h-16 flex items-center justify-center rounded-lg mb-2 shadow-sm bg-gray-200"
                 style={{
-                  overflow: "hidden", // 이미지가 컨테이너를 벗어나지 않도록
+                  overflow: "hidden",
                 }}
               >
-                {/* next/image 사용 */}
                 <Image
                   src={foodImages[food] || "/images/default.jpg"}
                   alt={food}
-                  width={64} // 4rem
-                  height={64} // 4rem
+                  width={64}
+                  height={64}
                   className="rounded-lg object-cover"
                 />
               </div>

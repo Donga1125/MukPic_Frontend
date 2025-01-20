@@ -1,8 +1,9 @@
 'use client';
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import "@/app/globals.css";
 import "@/app/(css)/community.css";
 import axios from "axios";
+import Image from "next/image";
 
 interface CommunityPost {
     communityKey: number;
@@ -94,61 +95,153 @@ export function FoodCategoryBadge({ children }: FoodCategoryBadgeProps) {
 export function PostComponents() {
     const [posts, setPosts] = useState<CommunityPost[]>([]);
     const [page, setPage] = useState<number>(0);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isLast, setIsLast] = useState<boolean>(false);
 
-    const fetchPosts = useCallback(async () => {
-        if (isLoading || isLast) return; // 로딩 중이거나 마지막 페이지면 요청하지 않음
+    // 감지할 마지막 요소 Ref
+    const observerRef = useRef<HTMLDivElement | null>(null);
 
-        setIsLoading(true);
-        try {
-            const response = await axios.get<CommunityApiResponse>(
-                `${process.env.NEXT_PUBLIC_ROOT_API}/community`, {
+    const fetchPosts = useCallback(() => {
+        if (isLast) return; // 이미 마지막 페이지면 요청하지 않음
+
+        axios
+            .get<CommunityApiResponse>(`${process.env.NEXT_PUBLIC_ROOT_API}/community`, {
                 params: {
-                    category: "RICE", // 카테고리 선택 (예: RICE, NOODLE)
-                    sortBy: "latest", // 정렬 방식 (예: latest, popular)
+                    category: "RICE",
+                    sortBy: "latest",
                     page,
-                    size: 10, // 한 번에 가져올 게시글 수
+                    size: 3,
                 },
+                headers: {
+                    Authorization: `${localStorage.getItem('Authorization')}`
+                }
+            })
+            .then((response) => {
+                if (response.status === 200) {
+                    const { content, last } = response.data;
+                    setPosts((prevPosts) => [...prevPosts, ...content]);
+                    setIsLast(last);
+                    setPage((prevPage) => prevPage + 1);
+                }
+            })
+            .catch((error) => {
+                console.error("데이터를 가져오는 중 오류가 발생했습니다: catch", error);
             });
+    }, [isLast, page]); // isLast와 page 상태만 의존성으로 사용
 
-            const { content, last } = response.data;
-
-            setPosts((prevPosts) => [...prevPosts, ...content]); // 게시글 병합
-            setIsLast(last); // 마지막 페이지 여부 업데이트
-            setPage((prevPage) => prevPage + 1); // 다음 페이지로 이동
-        } catch (error) {
-            console.error("데이터를 가져오는 중 오류가 발생했습니다:", error);
-        } finally {
-            setIsLoading(false);
-        }
-    }, [page, isLoading, isLast]);
-
+    // 초기 데이터 로드
     useEffect(() => {
-        fetchPosts(); // 초기 렌더링 시 데이터 요청
-    }, [fetchPosts]);
+        if (page === 0) {
+            fetchPosts(); // 처음 페이지일 때만 호출
+        }
+    }, [fetchPosts, page]);
+
+    // 페이지가 1 이상일 때만 fetchPosts 호출
+    const fetchNextPagePosts = useCallback(() => {
+        if (page > 0) {
+            fetchPosts(); // 페이지가 1 이상일 때만 호출
+        }
+    }, [page, fetchPosts]);
+
+
+
+
+
+    // Intersection Observer 설정 (마지막 요소 감지해서 스크롤 시 추가 데이터)
+    // 일단 지금은 처음에는 2번 실행됨.. 
+    useEffect(() => {
+        if (isLast) return; // 마지막 페이지면 Intersection Observer 설정하지 않음
+
+        console.log('useEffect  observer실행행');
+        const observer = new IntersectionObserver(
+            (entries) => {
+                // 마지막 게시글이 반 정도 보이면 페이지 증가
+                if (entries[0].isIntersecting) {
+                    fetchNextPagePosts();
+                }
+            },
+            {
+                root: null, // viewport를 기준으로 관찰
+                rootMargin: "0px", // root와의 간격 설정
+                threshold: 0.5, // 요소가 50% 이상 보일 때
+            }
+        );
+
+        const oberserRefCurrent = observerRef.current;
+
+        if (oberserRefCurrent) {
+            observer.observe(oberserRefCurrent); // 마지막 게시글 참조를 관찰
+        }
+
+        // Cleanup
+        return () => {
+            if (oberserRefCurrent) {
+                observer.unobserve(oberserRefCurrent); // 관찰 해제
+            }
+        };
+    }, [isLast, fetchNextPagePosts]);
+
 
     return (
-        <div className="post-component-wrapper">
+        <div className="post-component-wrapper" >
             {posts.map((post) => (
                 <PostContent key={post.communityKey} post={post} />
             ))}
-            {isLoading && <p>Loading...</p>}
-            {isLast && <p>마지막 게시글입니다.</p>}
+            {isLast && <p className='text-center'>no more post</p>}
+            <div ref={observerRef} className="loading-placeholder h-1" />
         </div>
     );
 }
 
 export function PostContent({ post }: { post: CommunityPost }) {
+    const [imageLoaded, setImageLoaded] = useState<boolean>(false);
+
+    const handleImageLoad = () => {
+        setImageLoaded(true); // 이미지가 정상적으로 로드되었음을 확인
+    };
+
 
     const DetailPostHandler = () => {
         console.log('게시글 상세보기 페이지로 이동');
-        
+        //뒤로가기 시 제대로 작동 안하는 것 때문에 임시로 이렇게 해놓음
+        location.href = `/community/${post.communityKey}`;
+    }
+
+    // 일단 좋아요 요청 보내는것만.
+    const likeHandler = (event: React.MouseEvent) => {
+        event.stopPropagation(); //부모요소 이벤트 방지(div 클릭시 상세 페이지로 이동하는 것 방지)
+        axios({
+            method: 'post',
+            url: `${process.env.NEXT_PUBLIC_ROOT_API}/community/like/${post.communityKey}/likes`,
+            headers: {
+                Authorization: `${localStorage.getItem('Authorization')}`
+            }
+        }).then((response) => {
+            if (response.status === 200) {
+                console.log('좋아요 성공');
+            }
+        }).catch((error) => {
+            console.log('좋아요 실패', error);
+        })
+
+        // 좋아요 취소 요청
+        // axios({
+        //     method: 'delete',
+        //     url: `${process.env.NEXT_PUBLIC_ROOT_API}/community/like/${post.communityKey}/likes`,
+        //     headers: {
+        //         Authorization: `${localStorage.getItem('Authorization')}`
+        //     }
+        // }).then((response) => {
+        //     if(response.status === 200){
+        //         console.log('좋아요 취소 성공');
+        //     }
+        // }).catch((error) => {
+        //     console.log('좋아요 취소소 실패', error);
+        // })
     }
 
     return (
         <div className='post-contents-wrapper self-center gap-2'
-            onClick={DetailPostHandler}> 
+            onClick={DetailPostHandler}>
             {/* 프로필 부분 */}
             <div className='post-profile-wrapper mt-2'>
                 <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" fill="none">
@@ -158,8 +251,13 @@ export function PostContent({ post }: { post: CommunityPost }) {
             </div>
             {/* 이미지 부분 */}
             <div className='post-img-wrapper'>
-                <img src="/testImg/test-food.jpg" alt="img_error" className="img"></img>
-                <ViewAiResearchButton></ViewAiResearchButton>
+                <Image src={post.imageUrls[0]} alt="img_error" className="img"
+                    onLoad={handleImageLoad}
+                    layout="intrinsic"
+                    width={400}
+                    height={300}
+                ></Image>
+                {imageLoaded && <ViewAiResearchButton></ViewAiResearchButton>}
             </div>
             <div className='post-contents-wrapper-row'>
                 {/* 음식 카테고리 뱃지 입력받아서 넣기 */}
@@ -188,9 +286,12 @@ export function PostContent({ post }: { post: CommunityPost }) {
                 </div>
                 <div className='post-contents-right'>
                     {/* 좋아요 수 */}
-                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" fill="none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" fill="none"
+                        onClick={likeHandler}
+                        style={{ cursor: 'pointer' }}
+                    >
                         <circle cx="18" cy="18" r="18" fill="#E0E4EB" />
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" x="10" y="10">
                             <path d="M3.33334 5.99996V14H0.666672V5.99996H3.33334ZM6.00001 14C5.64638 14 5.30724 13.8595 5.0572 13.6094C4.80715 13.3594 4.66667 13.0202 4.66667 12.6666V5.99996C4.66667 5.63329 4.81334 5.29996 5.06001 5.05996L9.44667 0.666626L10.1533 1.37329C10.3333 1.55329 10.4467 1.79996 10.4467 2.07329L10.4267 2.28663L9.79334 5.33329H14C14.74 5.33329 15.3333 5.93329 15.3333 6.66663V7.99996C15.3333 8.17329 15.3 8.33329 15.24 8.48663L13.2267 13.1866C13.0267 13.6666 12.5533 14 12 14H6.00001ZM6.00001 12.6666H12.02L14 7.99996V6.66663H8.14001L8.89334 3.11996L6.00001 6.01996V12.6666Z" fill="#92A2B9" />
                         </svg>
                     </svg>

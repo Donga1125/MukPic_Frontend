@@ -6,7 +6,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useSignupStore } from "@/app/types/signupStore";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { string } from "zod";
+import Image from "next/image";
 
 
 type Props = {
@@ -492,12 +492,13 @@ export function SignupStep3() {
             }).then(function (response) {
                 if (response.status === 200) {
                     setImage(response.data);
+                    router.push('/signup/step4');
                 }
             }).catch(function (error) {
-                console.log(error);
+                console.log('failed image upload catch', error);
             });
         }
-
+        console.log('프로필 이미지 등록 실패', profileImage?.type, profileImage);
 
         router.push('/signup/step4');
     }
@@ -546,10 +547,13 @@ export function SignupStep3() {
                     onClick={() => document.getElementById('fileInput')?.click()} // 클릭 시 파일 선택
                 >
                     {previewUrl ? (
-                        <img
+                        <Image
                             src={previewUrl}
                             alt="미리보기"
                             style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                            layout="intrinsic"
+                            width={400}
+                            height={300}
                         />
                     ) : null}
                     {previewUrl ?
