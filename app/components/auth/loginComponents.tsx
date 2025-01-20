@@ -31,8 +31,6 @@ export default function LoginForm() {
 
     const LoginHandler = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("ID:", userId);
-        console.log("PW:", password);
 
 
         if (!userId || !password) {
@@ -54,28 +52,15 @@ export default function LoginForm() {
                     timeout: 1000,
                 })
                 .then(function (response) {
-                    if (response.status === 0) {
-                        console.log("response status 0 나옴");
-                    }
                     if (response.status === 200) {
-                        console.log(response);
-                        console.log("Request Data:", { userId, password }); // 요청 데이터
-                        console.log("Response Data:", response.data); // 서버 응답 데이터
-                        console.log("Response Token:", response.data.token); // 서버 응답 토큰
-                        console.log("Response Status:", response.status); // 서버 응답 상태
-                        console.log("Response 헤더 authorization:", response.headers['authorization']); // 서버 응답 상태 텍스트
-
-                        //token 저장
                         localStorage.setItem('Authorization', response.headers['authorization']);
-                        console.log("로그인 성공!", localStorage.getItem('Authorization'));
 
                         // 로그인 성공시 메인페이지로
                         router.push('/');
                     }
                 })
-                .catch(function (error) {
-                    setErrorMessage('아이디 또는 비밀번호가 일치하지 않습니다.');
-                    console.log('로그인 요청 실패!',error); // 요청 데이터
+                .catch(function () {
+                    setErrorMessage('Id or Password is incorrect');
                 }) 
         }
 
