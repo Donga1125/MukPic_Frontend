@@ -115,11 +115,14 @@ export function SignupStep1() {
     // 이메일 전송 포스트 요청
     const sendEmail = async () => {
 
-        console.log(email);
         axios.get(`${process.env.NEXT_PUBLIC_ROOT_API}/users/checkEmail`, //이메일 요청 엔드포인트 수정
             {
                 params: {
                     email: email
+                },
+                validateStatus: (status) => {
+                    // 200, 409 상태 코드만 정상으로 처리하고 나머지는 오류로 처리
+                    return status >= 200 && status < 300 || status === 409;
                 }
             }
         ).then(function (response) {
@@ -128,7 +131,6 @@ export function SignupStep1() {
                 setemailSendMessage('Verification code has been sent to your email');
                 setSendMessageVisiblity(true);
             }
-
             else if (response.status === 409) {
                 setEmailSendMessageColor('text-red-500');
                 setemailSendMessage('Email already exists');
@@ -139,11 +141,10 @@ export function SignupStep1() {
                 setemailSendMessage('Failed to send verification code please try again');
                 setSendMessageVisiblity(true);
             }
-        }).catch(function (error) {
+        }).catch(function () {
             setEmailSendMessageColor('text-red-500');
             setemailSendMessage('Failed to send verification code please try again');
             setSendMessageVisiblity(true);
-            console.log(error);
         });
     }
 
@@ -151,7 +152,6 @@ export function SignupStep1() {
     // inputBorderColor를 변경해주는데 페이지에서 적용이 안됨 확인필요 25.01.13
 
     const emailVerify = async () => {
-        console.log('이메일 인증 로직 시작');
         axios.post(`${process.env.NEXT_PUBLIC_ROOT_API}/register/emailAuth`,
             {
                 email: email,
@@ -175,7 +175,6 @@ export function SignupStep1() {
             }
         }).catch(function (error) {
             if (error.response.status === 400) {
-                console.log(error.data);
                 setMessageColor('text-red-500');
                 setInputBorderColor('border-red-500 border-opacity-100');
                 setEmailVerifyMessage('The verification code is incorrect. Please check again');
@@ -302,7 +301,11 @@ export function SignupStep2() {
                 userId: userId,
                 email: email
             },
-            responseType: 'json'
+            responseType: 'json',
+            validateStatus: (status) => {
+                // 200, 409 상태 코드만 정상으로 처리하고 나머지는 오류로 처리
+                return status >= 200 && status < 300 || status === 409;
+            }
         }).then(function (response) {
             //이미 있는 경우 true 반환
             if (response.data === true) {
@@ -315,8 +318,10 @@ export function SignupStep2() {
                 setidDuplicateMessage('This ID is available');
                 setMessageColor('text-green-500');
             }
-        }).catch(function (error) {
-            console.log(error);
+        }).catch(function () {
+            setCanUseId(false);
+            setidDuplicateMessage('Failed to check ID');
+            setMessageColor('text-red-500');
         });
     }
 
@@ -470,7 +475,6 @@ export function SignupStep3() {
 
     useEffect(() => {
         setIsButtonDisabled(!!errors?.userName || !userName.trim() || !canUseUserName);
-        console.log(userName);
     }, [errors, userName, canUseUserName]);
 
     useEffect(() => {
@@ -482,23 +486,24 @@ export function SignupStep3() {
         e.preventDefault();
 
         if (profileImage) {
+            const formData = new FormData();
+            formData.append('file', profileImage);
+            formData.append('type', 'PROFILE');
             axios({
                 method: 'post',
                 url: `${process.env.NEXT_PUBLIC_ROOT_API}/images/upload`,
-                data: {
-                    file: profileImage,
-                    imagerType: 'PROFILE',
-                },
+                data: formData,
             }).then(function (response) {
                 if (response.status === 200) {
                     setImage(response.data);
+                    console.log('이미지 업로드 성공', response.data);
                     router.push('/signup/step4');
                 }
             }).catch(function (error) {
+                console.log('프로필 이미지 등록 실패', profileImage?.type, profileImage);
                 console.log('failed image upload catch', error);
             });
         }
-        console.log('프로필 이미지 등록 실패', profileImage?.type, profileImage);
 
         router.push('/signup/step4');
     }
@@ -507,10 +512,25 @@ export function SignupStep3() {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
+        // 파일 유형 및 크기 제한한
+        const allowedTypes = ["image/jpg", "image/jpeg", "image/JPG", "image/JPEG",
+            'image/png', 'image/PNG'
+        ];
+
+        if (!allowedTypes.includes(file.type)) {
+            alert('jpg, jpeg, png 파일만 업로드 가능합니다.');
+            e.target.value = '';
+            return;
+        }
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        if (file.size > maxSize) {
+            alert('10MB 이하의 파일만 업로드 가능합니다.');
+            e.target.value = '';
+            return;
+        }
 
         // 선택한 파일을 상태에 저장
         setProfileImage(file);
-
         // 미리보기 URL 생성
         const previewUrl = URL.createObjectURL(file);
         setPreviewUrl(previewUrl);
@@ -551,9 +571,7 @@ export function SignupStep3() {
                             src={previewUrl}
                             alt="미리보기"
                             style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                            layout="intrinsic"
-                            width={400}
-                            height={300}
+                            fill
                         />
                     ) : null}
                     {previewUrl ?

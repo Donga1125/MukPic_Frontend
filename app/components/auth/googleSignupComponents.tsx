@@ -168,14 +168,13 @@ export function GoogleSignupStep3() {
                 setUserNameDuplcateMessage('This userName is available');
                 setMessageColor('text-green-500');
             }
-        }).catch(function (error) {
-            console.log(error);
+        }).catch(function () {
+            alert('failed to check userName');
         });
     }
 
     useEffect(() => {
         setIsButtonDisabled(!!errors?.userName || !userName.trim() || !canUseUserName);
-        console.log(userName);
     }, [errors, userName, canUseUserName]);
 
     useEffect(() => {
@@ -187,23 +186,23 @@ export function GoogleSignupStep3() {
         e.preventDefault();
 
         if (profileImage) {
+            const formData = new FormData();
+            formData.append('file', profileImage);
+            formData.append('type', 'PROFILE');
             axios({
                 method: 'post',
                 url: `${process.env.NEXT_PUBLIC_ROOT_API}/images/upload`,
-                data: {
-                    file: profileImage,
-                    imagerType: 'PROFILE',
-                },
+                data: formData,
             }).then(function (response) {
                 if (response.status === 200) {
                     setImage(response.data);
                     router.push('/signup/google/step4');
                 }
-            }).catch(function (error) {
-                console.log('image upload error catch', error);
+            }).catch(function () {
+                alert('failed to upload image');
             });
         }
-        console.log('프로필 이미지 등록 실패', profileImage?.type, profileImage);
+
         router.push('/signup/google/step4');
     }
 
@@ -211,6 +210,22 @@ export function GoogleSignupStep3() {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
+
+        const allowedTypes = ["image/jpg", "image/jpeg", "image/JPG", "image/JPEG",
+            'image/png', 'image/PNG'
+        ];
+
+        if (!allowedTypes.includes(file.type)) {
+            alert('jpg, jpeg, png 파일만 업로드 가능합니다.');
+            e.target.value = '';
+            return;
+        }
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        if (file.size > maxSize) {
+            alert('10MB 이하의 파일만 업로드 가능합니다.');
+            e.target.value = '';
+            return;
+        }
 
         // 선택한 파일을 상태에 저장
         setProfileImage(file);
@@ -777,7 +792,6 @@ export function GoogleSignupStep5() {
 
             const token = localStorage.getItem('googleLoginToken');
             const requestData = signupData;
-            console.log(requestData);
 
             axios.patch(
                 `${process.env.NEXT_PUBLIC_ROOT_API}/users/editUserInfo`,
@@ -795,13 +809,14 @@ export function GoogleSignupStep5() {
                         alert('All set! Welcome aboard!');
                         router.push('/login');
                     } else {
-                        alert('reponse오류 : ' + response);
-                        console.log(response.status);
+                        alert('Failed to sign up Please try again');
+                        router.push('/login');
                     }
 
                 })
-                .catch((error) => {
-                    console.error('catch로 빠져나옴' + error); // 콘솔에 에러 출력
+                .catch(() => {
+                    alert('Failed to sign up Please try again');
+                    router.push('/login');
                 });
         }
     };
