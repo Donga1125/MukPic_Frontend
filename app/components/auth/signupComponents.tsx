@@ -127,6 +127,12 @@ export function SignupStep1() {
             }
         ).then(function (response) {
             if (response.status === 200) {
+                if (response.data.message === '재가입 유저입니다. 인증 메일을 발송했습니다.') {
+                    setEmailSendMessageColor('text-green-500');
+                    setemailSendMessage('Verification code has been successfully sent to the re-registered user');
+                    setSendMessageVisiblity(true);
+                }
+
                 setEmailSendMessageColor('text-green-500');
                 setemailSendMessage('Verification code has been sent to your email');
                 setSendMessageVisiblity(true);
@@ -495,8 +501,8 @@ export function SignupStep3() {
                 data: formData,
             }).then(function (response) {
                 if (response.status === 200) {
-                    setImage(response.data);
-                    console.log('이미지 업로드 성공', response.data);
+                    setImage(String(response.data));
+                    console.log('이미지 업로드 성공', String(response.data));
                     router.push('/signup/step4');
                 }
             }).catch(function (error) {
@@ -1098,7 +1104,6 @@ export function SignupStep5() {
         setAllergyTypes(FormatStringArray(selectedAllergies));
         const { allergyTypes } = useSignupStore.getState();
 
-
         const signupData = {
             userId, email, password, userName, nationality, religion, agree,
             ...(allergyTypes && allergyTypes.length > 0 && { allergyTypes }), // 배열의 경우 빈 배열 제외
@@ -1112,7 +1117,7 @@ export function SignupStep5() {
 
         axios.post(`${process.env.NEXT_PUBLIC_ROOT_API}/users/register`, signupData)
             .then(response => {
-                if (response.data.success) {
+                if (response.status === 200) {
                     alert('All set! Welcome aboard!');
                     router.push('/login');
                 } else {
