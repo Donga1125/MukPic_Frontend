@@ -132,10 +132,11 @@ export function SignupStep1() {
                     setemailSendMessage('Verification code has been successfully sent to the re-registered user');
                     setSendMessageVisiblity(true);
                 }
-
-                setEmailSendMessageColor('text-green-500');
-                setemailSendMessage('Verification code has been sent to your email');
-                setSendMessageVisiblity(true);
+                else {
+                    setEmailSendMessageColor('text-green-500');
+                    setemailSendMessage('Verification code has been sent to your email');
+                    setSendMessageVisiblity(true);
+                }
             }
             else if (response.status === 409) {
                 setEmailSendMessageColor('text-red-500');
