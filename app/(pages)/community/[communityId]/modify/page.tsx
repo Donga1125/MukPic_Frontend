@@ -1,6 +1,6 @@
 'use client';
 import { SvgButtonForNav } from "@/app/components/button";
-import { Modify, Write } from "@/app/components/community/postComponents";
+import { Modify } from "@/app/components/community/postComponents";
 import TopNav from "@/app/components/TopNav";
 import { usePostStore } from "@/app/types/postStore";
 import axios from "axios";
@@ -107,6 +107,7 @@ export default function BoardDetail() {
                             }
                         }).catch((error) => {
                             console.error('게시글 수정 api 에러: ', error);
+                            console.log(post);
                         })
                     })
 

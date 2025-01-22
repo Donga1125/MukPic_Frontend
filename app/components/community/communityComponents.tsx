@@ -4,7 +4,7 @@ import "@/app/globals.css";
 import "@/app/(css)/community.css";
 import axios from "axios";
 import Image from "next/image";
-import { formatDistanceToNow, parseISO, set } from "date-fns";
+import { formatDistanceToNow, parseISO} from "date-fns";
 import { CategorySelectDropdown } from "./postComponents";
 
 interface CommunityPost {
