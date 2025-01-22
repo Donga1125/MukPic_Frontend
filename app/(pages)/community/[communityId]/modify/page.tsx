@@ -1,6 +1,6 @@
 'use client';
 import { SvgButtonForNav } from "@/app/components/button";
-import { Write } from "@/app/components/community/postComponents";
+import { Modify, Write } from "@/app/components/community/postComponents";
 import TopNav from "@/app/components/TopNav";
 import { usePostStore } from "@/app/types/postStore";
 import axios from "axios";
@@ -29,12 +29,14 @@ export default function BoardDetail() {
     const content = usePostStore(state => state.content);
     const images = usePostStore(state => state.images);
     const category = usePostStore(state => state.category);
-    const imageUrl = usePostStore(state => state.imageUrl);
+    const imageUrls = usePostStore(state => state.imageUrls);
     const setTitle = usePostStore(state => state.setTitle);
     const setContent = usePostStore(state => state.setContent);
     // const setImages = usePostStore(state => state.setImages);
     const setCategory = usePostStore(state => state.setCategory);
-    const setImageUrl = usePostStore(state => state.setImageUrl);
+    const setImageUrls = usePostStore(state => state.setImageUrls);
+    const likeCount = usePostStore(state => state.likeCount);
+    const setLikeCount = usePostStore(state => state.setLikeCount);
 
 
     // 타입 정의
@@ -52,41 +54,63 @@ export default function BoardDetail() {
 
     // 수정 버튼 클릭 시
     function UpDateHandler() {
-        if (title && content && images && category) {
-            // 이미지 등록
-            axios({
-                method: 'post',
-                url: `${process.env.NEXT_PUBLIC_ROOT_API}/images/upload`,
-                data: {
-                    file: images,
-                    type: 'COMMUNITY'
-                }
-            }).then((response) => {
-                axios({
-                    method: 'patch',
-                    url: `${process.env.NEXT_PUBLIC_ROOT_API}/community/${communityId}`,
-                    data: {
-                        communityKey: communityId,
-                        title: title,
-                        content: content,
-                        // 필요하면 카테고리 추가
-                        imageUrls: [...imageUrl, ...response.data],
-                        likecount: post?.likeCount
-                    },
-                    headers: {
-                        Authorization: `${localStorage.getItem('Authorization')}`
-                    }
-                }).then((response) => {
-                    if (response.status === 200) {
-                        alert('Item successfully modified.');
-                        router.push(`/community/${communityId}`);
-                    }
-                }).catch((error) => {
-                    console.error('게시글 수정 api 에러: ', error);
-                })
-            }).catch((error) => {
-                console.error('게시글 이미지 등록 api 에러: ', error);
-            })
+        if (title && content && category) {
+            if (images.length > 0) {
+                const uploadPromises = images.map((image) => {
+                    const uploadFormData = new FormData();
+                    uploadFormData.append("file", image);
+                    uploadFormData.append("type", 'COMMUNITY');
+
+                    return axios({
+                        method: 'post',
+                        url: `${process.env.NEXT_PUBLIC_ROOT_API}/images/upload`,
+                        data: uploadFormData
+                    }).then((response) => {
+                        const imageUrl = response.data[0];
+                        return imageUrl; // 서버에서 반환한 이미지 URL 배열
+                    });
+                });
+                Promise.all(uploadPromises)
+                    .then((uploadedImageUrlsArrays) => {
+                        // uploadedImageUrlsArrays는 배열 안에 배열이 있을 수 있으므로, 이를 평평하게(flatten) 만듭니다
+                        const flattenedImageUrls = [].concat(...uploadedImageUrlsArrays);
+                        console.log('업로드된 이미지 URLs:', flattenedImageUrls);
+                        let uploadedImageUrls: string[] = [];
+
+                        if (imageUrls.length > 0) {
+                            uploadedImageUrls = [...flattenedImageUrls, ...imageUrls]; // 기존 imageUrls와 결합
+                        } else {
+                            uploadedImageUrls = flattenedImageUrls; // 단독으로 flattenedImageUrls만 사용
+                        }
+                        console.log('업로드된 이미지 URLs:', imageUrls);
+                        console.log('업로드된 이미지 URLs:', uploadedImageUrls);
+
+
+                        // 게시글 등록 API 호출
+                        axios({
+                            method: 'patch',
+                            url: `${process.env.NEXT_PUBLIC_ROOT_API}/community/${communityId}`,
+                            data: {
+                                communityKey: communityId,
+                                title: title,
+                                content: content,
+                                imageUrls: uploadedImageUrls,
+                                likecount: likeCount
+                            },
+                            headers: {
+                                Authorization: `${localStorage.getItem('Authorization')}`
+                            }
+                        }).then((response) => {
+                            if (response.status === 200) {
+                                alert('Item successfully modified.');
+                                router.push(`/community/${communityId}`);
+                            }
+                        }).catch((error) => {
+                            console.error('게시글 수정 api 에러: ', error);
+                        })
+                    })
+
+            }
         }
     }
 
@@ -98,24 +122,25 @@ export default function BoardDetail() {
         if (communityId) {
             console.log('use effect 작동 체크 communityId: ', communityId);
             axios.get(`${process.env.NEXT_PUBLIC_ROOT_API}/community/${communityId}`,
-                { 
-                    headers: 
-                    { 
+                {
+                    headers:
+                    {
                         Authorization: `${localStorage.getItem('Authorization')}`
-                    } 
+                    }
                 }
             )
                 .then((response) => {
-                    if(response.status === 200) {
-                    setPost(response.data);
-                    // 정보 불러오면서 상태 업데이트
-                    setTitle(response.data.title);
-                    setContent(response.data.content);
-                    setImageUrl(response.data.imageUrls);
-                    setCategory(''); // 카테고리 정보는 없음
-                    setLoading(false);
+                    if (response.status === 200) {
+                        setPost(response.data);
+                        // 정보 불러오면서 상태 업데이트
+                        setTitle(response.data.title);
+                        setContent(response.data.content);
+                        setImageUrls(response.data.imageUrls);
+                        setCategory(''); // 카테고리 정보는 없음
+                        setLikeCount(response.data.likeCount);
+                        setLoading(false);
                     }
-                    if(response.status === 401) {
+                    if (response.status === 401) {
                         alert('You do not have permission to view this.');
                         router.push('/community');
                     }
@@ -127,7 +152,7 @@ export default function BoardDetail() {
                 });
         }
 
-    }, [communityId, setTitle, setCategory, setContent, setImageUrl, router]); // communityId가 변경될 때마다 호출
+    }, [communityId, setTitle, setCategory, setContent, setImageUrls, setLikeCount, router]); // communityId가 변경될 때마다 호출
 
     // 로딩 상태와 에러 처리
     if (loading) return <div>Loading...</div>;
@@ -157,7 +182,7 @@ export default function BoardDetail() {
                 </button>}
             />
             <div className='community-container flex-1' style={{ background: '#F1F3F6' }}>
-                <Write />
+                <Modify />
             </div>
         </>
 

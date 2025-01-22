@@ -14,7 +14,6 @@ export default function Post() {
     const category = usePostStore((state) => state.category);
 
     const UploadHandler = () => {
-        console.log('페이지 쪽 상태관리 images', images);
 
         // 이미지 등록 포스트 요청
         if (images.length !== 0 && category !== '' && title !== '' && content !== '') {
@@ -29,7 +28,8 @@ export default function Post() {
                     url: `${process.env.NEXT_PUBLIC_ROOT_API}/images/upload`,
                     data: uploadFormData
                 }).then((response) => {
-                    return response.data; // 서버에서 반환한 이미지 URL 배열
+                    const imageUrl = response.data[0];
+                    return imageUrl; // 서버에서 반환한 이미지 URL 배열
                 });
             });
 
@@ -83,7 +83,7 @@ export default function Post() {
             <TopNav
                 leftButton={
                     <SvgButtonForNav
-                        onClick={() => {location.href='/community'; }} >
+                        onClick={() => { location.href = '/community'; }} >
                         <svg width="24" height="24" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <g clip-path="url(#clip0_112_3051)">
                                 <path d="M19.6934 3.36002C19.1217 2.78836 18.2 2.78836 17.6284 3.36002L7.81671 13.1717C7.36171 13.6267 7.36171 14.3617 7.81671 14.8167L17.6284 24.6284C18.2 25.2 19.1217 25.2 19.6934 24.6284C20.265 24.0567 20.265 23.135 19.6934 22.5634L11.13 14L19.705 5.42502C20.265 4.85336 20.265 3.93169 19.6934 3.36002Z" fill="black" />

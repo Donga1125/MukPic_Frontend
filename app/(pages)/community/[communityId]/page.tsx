@@ -14,6 +14,11 @@ export default function BoardDetail() {
     const router = useRouter();
     const pathname = usePathname() as string;
     const [communityId, setCommunityId] = useState<string | null>(null);
+    const [currentIndex, setCurrentIndex] = useState<number>(0);
+    const [imageUrls, setImageUrls] = useState<string[]>([]);
+
+
+
 
     const DropdownForNav = () => {
         const [isOpen, setIsOpen] = useState(false);
@@ -45,7 +50,7 @@ export default function BoardDetail() {
                     </svg>
                 </SvgButtonForNav>
                 {isOpen && (
-                    <div className="food-category-dropdown-list absolute right-[-0.5rem] top-[2.5rem]">
+                    <div className="food-category-dropdown-list absolute right-[1rem] top-[2.5rem]">
                         <ul>
                             <li
                                 className='food-category-dropdown-item flex'
@@ -75,6 +80,12 @@ export default function BoardDetail() {
         content: string;
         imageUrls: string[];
         likeCount: number;
+        profileImage: string;
+        userName: string;
+        createdAt: string;
+        updatedAt: string;
+        category: string;
+        liked: boolean;
     };
 
     useEffect(() => {
@@ -135,6 +146,7 @@ export default function BoardDetail() {
                 })
                 .then((response) => {
                     setPost(response.data);
+                    setImageUrls(response.data.imageUrls);
                     setLoading(false);
                 })
                 .catch((error) => {
@@ -142,14 +154,29 @@ export default function BoardDetail() {
                 });
     }, [communityId]); // communityId가 변경될 때마다 호출
 
+    const handlePrev = () => {
+        setCurrentIndex((prevIndex) => (prevIndex === 0 ? imageUrls.length - 1 : prevIndex - 1));
+    };
+    // 다음 이미지로 이동
+    const handleNext = () => {
+        console.log(imageUrls.length);
+        setCurrentIndex((prevIndex) => (prevIndex === imageUrls.length - 1 ? 0 : prevIndex + 1));
+    };
+
+    useEffect(() => {
+        if (imageUrls.length < 0 && currentIndex >= imageUrls.length) {
+            setCurrentIndex(0);
+        }
+    }, [imageUrls, currentIndex, setCurrentIndex]);
+
     // 로딩 상태와 에러 처리
     if (loading) return <div>Loading...</div>;
 
     return (
         <>
-            <div className='flex flex-col justify-start flex-grow flex-1'>
+            <div className='flex justify-start flex-col flex-grow' style={{ width: '100%' }}>
                 <TopNav
-                    leftButton={<SvgButtonForNav 
+                    leftButton={<SvgButtonForNav
                         onClick={() => { location.href = '/community' }}>
                         <svg width="24" height="24" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <g clip-path="url(#clip0_112_3051)">
@@ -166,13 +193,14 @@ export default function BoardDetail() {
                     // 임시로 넣은 아이콘
                     rightButton={<DropdownForNav />}
                 />
-
-                {/* 메인 */}
-
-                <div className='post-component-wrapper'>
-                    {post && <PostContent key={communityId} post={post}></PostContent>}
-                    <div className='post-contents-wrapper content-text-wrapper self-center'>
-                        {post?.content}
+                <div className='flex justify-center ' style={{ width: '100%' }}>
+                    <div className='post-component-wrapper' >
+                        {post && <PostContent key={communityId} post={post} useManyImage={true}
+                            currentIndex={currentIndex} handlePrev={handlePrev}
+                            handleNext={handleNext}></PostContent>}
+                        <div className='post-contents-wrapper content-text-wrapper self-center'>
+                            <span>{post?.content}</span>
+                        </div>
                     </div>
                 </div>
             </div>
