@@ -120,11 +120,12 @@ export function SearchButtonForNav() {
 type TextLogoButtonForNavProps = {
     children: string;
     className?: string;
+    onclick?: () => void;
 }
 
-export function TextLogoButtonForNav({ children, className }: TextLogoButtonForNavProps) {
+export function TextLogoButtonForNav({ children, className, onclick }: TextLogoButtonForNavProps) {
     return (
-        <button>
+        <button type='button' onClick={onclick}>
             <span className={className}>
                 {children}
             </span>

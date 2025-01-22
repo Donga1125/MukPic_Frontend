@@ -1,6 +1,6 @@
 'use client';
 import { SvgButtonForNav } from "@/app/components/button";
-import { Write } from "@/app/components/community/postComponents";
+import { AddImage, CategorySelectDropdown } from "@/app/components/community/postComponents";
 import TopNav from "@/app/components/TopNav";
 import { usePostStore } from "@/app/types/postStore";
 import axios from "axios";
@@ -29,13 +29,15 @@ export default function BoardDetail() {
     const content = usePostStore(state => state.content);
     const images = usePostStore(state => state.images);
     const category = usePostStore(state => state.category);
-    const imageUrl = usePostStore(state => state.imageUrl);
-    const setTitle = usePostStore(state => state.setTitle);
-    const setContent = usePostStore(state => state.setContent);
+    const imageUrls = usePostStore(state => state.imageUrls);
     // const setImages = usePostStore(state => state.setImages);
-    const setCategory = usePostStore(state => state.setCategory);
-    const setImageUrl = usePostStore(state => state.setImageUrl);
+    const likeCount = usePostStore(state => state.likeCount);
+    const categoryList: string[] = ['Rice', 'Noodle', 'Soup', 'Dessert', 'ETC', 'Streetfood', 'Kimchi']; // 드롭다운 옵션
+    const setCategory = usePostStore((state) => state.setCategory);
+    const setTitle = usePostStore((state) => state.setTitle);
+    const setContent = usePostStore((state) => state.setContent);
 
+    const maxLength = 300; // 최대 글자 수
 
     // 타입 정의
     type CommunityPost = {
@@ -52,41 +54,64 @@ export default function BoardDetail() {
 
     // 수정 버튼 클릭 시
     function UpDateHandler() {
-        if (title && content && images && category) {
-            // 이미지 등록
-            axios({
-                method: 'post',
-                url: `${process.env.NEXT_PUBLIC_ROOT_API}/images/upload`,
-                data: {
-                    file: images,
-                    type: 'COMMUNITY'
-                }
-            }).then((response) => {
-                axios({
-                    method: 'patch',
-                    url: `${process.env.NEXT_PUBLIC_ROOT_API}/community/${communityId}`,
-                    data: {
-                        communityKey: communityId,
-                        title: title,
-                        content: content,
-                        // 필요하면 카테고리 추가
-                        imageUrls: [...imageUrl, ...response.data],
-                        likecount: post?.likeCount
-                    },
-                    headers: {
-                        Authorization: `${localStorage.getItem('Authorization')}`
-                    }
-                }).then((response) => {
-                    if (response.status === 200) {
-                        alert('Item successfully modified.');
-                        router.push(`/community/${communityId}`);
-                    }
-                }).catch((error) => {
-                    console.error('게시글 수정 api 에러: ', error);
-                })
-            }).catch((error) => {
-                console.error('게시글 이미지 등록 api 에러: ', error);
-            })
+        if (title && content && category) {
+            if (images.length > 0) {
+                const uploadPromises = images.map((image) => {
+                    const uploadFormData = new FormData();
+                    uploadFormData.append("file", image);
+                    uploadFormData.append("type", 'COMMUNITY');
+
+                    return axios({
+                        method: 'post',
+                        url: `${process.env.NEXT_PUBLIC_ROOT_API}/images/upload`,
+                        data: uploadFormData
+                    }).then((response) => {
+                        const imageUrl = response.data[0];
+                        return imageUrl; // 서버에서 반환한 이미지 URL 배열
+                    });
+                });
+                Promise.all(uploadPromises)
+                    .then((uploadedImageUrlsArrays) => {
+                        // uploadedImageUrlsArrays는 배열 안에 배열이 있을 수 있으므로, 이를 평평하게(flatten) 만듭니다
+                        const flattenedImageUrls = [].concat(...uploadedImageUrlsArrays);
+                        console.log('업로드된 이미지 URLs:', flattenedImageUrls);
+                        let uploadedImageUrls: string[] = [];
+
+                        if (imageUrls.length > 0) {
+                            uploadedImageUrls = [...flattenedImageUrls, ...imageUrls]; // 기존 imageUrls와 결합
+                        } else {
+                            uploadedImageUrls = flattenedImageUrls; // 단독으로 flattenedImageUrls만 사용
+                        }
+                        console.log('업로드된 이미지 URLs:', imageUrls);
+                        console.log('업로드된 이미지 URLs:', uploadedImageUrls);
+
+
+                        // 게시글 등록 API 호출
+                        axios({
+                            method: 'patch',
+                            url: `${process.env.NEXT_PUBLIC_ROOT_API}/community/${communityId}`,
+                            data: {
+                                communityKey: communityId,
+                                title: title,
+                                content: content,
+                                imageUrls: uploadedImageUrls,
+                                likecount: likeCount
+                            },
+                            headers: {
+                                Authorization: `${localStorage.getItem('Authorization')}`
+                            }
+                        }).then((response) => {
+                            if (response.status === 200) {
+                                alert('Item successfully modified.');
+                                router.push(`/community/${communityId}`);
+                            }
+                        }).catch((error) => {
+                            console.error('게시글 수정 api 에러: ', error);
+                            console.log(post);
+                        })
+                    })
+
+            }
         }
     }
 
@@ -98,24 +123,21 @@ export default function BoardDetail() {
         if (communityId) {
             console.log('use effect 작동 체크 communityId: ', communityId);
             axios.get(`${process.env.NEXT_PUBLIC_ROOT_API}/community/${communityId}`,
-                { 
-                    headers: 
-                    { 
+                {
+                    headers:
+                    {
                         Authorization: `${localStorage.getItem('Authorization')}`
-                    } 
+                    }
                 }
             )
                 .then((response) => {
-                    if(response.status === 200) {
-                    setPost(response.data);
-                    // 정보 불러오면서 상태 업데이트
-                    setTitle(response.data.title);
-                    setContent(response.data.content);
-                    setImageUrl(response.data.imageUrls);
-                    setCategory(''); // 카테고리 정보는 없음
-                    setLoading(false);
+                    if (response.status === 200) {
+                        setPost(response.data);
+                        setTitle(response.data.title);
+                        setContent(response.data.content);
+                        setLoading(false);
                     }
-                    if(response.status === 401) {
+                    if (response.status === 401) {
                         alert('You do not have permission to view this.');
                         router.push('/community');
                     }
@@ -127,8 +149,18 @@ export default function BoardDetail() {
                 });
         }
 
-    }, [communityId, setTitle, setCategory, setContent, setImageUrl, router]); // communityId가 변경될 때마다 호출
+    }, [communityId, router, setTitle, setContent ]); // communityId가 변경될 때마다 호출
 
+
+    const contentshandleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        if (e?.target.value.length <= maxLength) {
+            setContent(e.target.value);
+        }
+    }
+
+    const titlehandleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setTitle(e.target.value);
+    }
     // 로딩 상태와 에러 처리
     if (loading) return <div>Loading...</div>;
 
@@ -136,7 +168,8 @@ export default function BoardDetail() {
         <>
             <TopNav
                 leftButton={
-                    <SvgButtonForNav>
+                    <SvgButtonForNav
+                        onClick={() => { router.back(); }}>
                         <svg width="24" height="24" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <g clip-path="url(#clip0_112_3051)">
                                 <path d="M19.6934 3.36002C19.1217 2.78836 18.2 2.78836 17.6284 3.36002L7.81671 13.1717C7.36171 13.6267 7.36171 14.3617 7.81671 14.8167L17.6284 24.6284C18.2 25.2 19.1217 25.2 19.6934 24.6284C20.265 24.0567 20.265 23.135 19.6934 22.5634L11.13 14L19.705 5.42502C20.265 4.85336 20.265 3.93169 19.6934 3.36002Z" fill="black" />
@@ -156,7 +189,43 @@ export default function BoardDetail() {
                 </button>}
             />
             <div className='community-container flex-1' style={{ background: '#F1F3F6' }}>
-                <Write />
+                <div className="write-wrapper">
+                    {/* 카테고리 드롭다운 */}
+                    <CategorySelectDropdown
+                        defaultItem="Category" // 기본 선택 값 설정
+                        options={categoryList} // 드롭다운 옵션 전달
+                        onSelect={(item) => setCategory(item.toUpperCase())} // 선택된 항목 category로로 콜백
+                    />
+                    {/* 타이틀 */}
+                    <label htmlFor="title" className='flex auth-input-label' >
+                        <input type="text"
+                            id='title'
+                            placeholder="Title"
+                            required
+                            className='auth-placeholder grow text-left'
+                            maxLength={20}
+                            value={title}
+                            onChange={titlehandleChange}
+                        />
+                    </label>
+                    {/* 내용 입력 */}
+                    <label htmlFor="contents">
+                        <textarea
+                            value={content}
+                            name="contents"
+                            id="contents"
+                            onChange={contentshandleChange}
+                            placeholder='What did you eat? Let us know your experience!'
+                        >
+                        </textarea>
+                        <div>
+                            <span className='contents-length-span'>({content.length}/{maxLength})</span>
+                        </div>
+                    </label>
+
+                    {/* 이미지 추가 */}
+                    <AddImage />
+                </div>
             </div>
         </>
 

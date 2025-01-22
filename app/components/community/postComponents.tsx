@@ -23,12 +23,14 @@ type CategorySelectDropdownProps = {
     defaultItem?: string; // 기본 선택 항목
     options: string[]; // 드롭다운 옵션 목록
     onSelect: (item: string) => void; // 선택된 항목 전달 콜백
+    value?: string;
 };
 
 export function CategorySelectDropdown({
     defaultItem,
     options,
     onSelect,
+    value,
 }: CategorySelectDropdownProps) {
     const [isOpen, setIsOpen] = useState(false); // 드롭다운 열림 상태
     const [selectedItem, setSelectedItem] = useState<string>(defaultItem ? defaultItem : ''); // 기본 선택 항목
@@ -65,7 +67,7 @@ export function CategorySelectDropdown({
                 onClick={toggleDropdown}
                 className="category-select-button"
             >
-                <span>{selectedItem}</span> {/* 버튼에 현재 선택된 항목 표시 */}
+                <span>{value ? value : selectedItem}</span> {/* 버튼에 현재 선택된 항목 표시 */}
                 {!isOpen ? <DropDownIcon /> : <ReverseDropdownIcon />}
             </button>
             {isOpen && (
@@ -92,15 +94,36 @@ export function AddImage() {
 
     const images = usePostStore((state) => state.images);
     const setImages = usePostStore((state) => state.setImages);
-    const imageUrl = usePostStore((state) => state.imageUrl);
-    const setImageUrl = usePostStore((state) => state.setImageUrl);
+    const imageUrl = usePostStore((state) => state.imageUrls);
+    const setImageUrl = usePostStore((state) => state.setImageUrls);
 
     // 이미지 추가 핸들러
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
-        if (files) {
-            setImages([...images, ...Array.from(files)]); // 기존 이미지에 새 이미지를 추가
-        }
+        if (!files) return;
+
+        // 파일 유형 및 크기 제한
+        const allowedTypes = ["image/jpg", "image/jpeg", "image/JPG", "image/JPEG", "image/png", "image/PNG"];
+        const maxSize = 10 * 1024 * 1024; // 10MB
+
+        // 파일을 배열로 변환하여 순차적으로 검사
+        Array.from(files).forEach((file) => {
+            if (!allowedTypes.includes(file.type)) {
+                alert('jpg, jpeg, png 파일만 업로드 가능합니다.');
+                event.target.value = ''; // 파일 선택 초기화
+                return;
+            }
+
+            if (file.size > maxSize) {
+                alert('10MB 이하의 파일만 업로드 가능합니다.');
+                event.target.value = ''; // 파일 선택 초기화
+                return;
+            }
+        });
+
+        // 유효한 파일들을 이미지 배열에 추가
+
+        setImages([...images, ...Array.from(files)]);
     };
 
     // 이미지 삭제 핸들러
@@ -181,7 +204,10 @@ export function AddImage() {
                                 height={300}
                             />
                             <button className="remove-image-btn" onClick={() => removeImage(index + imageUrl.length)}>
-                                {/* 삭제 버튼 */}
+                                <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="13" cy="13" r="10" fill="#2E2E34" />
+                                    <path d="M13 14.5166L9.85828 17.6583C9.65967 17.8569 9.4069 17.9562 9.09995 17.9562C8.79301 17.9562 8.54023 17.8569 8.34162 17.6583C8.14301 17.4597 8.0437 17.2069 8.0437 16.9C8.0437 16.593 8.14301 16.3402 8.34162 16.1416L11.4833 13L8.34162 9.88538C8.14301 9.68677 8.0437 9.434 8.0437 9.12705C8.0437 8.82011 8.14301 8.56733 8.34162 8.36872C8.54023 8.17011 8.79301 8.0708 9.09995 8.0708C9.4069 8.0708 9.65967 8.17011 9.85828 8.36872L13 11.5104L16.1145 8.36872C16.3131 8.17011 16.5659 8.0708 16.8729 8.0708C17.1798 8.0708 17.4326 8.17011 17.6312 8.36872C17.8479 8.58538 17.9562 8.84268 17.9562 9.14059C17.9562 9.43851 17.8479 9.68677 17.6312 9.88538L14.4895 13L17.6312 16.1416C17.8298 16.3402 17.9291 16.593 17.9291 16.9C17.9291 17.2069 17.8298 17.4597 17.6312 17.6583C17.4145 17.875 17.1572 17.9833 16.8593 17.9833C16.5614 17.9833 16.3131 17.875 16.1145 17.6583L13 14.5166Z" fill="white" />
+                                </svg>
                             </button>
                         </div>
                     ))}
@@ -193,7 +219,7 @@ export function AddImage() {
 }
 
 export function Write() {
-    const categoryList: string[] = ["Rice", "Noodle"]; // 드롭다운 옵션
+    const categoryList: string[] = ['Rice', 'Noodle', 'Soup', 'Dessert', 'ETC', 'Streetfood', 'Kimchi']; // 드롭다운 옵션
     const setCategory = usePostStore((state) => state.setCategory);
     const title = usePostStore((state) => state.title);
     const setTitle = usePostStore((state) => state.setTitle);
@@ -247,6 +273,80 @@ export function Write() {
                 </textarea>
                 <div>
                     <span className='contents-length-span'>({contents.length}/{maxLength})</span>
+                </div>
+            </label>
+
+            {/* 이미지 추가 */}
+            <AddImage />
+        </div>
+    );
+}
+
+type ModifyProps = {
+    initTitle: string;
+    initContent: string;
+    onDataChange: (data: { title: string, content: string }) => void;
+};
+
+
+
+export function Modify({ initTitle, initContent, onDataChange }: ModifyProps) {
+
+    const categoryList: string[] = ['Rice', 'Noodle', 'Soup', 'Dessert', 'ETC', 'Streetfood', 'Kimchi']; // 드롭다운 옵션
+    const setCategory = usePostStore((state) => state.setCategory);
+    const [title, setTitle] = useState<string>(initTitle || '');
+    const [content, setContent] = useState<string>(initContent || '');
+
+    // 내용 입력 최대 글자 수
+    const maxLength = 300;
+
+    const contentshandleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        if (e?.target.value.length <= maxLength) {
+            setContent(e.target.value);
+        }
+    }
+
+    const titlehandleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setTitle(e.target.value);
+    }
+
+    useEffect(() => {
+        onDataChange({ title, content });
+    }, [title, content, onDataChange]);
+
+
+    return (
+        <div className="write-wrapper">
+            {/* 카테고리 드롭다운 */}
+            <CategorySelectDropdown
+                defaultItem="Category" // 기본 선택 값 설정
+                options={categoryList} // 드롭다운 옵션 전달
+                onSelect={(item) => setCategory(item.toUpperCase())} // 선택된 항목 category로로 콜백
+            />
+            {/* 타이틀 */}
+            <label htmlFor="title" className='flex auth-input-label' >
+                <input type="text"
+                    id='title'
+                    placeholder="Title"
+                    required
+                    className='auth-placeholder grow text-left'
+                    maxLength={20}
+                    value={title}
+                    onChange={titlehandleChange}
+                />
+            </label>
+            {/* 내용 입력 */}
+            <label htmlFor="contents">
+                <textarea
+                    value={content}
+                    name="contents"
+                    id="contents"
+                    onChange={contentshandleChange}
+                    placeholder='What did you eat? Let us know your experience!'
+                >
+                </textarea>
+                <div>
+                    <span className='contents-length-span'>({content.length}/{maxLength})</span>
                 </div>
             </label>
 
