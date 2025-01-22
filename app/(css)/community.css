@@ -106,7 +106,7 @@ img {
   gap: 0.5rem;
   position: absolute;
   left: 0.75rem;
-  bottom: 2.25rem;
+  bottom: 0.75rem;
   border-radius: 6.1875rem;
   background: #0a0c10;
   box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.1);
@@ -466,4 +466,30 @@ textarea {
 .category-scroll-container button {
   display: inline-block; /* 버튼들이 가로로 나열되도록 */
   margin-right: 10px; /* 버튼들 간의 간격 */
+}
+
+.carousel-button-next {
+  background: transparent; /* 버튼 배경 투명 */
+  border: none; /* 버튼의 테두리 제거 */
+  padding: 0; /* 내부 패딩 제거 */
+  display: flex; /* flexbox로 아이콘을 가운데 배치 */
+  align-items: center; /* 세로 가운데 정렬 */
+  justify-content: center; /* 가로 가운데 정렬 */
+  position: absolute;
+  right: 1rem;
+  bottom: 50%;
+  transform: rotate(180deg);
+}
+
+.carousel-button-prev {
+  background: transparent; /* 버튼 배경 투명 */
+  border: none; /* 버튼의 테두리 제거 */
+  padding: 0; /* 내부 패딩 제거 */
+  display: flex; /* flexbox로 아이콘을 가운데 배치 */
+  align-items: center; /* 세로 가운데 정렬 */
+  justify-content: center; /* 가로 가운데 정렬 */
+  position: absolute;
+  left: 1rem;
+  bottom: 50%;
+  
 }

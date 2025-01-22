@@ -282,21 +282,27 @@ export function Write() {
     );
 }
 
-export function Modify() {
+type ModifyProps = {
+    initTitle: string;
+    initContent: string;
+    onDataChange: (data: { title: string, content: string }) => void;
+};
+
+
+
+export function Modify({ initTitle, initContent, onDataChange }: ModifyProps) {
 
     const categoryList: string[] = ['Rice', 'Noodle', 'Soup', 'Dessert', 'ETC', 'Streetfood', 'Kimchi']; // 드롭다운 옵션
     const setCategory = usePostStore((state) => state.setCategory);
-    const title = usePostStore((state) => state.title);
-    const setTitle = usePostStore((state) => state.setTitle);
-    const contents = usePostStore((state) => state.content);
-    const setContents = usePostStore((state) => state.setContent);
+    const [title, setTitle] = useState<string>(initTitle || '');
+    const [content, setContent] = useState<string>(initContent || '');
 
     // 내용 입력 최대 글자 수
     const maxLength = 300;
 
     const contentshandleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         if (e?.target.value.length <= maxLength) {
-            setContents(e.target.value);
+            setContent(e.target.value);
         }
     }
 
@@ -304,6 +310,9 @@ export function Modify() {
         setTitle(e.target.value);
     }
 
+    useEffect(() => {
+        onDataChange({ title, content });
+    }, [title, content, onDataChange]);
 
 
     return (
@@ -329,7 +338,7 @@ export function Modify() {
             {/* 내용 입력 */}
             <label htmlFor="contents">
                 <textarea
-                    value={contents}
+                    value={content}
                     name="contents"
                     id="contents"
                     onChange={contentshandleChange}
@@ -337,7 +346,7 @@ export function Modify() {
                 >
                 </textarea>
                 <div>
-                    <span className='contents-length-span'>({contents.length}/{maxLength})</span>
+                    <span className='contents-length-span'>({content.length}/{maxLength})</span>
                 </div>
             </label>
 

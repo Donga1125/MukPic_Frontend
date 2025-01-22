@@ -4,7 +4,7 @@ import "@/app/globals.css";
 import "@/app/(css)/community.css";
 import axios from "axios";
 import Image from "next/image";
-import { formatDistanceToNow, parseISO} from "date-fns";
+import { formatDistanceToNow, parseISO } from "date-fns";
 import { CategorySelectDropdown } from "./postComponents";
 
 interface CommunityPost {
@@ -167,8 +167,16 @@ const CommunityImageCarousel: React.FC<CommunityImageCarouselProps> = ({ imageUr
                 height={300}
             />
             {imageLoaded && <ViewAiResearchButtonForCarousel />}
-            <button onClick={handlePrev} type='button' className="carousel-button prev">{"<"}</button>
-            <button onClick={handleNext} type='button' className="carousel-button next">{">"}</button>
+            <button onClick={handlePrev} type='button' className="carousel-button-prev">
+                <svg width="14" height="24" viewBox="0 0 14 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12.6934 1.36002C12.1217 0.788358 11.2 0.788358 10.6284 1.36002L0.816714 11.1717C0.361714 11.6267 0.361714 12.3617 0.816714 12.8167L10.6284 22.6284C11.2 23.2 12.1217 23.2 12.6934 22.6284C13.265 22.0567 13.265 21.135 12.6934 20.5634L4.13005 12L12.705 3.42502C13.265 2.85336 13.265 1.93169 12.6934 1.36002Z" fill="black" />
+                </svg>
+            </button>
+            <button onClick={handleNext} type='button' className="carousel-button-next">
+                <svg width="14" height="24" viewBox="0 0 14 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12.6934 1.36002C12.1217 0.788358 11.2 0.788358 10.6284 1.36002L0.816714 11.1717C0.361714 11.6267 0.361714 12.3617 0.816714 12.8167L10.6284 22.6284C11.2 23.2 12.1217 23.2 12.6934 22.6284C13.265 22.0567 13.265 21.135 12.6934 20.5634L4.13005 12L12.705 3.42502C13.265 2.85336 13.265 1.93169 12.6934 1.36002Z" fill="black" />
+                </svg>
+            </button>
         </div>
     );
 };
@@ -186,7 +194,7 @@ export function PostComponents() {
     const [page, setPage] = useState<number>(0);
     const [isLast, setIsLast] = useState<boolean>(false);
     const [category, setCategory] = useState<string>('ALL');
-    const categoryList =  ['ALL','Rice', 'Noodle', 'Soup', 'Dessert', 'ETC', 'Streetfood', 'Kimchi'];
+    const categoryList = ['ALL', 'Rice', 'Noodle', 'Soup', 'Dessert', 'ETC', 'Streetfood', 'Kimchi'];
 
     // 감지할 마지막 요소 Ref
     const observerRef = useRef<HTMLDivElement | null>(null);
@@ -246,7 +254,6 @@ export function PostComponents() {
 
 
     // Intersection Observer 설정 (마지막 요소 감지해서 스크롤 시 추가 데이터)
-    // 일단 지금은 처음에는 2번 실행됨.. 
     useEffect(() => {
         if (isLast) return; // 마지막 페이지면 Intersection Observer 설정하지 않음
 

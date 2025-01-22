@@ -1,9 +1,10 @@
 'use client';
 import { SvgButtonForNav } from "@/app/components/button";
-import { Modify } from "@/app/components/community/postComponents";
+import { AddImage, CategorySelectDropdown, Modify } from "@/app/components/community/postComponents";
 import TopNav from "@/app/components/TopNav";
 import { usePostStore } from "@/app/types/postStore";
 import axios from "axios";
+import { set } from "date-fns";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -30,14 +31,14 @@ export default function BoardDetail() {
     const images = usePostStore(state => state.images);
     const category = usePostStore(state => state.category);
     const imageUrls = usePostStore(state => state.imageUrls);
-    const setTitle = usePostStore(state => state.setTitle);
-    const setContent = usePostStore(state => state.setContent);
     // const setImages = usePostStore(state => state.setImages);
-    const setCategory = usePostStore(state => state.setCategory);
-    const setImageUrls = usePostStore(state => state.setImageUrls);
     const likeCount = usePostStore(state => state.likeCount);
-    const setLikeCount = usePostStore(state => state.setLikeCount);
+    const categoryList: string[] = ['Rice', 'Noodle', 'Soup', 'Dessert', 'ETC', 'Streetfood', 'Kimchi']; // 드롭다운 옵션
+    const setCategory = usePostStore((state) => state.setCategory);
+    const setTitle = usePostStore((state) => state.setTitle);
+    const setContent = usePostStore((state) => state.setContent);
 
+    const maxLength = 300; // 최대 글자 수
 
     // 타입 정의
     type CommunityPost = {
@@ -133,12 +134,8 @@ export default function BoardDetail() {
                 .then((response) => {
                     if (response.status === 200) {
                         setPost(response.data);
-                        // 정보 불러오면서 상태 업데이트
                         setTitle(response.data.title);
                         setContent(response.data.content);
-                        setImageUrls(response.data.imageUrls);
-                        setCategory(''); // 카테고리 정보는 없음
-                        setLikeCount(response.data.likeCount);
                         setLoading(false);
                     }
                     if (response.status === 401) {
@@ -153,8 +150,18 @@ export default function BoardDetail() {
                 });
         }
 
-    }, [communityId, setTitle, setCategory, setContent, setImageUrls, setLikeCount, router]); // communityId가 변경될 때마다 호출
+    }, [communityId, router]); // communityId가 변경될 때마다 호출
 
+
+    const contentshandleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        if (e?.target.value.length <= maxLength) {
+            setContent(e.target.value);
+        }
+    }
+
+    const titlehandleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setTitle(e.target.value);
+    }
     // 로딩 상태와 에러 처리
     if (loading) return <div>Loading...</div>;
 
@@ -183,7 +190,43 @@ export default function BoardDetail() {
                 </button>}
             />
             <div className='community-container flex-1' style={{ background: '#F1F3F6' }}>
-                <Modify />
+                <div className="write-wrapper">
+                    {/* 카테고리 드롭다운 */}
+                    <CategorySelectDropdown
+                        defaultItem="Category" // 기본 선택 값 설정
+                        options={categoryList} // 드롭다운 옵션 전달
+                        onSelect={(item) => setCategory(item.toUpperCase())} // 선택된 항목 category로로 콜백
+                    />
+                    {/* 타이틀 */}
+                    <label htmlFor="title" className='flex auth-input-label' >
+                        <input type="text"
+                            id='title'
+                            placeholder="Title"
+                            required
+                            className='auth-placeholder grow text-left'
+                            maxLength={20}
+                            value={title}
+                            onChange={titlehandleChange}
+                        />
+                    </label>
+                    {/* 내용 입력 */}
+                    <label htmlFor="contents">
+                        <textarea
+                            value={content}
+                            name="contents"
+                            id="contents"
+                            onChange={contentshandleChange}
+                            placeholder='What did you eat? Let us know your experience!'
+                        >
+                        </textarea>
+                        <div>
+                            <span className='contents-length-span'>({content.length}/{maxLength})</span>
+                        </div>
+                    </label>
+
+                    {/* 이미지 추가 */}
+                    <AddImage />
+                </div>
             </div>
         </>
 
