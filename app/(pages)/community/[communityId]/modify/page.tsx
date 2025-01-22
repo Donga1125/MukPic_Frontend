@@ -1,10 +1,9 @@
 'use client';
 import { SvgButtonForNav } from "@/app/components/button";
-import { AddImage, CategorySelectDropdown, Modify } from "@/app/components/community/postComponents";
+import { AddImage, CategorySelectDropdown } from "@/app/components/community/postComponents";
 import TopNav from "@/app/components/TopNav";
 import { usePostStore } from "@/app/types/postStore";
 import axios from "axios";
-import { set } from "date-fns";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -150,7 +149,7 @@ export default function BoardDetail() {
                 });
         }
 
-    }, [communityId, router]); // communityId가 변경될 때마다 호출
+    }, [communityId, router, setTitle, setContent ]); // communityId가 변경될 때마다 호출
 
 
     const contentshandleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
