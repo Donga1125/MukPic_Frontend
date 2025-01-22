@@ -186,15 +186,25 @@ export function TextAndIconButton({ icon, type, children, onclick }: TextAndIcon
 type TextButtonForNavProps = {
     icon?: ReactNode;
     children?: ReactNode;
-}
-export function TextButtonForNav({ icon, children }: TextButtonForNavProps) {
+    className?: string; // 추가: 사용자 정의 클래스
+    onClick?: () => void;
+};
+  
+export function TextButtonForNav({
+    icon,
+    children,
+    className = "",
+    onClick,
+  }: TextButtonForNavProps) {
     return (
-        <button className='PostButtonForNav flex items-center gap-2'>
-            {icon}
-            <span className='nav-text-button'>{children}</span>
-        </button>
-    )
-
+      <button
+        className={`PostButtonForNav flex items-center gap-2 ${className}`}
+        onClick={onClick}
+      >
+        {icon}
+        <span className="nav-text-button">{children}</span>
+      </button>
+    );
 }
 type ViewAiResearchButtonProps = {
     icon?: ReactNode;

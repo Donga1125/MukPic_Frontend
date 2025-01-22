@@ -63,14 +63,6 @@ function InfoPageContent() {
     router.push("/");
   };
 
-  const handlePostClick = () => {
-    if (imageUrl) {
-      router.push(`/community/post`);
-    } else {
-      setError("Error: Unable to proceed without image URL.");
-    }
-  };
-
   if (!imageUrl) {
     return (
       <main className="w-full bg-white px-4 py-6 text-center">
@@ -90,6 +82,12 @@ function InfoPageContent() {
       {!loading && error && (
         <div className="text-red-500 text-center">
           <p>Error: {error}</p>
+          <button
+            className="mt-4 px-4 py-2 bg-gray-500 text-white font-bold rounded-md"
+            onClick={() => router.back()}
+          >
+            Go Back
+          </button>
         </div>
       )}
 
@@ -145,16 +143,10 @@ function InfoPageContent() {
 
           <div className="mt-8 flex justify-center space-x-4">
             <button
-              className="px-6 py-3 bg-blue-500 text-white font-bold rounded-md"
+              className="px-6 py-3 bg-[#CFF7CA] text-black font-bold rounded-md"
               onClick={handleConfirmClick}
             >
               OK
-            </button>
-            <button
-              className="px-6 py-3 bg-green-500 text-white font-bold rounded-md"
-              onClick={handlePostClick}
-            >
-              POST
             </button>
           </div>
         </section>
