@@ -71,7 +71,7 @@ export function AddBotNav() {
             communityButton=
             {<BotNavButton
                 text='community'
-                onClick={() => handleButtonClick('community', "")}
+                onClick={() => handleButtonClick('community', "/community")}
                 isActive={activeBotNavButton === 'community'}
                 Image={
                     <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -84,7 +84,7 @@ export function AddBotNav() {
             mypageButton=
             {<BotNavButton
                 text='mypage'
-                onClick={() => handleButtonClick('mypage', '')}
+                onClick={() => handleButtonClick('myPage', '/myPage')}
                 isActive={activeBotNavButton === 'mypage'}
                 Image={
                     <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
