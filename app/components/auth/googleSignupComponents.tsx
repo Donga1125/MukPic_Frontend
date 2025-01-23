@@ -195,8 +195,8 @@ export function GoogleSignupStep3() {
                 data: formData,
             }).then(function (response) {
                 if (response.status === 200) {
-                    setImage(String(response.data));
-                    console.log('이미지 업로드 성공', String(response.data));
+                    setImage(response.data[0]);
+                    console.log('이미지 업로드 성공', response.data[0]);
                     router.push('/signup/google/step4');
                 }
             }).catch(function () {

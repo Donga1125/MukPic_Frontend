@@ -127,31 +127,31 @@ export function SignupStep1() {
             }
         ).then(function (response) {
             if (response.status === 200) {
+                setEmailSendMessageColor('text-green-500');
+                setemailSendMessage('Verification code has been sent to your email');
+                setSendMessageVisiblity(true);
+            }
+            else if (response.status === 409) {
                 if (response.data.message === '재가입 유저입니다. 인증 메일을 발송했습니다.') {
                     setEmailSendMessageColor('text-green-500');
                     setemailSendMessage('Verification code has been successfully sent to the re-registered user');
                     setSendMessageVisiblity(true);
                 }
                 else {
-                    setEmailSendMessageColor('text-green-500');
-                    setemailSendMessage('Verification code has been sent to your email');
-                    setSendMessageVisiblity(true);
+                    setEmailSendMessageColor('text-red-500');
+                    setemailSendMessage('Email already exists');
+                    setSendMessageVisiblity(false);
                 }
-            }
-            else if (response.status === 409) {
-                setEmailSendMessageColor('text-red-500');
-                setemailSendMessage('Email already exists');
-                setSendMessageVisiblity(true);
             }
             else {
                 setEmailSendMessageColor('text-red-500');
                 setemailSendMessage('Failed to send verification code please try again');
-                setSendMessageVisiblity(true);
+                setSendMessageVisiblity(false);
             }
         }).catch(function () {
             setEmailSendMessageColor('text-red-500');
             setemailSendMessage('Failed to send verification code please try again');
-            setSendMessageVisiblity(true);
+            setSendMessageVisiblity(false);
         });
     }
 
@@ -502,8 +502,8 @@ export function SignupStep3() {
                 data: formData,
             }).then(function (response) {
                 if (response.status === 200) {
-                    setImage(String(response.data));
-                    console.log('이미지 업로드 성공', String(response.data));
+                    setImage(response.data[0]);
+                    console.log('이미지 업로드 성공', response.data[0]);
                     router.push('/signup/step4');
                 }
             }).catch(function (error) {
