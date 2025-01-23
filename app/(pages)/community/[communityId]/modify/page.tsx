@@ -149,7 +149,7 @@ export default function BoardDetail() {
                 });
         }
 
-    }, [communityId, router, setTitle, setContent ]); // communityId가 변경될 때마다 호출
+    }, [communityId, router, setTitle, setContent]); // communityId가 변경될 때마다 호출
 
 
     const contentshandleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
