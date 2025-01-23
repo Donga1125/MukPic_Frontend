@@ -23,7 +23,6 @@ export default function EditProfileLayout({ children }: LayoutProps) {
 
 
     <div className="root-wrapper root-text">
-
       <TopNav
         leftButton={<SvgButtonForNav
           onClick={() => { router.back(); }}>
@@ -53,9 +52,6 @@ export default function EditProfileLayout({ children }: LayoutProps) {
           </svg>
         </SvgButtonForNav>}
       />
-       <div className='flex justify-center items-center logo-box'>
-                <span className='login-logo'>MUKPIC</span>
-            </div>
       <div className="auth-container bg-white rounded-lg shadow-md">
         {children}
       </div>
