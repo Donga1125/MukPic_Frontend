@@ -12,10 +12,10 @@ type LayoutProps = {
   children: ReactNode;
 };
 
-export default function SignupLayout({ children }: LayoutProps) {
+export default function EditProfileLayout({ children }: LayoutProps) {
   const router = useRouter();
   useEffect(() => {
-    document.title = "Mukpic-Signup"; // 원하는 타이틀로 변경
+    document.title = "Edit-Profile";
   }, []);
 
   return (
