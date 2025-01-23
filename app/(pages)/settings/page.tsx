@@ -20,6 +20,8 @@ const SettingsPage = () => {
       category: 'Account',
       items: [
         { label: 'Edit profile', path: '/account/edit-profile' },
+        { label: 'Edit preference', path: '/account/edit-preference' },
+        { label: 'Edit healthInfo', path: '/account/edit-healthInfo' },
         { label: 'Change password', path: '/account/change-password' },
       ],
     },
