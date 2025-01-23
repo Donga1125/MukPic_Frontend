@@ -12,6 +12,7 @@ button:disabled {
 }
 
 .root-wrapper {
+  width: 100%;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -19,7 +20,7 @@ button:disabled {
   justify-content: center;
   align-items: center;
   margin: 0 auto;
-  max-width: 390; /* 확인용으로  일단 390px */
+  max-width: 390px !important;
 }
 
 .main-container {
@@ -42,6 +43,7 @@ button:disabled {
 /* 웹뷰 및 모바일 최적화 */
 @media {
   body {
+    width: 100%;
     font-size: 16px;
     font-family: "SUIT", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
       "Helvetica Neue", Arial, sans-serif;
