@@ -22,29 +22,6 @@ interface UserInfoData {
   email: string;
 }
 
-type Props = {
-    message: string;
-    error: boolean;
-    className?: string;
-}
-type IconProps = {
-    error: boolean;
-}
-
-export function ValidateIcon({ error }: IconProps) {
-    return (
-        <span className={`badge badge-xs ${error ? 'badge-error' : 'badge-success'}`}></span>
-    );
-}
-
-export function ValidateSpan({ message, error, className }: Props) {
-    return (
-        <span className={`label-text-alt text-left pl-[1.25rem] ${className}`} style={{ display: error ? 'block' : 'none' }}>
-            {message}
-        </span>
-    );
-}
-
 
 
 const EditProfile = () => {

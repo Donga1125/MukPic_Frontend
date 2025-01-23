@@ -1,41 +1,18 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from "react";
-import { useSignupStore } from "@/app/types/signupStore";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 
 
-
-type Props = {
-    message: string;
-    error: boolean;
-    className?: string;
-}
-type IconProps = {
-    error: boolean;
+interface UserInfoData {
+  allergies: string[];
 }
 
-export function ValidateIcon({ error }: IconProps) {
-    return (
-        <span className={`badge badge-xs ${error ? 'badge-error' : 'badge-success'}`}></span>
-    );
-}
 
-export function ValidateSpan({ message, error, className }: Props) {
-    return (
-        <span className={`label-text-alt text-left pl-[1.25rem] ${className}`} style={{ display: error ? 'block' : 'none' }}>
-            {message}
-        </span>
-    );
-}
 
-// 공백에 _를 추가하는 함수
-function FormatStringArray(input: string[]): string[] {
-    return input.map((str) => str.replace(/\s+/g, "_").toUpperCase());
-}
 
-export default function EditHealthInfo() {
+const EditHealthInfo = () => {
+  const [userInfo, setUserInfo] = useState<UserInfoData | null>(null);
   const [selectedAllergies, setSelectedAllergies] = useState<string[]>([]); // 알레르기 선택 상태
   const [AllergiesSearch, setAllergiesSearch] = useState<string>(''); // 검색어 상태
   const [showDropdown, setShowDropdown] = useState<boolean>(false); // 드롭다운 표시 여부
@@ -48,45 +25,101 @@ export default function EditHealthInfo() {
   const etcAllergieList = ['Sulfurous'];
 
   const router = useRouter();
-  const setAllergyTypes = useSignupStore(state => state.setAllergyTypes);
 
-  // 최종 회원 가입을 위한 상태 가져오기
-  const { userId, email, password, userName, nationality, religion, agree, chronicDiseaseTypes, dietaryPreferences, image } = useSignupStore.getState();
+  const getAuthToken = () => {
+          const token = localStorage.getItem("Authorization");
+          if (!token) {
+            console.error("Authorization token not found");
+          }
+          return token;
+        };
+      
+        // 사용자 정보 가져오기
+        useEffect(() => {
+          const fetchUserInfo = async () => {
+            const token = getAuthToken();
+            if (!token) return;
+      
+            try {
+              const response = await fetch(`${process.env.NEXT_PUBLIC_ROOT_API}/users/myinfo`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `${token}`,
+                },
+              });
+      
+              if (response.ok) {
+                  const data = await response.json();
+                  setUserInfo(data);
+                  setSelectedAllergies(data.allergies || []);
+                  
+              } else {
+                console.error('Failed to fetch user info:', response.status);
+              }
+            } catch (error) {
+              console.error('Error fetching user info:', error);
+            }
+          };
+      
+          fetchUserInfo();
+        }, [router]);
+
+        useEffect(() => {
+          if (userInfo && userInfo.allergies) {
+            // 모든 알레르기 값을 대문자로 변환
+            setSelectedAllergies(userInfo.allergies.map((allergy) => allergy.toUpperCase()));
+          }
+        }, [userInfo]);
 
   // 모든 알레르기 리스트 합치기기
   const allAllergies = [...seaFoodAllergieList, ...fruitAllergieList, ...nutsAllergieList, ...meatAllergieList, ...etcAllergieList];
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      setAllergyTypes(FormatStringArray(selectedAllergies));
-      const { allergyTypes } = useSignupStore.getState();
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
+    const token = getAuthToken();
+    if (!token) return;
 
-      const signupData = {
-          userId, email, password, userName, nationality, religion, agree,
-          ...(allergyTypes && allergyTypes.length > 0 && { allergyTypes }), // 배열의 경우 빈 배열 제외
-          ...(chronicDiseaseTypes && chronicDiseaseTypes.length > 0 && { chronicDiseaseTypes }),
-          ...(dietaryPreferences && dietaryPreferences.length > 0 && { dietaryPreferences }),
-          ...(image && { image }),
-      };
+    try {
+      const updatedData: { allergyTypes?: string[] } = {};
 
+        // 알레르기 변경 확인
+        if (JSON.stringify(selectedAllergies) !== JSON.stringify(userInfo?.allergies)) {
+          updatedData.allergyTypes = selectedAllergies.map((allergy) => allergy.toUpperCase());
+      }
 
-      console.log(signupData);
+        // 변경 사항이 있을 경우에만 PATCH 요청
+        if (Object.keys(updatedData).length > 0) {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_ROOT_API}/users/editUserInfo`, {
+                method: "PATCH",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `${token}`,
+                },
+                body: JSON.stringify(updatedData), 
+            });
 
-      axios.post(`${process.env.NEXT_PUBLIC_ROOT_API}/users/register`, signupData)
-          .then(response => {
-              if (response.data.success) {
-                  alert('All set! Welcome aboard!');
-                  router.push('/login');
-              } else {
-                  alert('The error occurred. Please try again from the beginning.');
-              }
-          })
-          .catch(error => {
-              alert('The error occurred. Please try again from the beginning.');
-              console.log('catch error : ', error);
-          });
-  };
+            if (response.ok) {
+                const data = await response.json();
+                setUserInfo(data); 
+                alert("User information has been modified.");
+                console.log(updatedData);
+                router.push("/settings");
+            } else {
+                console.error("Failed to update user info:", response.status);
+                alert("Failed to update user info.");
+            }
+        } else {
+            alert("No changes detected.");
+        }
+    } catch (error) {
+        console.error("Failed to update profile:", error);
+        alert("Failed to update profile. Please try again.");
+    }
+};
 
   // 알레르기 선택 토글
   const toggleAllergy = (allergy: string) => {
@@ -124,7 +157,8 @@ export default function EditHealthInfo() {
 
   return (
       <form onSubmit={handleSubmit} className='flex flex-col gap-10 flex-grow'>
-          <h1 className="text-xl font-bold mb-4">Please select your allergy</h1>
+          <h1 className="text-xl font-bold mb-4">Please edit your allergy</h1>
+          
 
           <div className="relative z-100" ref={inputRef}>
               <label htmlFor="AllergiesSearch" className="flex auth-input-label items-center">
@@ -154,7 +188,7 @@ export default function EditHealthInfo() {
                                   className="px-4 py-2 hover:bg-[#E0E0E0] cursor-pointer
                                   w-100"
                                   onClick={() => {
-                                      toggleAllergy(allergy);
+                                      toggleAllergy(allergy.toUpperCase());
                                   }}
                               >
                                   {allergy}
@@ -167,108 +201,110 @@ export default function EditHealthInfo() {
 
           {/* 버튼들을 나열 */}
           <div className="button-toggle-container flex flex-col gap-[1rem]" >
-              <div>
-                  <h1 className='allergies-title text-left gap-[0.75rem]'>Fruits</h1>
-              </div>
-              <div className='dropdown-badge-container '>
-                  {fruitAllergieList.map((allergie) => (
-                      <button
-                          type='button'
-                          key={allergie}
-                          onClick={() => toggleAllergy(allergie)}
-                          className={`allergies-button
-                          ${selectedAllergies.includes(allergie)
-                                  ? "dropdown-badge-red "
-                                  : "dropdown-badge-none"
-                              }`}
-                      >
-                          {allergie}
-                      </button>
-                  ))}
-              </div>
+            <div>
+              <h1 className='allergies-title text-left gap-[0.75rem]'>Fruits</h1>
+            </div>
+            <div className='dropdown-badge-container '>
+              {fruitAllergieList.map((allergy) => (
+                <button
+                  type='button'
+                  key={allergy}
+                  onClick={() => toggleAllergy(allergy.toUpperCase())}
+                  className={`allergies-button ${
+                    selectedAllergies.includes(allergy.toUpperCase()) || userInfo?.allergies.includes(allergy)
+                      ? "dropdown-badge-red"
+                      : "dropdown-badge-none"
+                  }`}
+                >
+                  {allergy}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="button-toggle-container flex flex-wrap gap-[1rem]">
-              <h1 className='allergies-title text-left gap-[0.75rem]'>Sea Food</h1>
-              <div className='dropdown-badge-container'>
-                  {seaFoodAllergieList.map((allergie) => (
-                      <button
-                          type='button'
-                          key={allergie}
-                          onClick={() => toggleAllergy(allergie)}
-                          className={`allergies-button
-                          ${selectedAllergies.includes(allergie)
-                                  ? "dropdown-badge-red "
-                                  : "dropdown-badge-none"
-                              }`}
-                      >
-                          {allergie}
-                      </button>
-                  ))}
-              </div>
+            <h1 className='allergies-title text-left gap-[0.75rem]'>Sea Food</h1>
+            <div className='dropdown-badge-container'>
+              {seaFoodAllergieList.map((allergie) => (
+                <button
+                  type='button'
+                  key={allergie}
+                  onClick={() => toggleAllergy(allergie.toUpperCase())}
+                  className={`allergies-button ${
+                    selectedAllergies.includes(allergie.toUpperCase()) || userInfo?.allergies.includes(allergie)
+                      ? "dropdown-badge-red"
+                      : "dropdown-badge-none"
+                  }`}
+                >
+                  {allergie}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="button-toggle-container flex flex-wrap gap-[1rem]">
-              <h1 className='allergies-title text-left gap-[0.75rem]'>Nuts & Seeds</h1>
-              <div className='dropdown-badge-container'>
-                  {nutsAllergieList.map((allergie) => (
-                      <button
-                          type='button'
-                          key={allergie}
-                          onClick={() => toggleAllergy(allergie)}
-                          className={`allergies-button
-                          ${selectedAllergies.includes(allergie)
-                                  ? "dropdown-badge-red "
-                                  : "dropdown-badge-none"
-                              }`}
-                      >
-                          {allergie}
-                      </button>
-                  ))}
-              </div>
+            <h1 className='allergies-title text-left gap-[0.75rem]'>Nuts & Seeds</h1>
+            <div className='dropdown-badge-container'>
+              {nutsAllergieList.map((allergie) => (
+                <button
+                  type='button'
+                  key={allergie}
+                  onClick={() => toggleAllergy(allergie.toUpperCase())}
+                  className={`allergies-button ${
+                    selectedAllergies.includes(allergie.toUpperCase()) || userInfo?.allergies.includes(allergie)
+                      ? "dropdown-badge-red"
+                      : "dropdown-badge-none"
+                  }`}
+                >
+                  {allergie}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="button-toggle-container flex flex-wrap gap-[1rem]">
-              <h1 className='allergies-title text-left gap-[0.75rem]'>Meat & Dairy</h1>
-              <div className='dropdown-badge-container'>
-                  {meatAllergieList.map((allergie) => (
-                      <button
-                          type='button'
-                          key={allergie}
-                          onClick={() => toggleAllergy(allergie)}
-                          className={`allergies-button
-                          ${selectedAllergies.includes(allergie)
-                                  ? "dropdown-badge-red "
-                                  : "dropdown-badge-none"
-                              }`}
-                      >
-                          {allergie}
-                      </button>
-                  ))}
-              </div>
+            <h1 className='allergies-title text-left gap-[0.75rem]'>Meat & Dairy</h1>
+            <div className='dropdown-badge-container'>
+              {meatAllergieList.map((allergie) => (
+                <button
+                  type='button'
+                  key={allergie}
+                  onClick={() => toggleAllergy(allergie.toUpperCase())}
+                  className={`allergies-button ${
+                    selectedAllergies.includes(allergie.toUpperCase()) || userInfo?.allergies.includes(allergie)
+                      ? "dropdown-badge-red"
+                      : "dropdown-badge-none"
+                  }`}
+                >
+                  {allergie}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="button-toggle-container flex flex-wrap gap-[1rem]">
-              <div>
-                  <h1 className='allergies-title text-left gap-[0.75rem]'>ETC</h1>
-              </div>
-              <div className="dropdown-badge-container">
-                  {etcAllergieList.map((allergie) => (
-                      <button
-                          type='button'
-                          key={allergie}
-                          onClick={() => toggleAllergy(allergie)}
-                          className={`allergies-button
-                          ${selectedAllergies.includes(allergie)
-                                  ? "dropdown-badge-red "
-                                  : "dropdown-badge-none"
-                              }`}
-                      >
-                          {allergie}
-                      </button>
-                  ))}
-              </div>
+            <div>
+              <h1 className='allergies-title text-left gap-[0.75rem]'>ETC</h1>
+            </div>
+            <div className="dropdown-badge-container">
+              {etcAllergieList.map((allergie) => (
+                <button
+                  type='button'
+                  key={allergie}
+                  onClick={() => toggleAllergy(allergie.toUpperCase())}
+                  className={`allergies-button ${
+                    selectedAllergies.includes(allergie.toUpperCase()) || userInfo?.allergies.includes(allergie)
+                      ? "dropdown-badge-red"
+                      : "dropdown-badge-none"
+                  }`}
+                >
+                  {allergie}
+                </button>
+              ))}
+            </div>
           </div>
           <button className='auth-button auth-button-id sign-up-button-text'
               type='submit'
-          >Next
+          >Save
           </button>
       </form >
   );
 }
+
+export default EditHealthInfo;
