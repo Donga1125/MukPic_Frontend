@@ -10,48 +10,48 @@ export default function MainPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("Top picks");
   const router = useRouter();
 
-  const categories = ["Top picks", "Bap", "Myeon", "Snacks", "Cafe"];
+  const categories = ["Top picks", "Rice", "Noodle", "Snacks", "Cafe"];
 
   const foodData: Record<string, string[]> = {
     "Top picks": [
       "Dakgalbi",
       "Fried Chicken",
-      "Bibimbap with Extra Veggies",
+      "Bibimbap",
       "Tteokbokki",
       "Bulgogi",
       "Kimchi Stew",
       "Samgyeopsal",
       "Japchae",
     ],
-    Bap: [
+    Rice: [
       "Kimchi Fried Rice",
       "Bibimbap",
       "Bulgogi Rice",
       "Gukbap",
       "Soy Sauce Egg Rice",
-      "Mushroom Rice Bowl",
+      "Albap",
       "Omurice",
       "Gimbap",
     ],
-    Myeon: [
+    Noodle: [
       "Jajangmyeon",
       "Kalguksu",
       "Jjamppong",
       "Naengmyeon",
-      "Udon",
+      "Mak Guksu",
       "Spicy Cold Noodles",
       "Bulgogi Noodles",
-      "Soy Sauce Noodles",
+      "Soybean Noodle",
     ],
     Snacks: [
       "Hotteok",
       "Tteokbokki",
       "Corn Dog",
-      "Gimbap",
+      "Injeolmi",
       "Fish Cake Skewers",
       "Sweet Potato Fries",
-      "Rice Cakes",
-      "Manduguk",
+      "Songpyeon",
+      "Gamja Jeon",
     ],
     Cafe: [
       "Espresso",
@@ -68,7 +68,6 @@ export default function MainPage() {
   const foodImages: Record<string, string> = {
     Dakgalbi: "/images/Dakgalbi.jpg",
     "Fried Chicken": "/images/Fried Chicken.jpg",
-    "Bibimbap with Extra Veggies": "/images/Bibimbap.jpg",
     Tteokbokki: "/images/Tteokbokki.jpeg",
     Bulgogi: "/images/Bulgogi.jpg",
     "Kimchi Stew": "/images/kimchi Stew.jpg",
@@ -79,23 +78,24 @@ export default function MainPage() {
     "Bulgogi Rice": "/images/Bulgogi Rice.jpg",
     Gukbap: "/images/Gukbap.jpg",
     "Soy Sauce Egg Rice": "/images/Soy Sauce Egg Rice.jpg",
-    "Mushroom Rice Bowl": "/images/Mushroom Rice.jpeg",
+    Albap: "/images/Albap.jpg",
     Omurice: "/images/Omurice.jpg",
     Gimbap: "/images/Gimbap.jpg",
     Jajangmyeon: "/images/Jajangmyeon.jpeg",
     Kalguksu: "/images/Kalguksu.jpeg",
     Jjamppong: "/images/Jjamppong.jpeg",
     Naengmyeon: "/images/Naengmyeon.jpg",
-    Udon: "/images/Udon.jpg",
+    "Mak Guksu": "/images/Mak Guksu.jpg",
     "Spicy Cold Noodles": "/images/Spicy Cold Noodles.jpg",
     "Bulgogi Noodles": "/images/Bulgogi Noodles.jpg",
-    "Soy Sauce Noodles": "/images/Soy Sauce Noodles.jpg",
+    "Soybean Noodle": "/images/Soybean Noodle.jpg",
     Hotteok: "/images/Hotteok.jpg",
     "Corn Dog": "/images/Corn Dog.jpg",
     "Fish Cake Skewers": "/images/Fish Cake Skewers.jpg",
     "Sweet Potato Fries": "/images/Sweet Potato Fries.jpeg",
-    "Rice Cakes": "/images/Rice Cakes.jpg",
-    Manduguk: "/images/Manduguk.jpg",
+    "Songpyeon": "/images/Songpyeon.jpg",
+    "Injeolmi": "/images/Injeolmi.jpg",
+    "Gamja Jeon": "/images/Gamja Jeon.jpg",
     Espresso: "/images/Espresso.jpg",
     Cappuccino: "/images/Cappuccino.jpg",
     Bingsu: "/images/Bingsu.jpg",
@@ -104,6 +104,10 @@ export default function MainPage() {
     "Matcha Latte": "/images/Matcha Latte.jpg",
     Affogato: "/images/Affogato.jpg",
     Cheesecake: "/images/Cheesecake.jpg",
+  };
+
+  const handleFoodClick = (food: string) => {
+    router.push(`/keyword?query=${encodeURIComponent(food)}`);
   };
 
   useEffect(() => {
@@ -181,7 +185,7 @@ export default function MainPage() {
   };
 
   return (
-    <main className="mukpic-main-container bg-gray-50 min-h-[calc(100vh-50px)] px-4 py-6">
+    <main className="mukpic-main-container bg-gray-50 min-h-[calc(100vh-50px)] px-4 py-6 shadow-lg">
       <section className="flex justify-between items-center mb-6">
         <div className="flex-1 bg-black text-white rounded-3xl p-6 mr-4 flex flex-col items-center justify-center shadow-md">
           <p className="text-lg font-bold mb-2">Discover by Photo</p>
@@ -230,11 +234,12 @@ export default function MainPage() {
           {foodData[selectedCategory]?.map((food, idx) => (
             <div
               key={idx}
-              className="flex flex-col items-center"
+              className="flex flex-col items-center cursor-pointer"
               style={{
                 width: "4rem",
                 height: "5rem",
               }}
+              onClick={() => handleFoodClick(food)}
             >
               <div
                 className="w-16 h-16 flex items-center justify-center rounded-lg mb-2 shadow-sm bg-gray-200"
