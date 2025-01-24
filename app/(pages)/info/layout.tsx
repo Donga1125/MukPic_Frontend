@@ -6,22 +6,22 @@ import { SearchButtonForNav } from "@/app/components/button";
 import TextButtonForNavWrapper from "@/app/components/TextButtonForNavWrapper";
 
 export const metadata: Metadata = {
-  title: "MukPic-Info",
-  description: "Info Page",
+    title: "MukPic-Info",
+    description: "Info Page",
 };
 
 type LayoutProps = {
-  children: ReactNode;
+    children: ReactNode;
 };
 
 export default function Layout({ children }: LayoutProps) {
-  return (
-    <div className="root-wrapper">
-      <TopNav
-        leftButton={<SearchButtonForNav />}
-        rightButton={<TextButtonForNavWrapper />}
-      />
-      <div className="info-main-container flex-1 bg-white">{children}</div>
-    </div>
-  );
+    return (
+        <div className="root-wrapper">
+            <TopNav
+                leftButton={<SearchButtonForNav />}
+                rightButton={<TextButtonForNavWrapper />}
+            />
+            <div className="info-main-container flex-1 bg-white">{children}</div>
+        </div>
+    );
 }
