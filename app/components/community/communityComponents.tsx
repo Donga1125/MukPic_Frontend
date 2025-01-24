@@ -4,7 +4,7 @@ import "@/app/globals.css";
 import "@/app/(css)/community.css";
 import axios from "axios";
 import Image from "next/image";
-import { formatDistanceToNow, parseISO } from "date-fns";
+import { addHours, formatDistanceToNow, parseISO } from "date-fns";
 import { CategorySelectDropdown } from "./postComponents";
 
 interface CommunityPost {
@@ -87,6 +87,12 @@ export function ViewAiResearchButton() {
     )
 }
 
+function ConvertToTitleCase(str: string) {
+    if (str === 'ETC') return 'ETC';
+    if (str === 'ALL') return 'ALL';
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
 export function ViewAiResearchButtonForCarousel() {
     return (
         <button className='view-ai-research-button-carousel'>
@@ -116,23 +122,22 @@ export function FoodCategoryBadge({ children }: FoodCategoryBadgeProps) {
 type CommunityImageProps = {
     imageUrls: string[];
     handleImageLoad: () => void;
-    imageLoaded: boolean;
+    imageLoaded?: boolean;
 
 }
 
-export function CommunityImage({ imageUrls, handleImageLoad, imageLoaded }: CommunityImageProps) {
-
+export function CommunityImage({ imageUrls, handleImageLoad }: CommunityImageProps) {
 
     return (
         <div className='post-img-wrapper'>
 
             <Image src={imageUrls[0]} alt="img_error" className="img"
                 onLoad={handleImageLoad}
-                layout="intrinsic"
                 width={400}
                 height={300}
+                style={{ objectFit: 'cover', width: '100%', height: 'auto' }}
             ></Image>
-            {imageLoaded && <ViewAiResearchButton></ViewAiResearchButton>}
+            {/* {imageLoaded && <ViewAiResearchButton></ViewAiResearchButton>} */}
         </div >
     );
 }
@@ -145,7 +150,7 @@ type CommunityImageCarouselProps = {
     handleNext?: () => void;
 }
 
-const CommunityImageCarousel: React.FC<CommunityImageCarouselProps> = ({ imageUrls, handleImageLoad, imageLoaded,
+const CommunityImageCarousel: React.FC<CommunityImageCarouselProps> = ({ imageUrls, handleImageLoad, //imageLoaded,
     currentIndex, handlePrev, handleNext
 }) => {
 
@@ -162,11 +167,11 @@ const CommunityImageCarousel: React.FC<CommunityImageCarouselProps> = ({ imageUr
                 alt="img_error"
                 className="carousel-image"
                 onLoad={handleImageLoad}
-                layout="intrinsic"
+                style={{ objectFit: 'cover', width: '100%', height: 'auto' }}
                 width={400}
                 height={300}
             />
-            {imageLoaded && <ViewAiResearchButtonForCarousel />}
+            {/* {imageLoaded && <ViewAiResearchButtonForCarousel />} */}
             <button onClick={handlePrev} type='button' className="carousel-button-prev">
                 <svg width="14" height="24" viewBox="0 0 14 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12.6934 1.36002C12.1217 0.788358 11.2 0.788358 10.6284 1.36002L0.816714 11.1717C0.361714 11.6267 0.361714 12.3617 0.816714 12.8167L10.6284 22.6284C11.2 23.2 12.1217 23.2 12.6934 22.6284C13.265 22.0567 13.265 21.135 12.6934 20.5634L4.13005 12L12.705 3.42502C13.265 2.85336 13.265 1.93169 12.6934 1.36002Z" fill="black" />
@@ -202,10 +207,11 @@ export function PostComponents() {
     const fetchPosts = useCallback(() => {
         if (isLast) return; // 이미 마지막 페이지면 요청하지 않음
 
+        const categoryUpper = category.toUpperCase();
         axios
             .get<CommunityApiResponse>(`${process.env.NEXT_PUBLIC_ROOT_API}/community`, {
                 params: {
-                    category: category,
+                    category: categoryUpper,
                     sortBy: "latest",
                     page,
                     size: 1,
@@ -229,7 +235,7 @@ export function PostComponents() {
     }, [isLast, page, category]); // isLast와 page 상태만 의존성으로 사용
 
     const handleCategoryChange = (newCategory: string) => {
-        setCategory(newCategory.toUpperCase()); // 카테고리 변경
+        setCategory(newCategory); // 카테고리 변경
         setPosts([]); // 게시글 초기화
         setPage(0); // 페이지 초기화
         setIsLast(false); // 마지막 페이지 여부 초기화
@@ -291,23 +297,35 @@ export function PostComponents() {
     return (
         <>
             <div className="post-component-wrapper">
-                {posts.map((post, index) => (
-                    <div key={post.communityKey}>
-                        {/* 첫 번째 요소에만 CategorySelectDropdown 추가 */}
-                        {index === 0 && (
-                            <CategorySelectDropdown
-                                defaultItem="ALL" // 기본 선택 값 설정
-                                options={categoryList} // 드롭다운 옵션 전달
-                                onSelect={handleCategoryChange}
-                                value={category}
-                            />
-                        )}
-                        <PostContent key={post.communityKey} post={post} useManyImage={false} />
-                    </div>
-                ))}
-                {isLast && <p className='text-center'>no more post</p>}
-                <div ref={observerRef} className="loading-placeholder h-1" />
+                <div style={{ backgroundColor: 'white' }} className='pb-[1rem]'>
+                    <CategorySelectDropdown
+                        defaultItem="ALL" // 기본 선택 값 설정
+                        options={categoryList} // 드롭다운 옵션 전달
+                        onSelect={handleCategoryChange}
+                        value={category}
+                    />
+                </div>
+                {posts.length === 0 ? (
+                    null
+                ) : (
+
+                    posts.map((post) => (
+                        <div key={post.communityKey}>
+                            {/* 첫 번째 요소에만 CategorySelectDropdown 추가 */}
+
+                            <PostContent key={post.communityKey} post={post} useManyImage={false} />
+                        </div>
+                    ))
+
+                )}
+                <div ref={observerRef} className="loading-placeholder h-1"
+                />
+                <div className='flex flex-grow flex-1 justify-center'>
+                    {isLast && <p className='text-center'
+                    >no more post</p>}
+                </div>
             </div>
+
         </>
     );
 }
@@ -379,11 +397,11 @@ export function PostContent({ post, useManyImage, currentIndex, handleNext, hand
     }
 
     function TimeAgo({ timestamp }: { timestamp: string }) {
-        console.log(timestamp);
-        const parsedDate = parseISO(timestamp); // ISO 형식 문자열을 Date 객체로 변환
-        const timeAgo = formatDistanceToNow(parsedDate, { addSuffix: true }); // 현재 시간과 비교하여 시간 차이 계산
+        const parsedDate = parseISO(timestamp);
+        // 시간대 보정 (UTC 기준에서 ±9시간 조정)
+        const adjustedDate = addHours(parsedDate, +9); // UTC+9를 위해 +9 (UTC-9면 -9로 설정)
+        const timeAgo = formatDistanceToNow(adjustedDate, { addSuffix: true });
         const createTime = timeAgo.replace(/^about\s/, '');
-        console.log('시간차이', createTime);
         return createTime;
     }
 
@@ -391,7 +409,7 @@ export function PostContent({ post, useManyImage, currentIndex, handleNext, hand
         <div className='post-contents-wrapper self-center gap-2'
             onClick={useManyImage ? undefined : DetailPostHandler}>
             {/* 프로필 부분 */}
-            <div className='post-profile-wrapper mt-2'>
+            <div className='post-profile-wrapper mt-2 relative'>
                 <div
                     style={{
                         width: "2.25rem",
@@ -407,7 +425,7 @@ export function PostContent({ post, useManyImage, currentIndex, handleNext, hand
                     }}
                 >
                     <Image
-                        src='https://mukpic-image.s3.ap-northeast-2.amazonaws.com/COMMUNITY/5d50d16a-c597-4722-9844-8fe66a5dccdc.png'
+                        src={post.profileImage}
                         onLoad={handleImageLoad}
                         alt="미리보기"
                         style={{ width: "100%", height: "100%", objectFit: "cover" }}
@@ -435,7 +453,9 @@ export function PostContent({ post, useManyImage, currentIndex, handleNext, hand
                 {/* 음식 카테고리 뱃지 입력받아서 넣기 */}
                 <div className='post-contents-left'>
                     <div className='flex-row flex gap-2 justify-between'>
-                        <FoodCategoryBadge>{post.category}</FoodCategoryBadge>
+                        <FoodCategoryBadge>
+                            {ConvertToTitleCase(post.category)}
+                        </FoodCategoryBadge>
                     </div>
                     {/* 컨텐츠 제목 */}
                     <div>

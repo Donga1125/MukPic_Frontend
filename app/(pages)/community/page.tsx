@@ -3,6 +3,7 @@ import { PostComponents } from "@/app/components/community/communityComponents";
 import '@/app/(css)/community.css';
 import TopNav from "@/app/components/TopNav";
 import { TextAndIconButton, TextLogoButtonForNav } from "@/app/components/button";
+import { AddBotNav } from "@/app/components/BotNav";
 // import { useRouter } from "next/navigation";
 
 
@@ -15,7 +16,9 @@ export default function BoardMain() {
 
     return (
         <>
-            <div className='flex flex-grow justify-start flex-col'>
+            <div 
+            className='flex flex-grow justify-start flex-col relative'
+            style={{width: '100%' }}>
                 <TopNav
                     leftButton={<TextLogoButtonForNav
                         className="nav-text"
@@ -34,8 +37,9 @@ export default function BoardMain() {
                 <div className='flex justify-center' style={{ background: '#F1F3F6', width: '100%' }}>
                     <PostComponents></PostComponents>
                 </div>
-            </div>
 
+            </div>
+            <AddBotNav></AddBotNav>
         </>
     );
 }
