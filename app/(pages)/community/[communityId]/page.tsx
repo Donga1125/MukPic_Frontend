@@ -16,6 +16,8 @@ export default function BoardDetail() {
     const [communityId, setCommunityId] = useState<string | null>(null);
     const [currentIndex, setCurrentIndex] = useState<number>(0);
     const [imageUrls, setImageUrls] = useState<string[]>([]);
+    const [userKey , setUserKey] = useState<number>(-5);
+    const [rightButtonVisible, setRightButtonVisible] = useState<boolean>(false);
 
 
 
@@ -146,6 +148,7 @@ export default function BoardDetail() {
                 .then((response) => {
                     setPost(response.data);
                     setImageUrls(response.data.imageUrls);
+                    setUserKey(response.data.userKey);
                     setLoading(false);
                 })
                 .catch((error) => {
@@ -184,6 +187,17 @@ export default function BoardDetail() {
         }
     }, [imageUrls, currentIndex, setCurrentIndex]);
 
+    //유저 키 비교해서 버튼 활성화화
+    useEffect(() => {
+        const getUserKey = localStorage.getItem('userKey');
+        if (Number(userKey) === Number(getUserKey)) {
+            setRightButtonVisible(true);
+        }
+        else{
+            setRightButtonVisible(false);
+        }
+    }, [userKey]);
+
     // 로딩 상태와 에러 처리
     if (loading) return <div>Loading...</div>;
 
@@ -206,7 +220,7 @@ export default function BoardDetail() {
                     </SvgButtonForNav>}
 
                     // 임시로 넣은 아이콘
-                    rightButton={<DropdownForNav />}
+                    rightButton={rightButtonVisible?<DropdownForNav />:null}
                 />
                 <div className='flex justify-center ' style={{ width: '100%' }}>
                     <div className='post-component-wrapper' >
