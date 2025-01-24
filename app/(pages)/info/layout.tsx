@@ -6,12 +6,12 @@ import { MainButtonForNav } from "@/app/components/button";
 import TextButtonForNavWrapper from "@/app/components/TextButtonForNavWrapper";
 
 export const metadata: Metadata = {
-  title: "MukPic-Info",
-  description: "Info Page",
+    title: "MukPic-Info",
+    description: "Info Page",
 };
 
 type LayoutProps = {
-  children: ReactNode;
+    children: ReactNode;
 };
 
 export default function Layout({ children }: LayoutProps) {

@@ -1,18 +1,22 @@
 'use client';
 import { SvgButtonForNav } from "@/app/components/button";
-import { AddImage, CategorySelectDropdown } from "@/app/components/community/postComponents";
+import { AddImageUrl, CategorySelectDropdown } from "@/app/components/community/postComponents";
 import TopNav from "@/app/components/TopNav";
 import { usePostStore } from "@/app/types/postStore";
+import { useUpdateImageStore } from "@/app/types/updateImgStore";
 import axios from "axios";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+
+
 
 export default function BoardDetail() {
     const router = useRouter();
     // 쿼리 파라미터 추출
     const pathname = usePathname() as string;
     const [communityId, setCommunityId] = useState<string | null>(null);
-
+    const categoryList: string[] = ['Rice', 'Noodle', 'Soup', 'Dessert', 'ETC', 'Streetfood', 'Kimchi']; // 드롭다운 옵션
+    const maxLength = 300; // 최대 글자 수
     // 파라미터에서 communityId 추출
     useEffect(() => {
         if (pathname) {
@@ -25,118 +29,151 @@ export default function BoardDetail() {
 
     // zustand 사용해서 받아 온 값을 상태에 저장해준다음 수정할 때, 페이지에 보여줄 때 사용
 
-    const title = usePostStore(state => state.title);
-    const content = usePostStore(state => state.content);
-    const images = usePostStore(state => state.images);
-    const category = usePostStore(state => state.category);
-    const imageUrls = usePostStore(state => state.imageUrls);
-    // const setImages = usePostStore(state => state.setImages);
-    const likeCount = usePostStore(state => state.likeCount);
-    const categoryList: string[] = ['Rice', 'Noodle', 'Soup', 'Dessert', 'ETC', 'Streetfood', 'Kimchi']; // 드롭다운 옵션
-    const setCategory = usePostStore((state) => state.setCategory);
-    const setTitle = usePostStore((state) => state.setTitle);
-    const setContent = usePostStore((state) => state.setContent);
+    const [initTitle, setInitTile] = useState<string>(''); // 수정 전 타이틀
+    const [initContent, setInitContent] = useState<string>(''); // 수정 전 내용
+    const [initCategory, setInitCategory] = useState<string>(''); // 수정 전 카테고리
+    const [title, setTitle] = useState<string>(''); // 수정 후 타이틀
+    const [content, setContent] = useState<string>(''); // 수정 후 내용
+    const [category, setCategory] = useState<string>(''); // 수정 후 카테고리
+
+    //이미지 url만 다른 컴포넌트로 처리해주므로 useStore 사용
     const setImageUrls = usePostStore((state) => state.setImageUrls);
+    const updateImageUrls = useUpdateImageStore((state) => state.updateImageUrls);
 
-    const maxLength = 300; // 최대 글자 수
-
-    // 타입 정의
-    type CommunityPost = {
-        communityKey: string;
-        title: string;
-        content: string;
-        imageUrls: string[];
-        likeCount: number;
-    };
-
-    // 상태 정의
-    const [post, setPost] = useState<CommunityPost | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
 
+
+    // 타입 정의
+    // type CommunityPost = {
+    //     communityKey: string;
+    //     title: string;
+    //     content: string;
+    //     imageUrls: string[];
+    //     likeCount: number;
+    // };
+
+    // // 상태 정의
+    // const [post, setPost] = useState<CommunityPost | null>(null);
+
+
     // 수정 버튼 클릭 시
-    function UpDateHandler() {
-        if (title && content && category) {
-            if (images.length > 0) {
-                const uploadPromises = images.map((image) => {
-                    const uploadFormData = new FormData();
-                    uploadFormData.append("file", image);
-                    uploadFormData.append("type", 'COMMUNITY');
+    // function UpDateHandler() {
+    //     if (title && content && category) {
+    //         if (images.length > 0) {
+    //             const uploadPromises = images.map((image) => {
+    //                 const uploadFormData = new FormData();
+    //                 uploadFormData.append("file", image);
+    //                 uploadFormData.append("type", 'COMMUNITY');
 
-                    return axios({
-                        method: 'post',
-                        url: `${process.env.NEXT_PUBLIC_ROOT_API}/images/upload`,
-                        data: uploadFormData
-                    }).then((response) => {
-                        const imageUrl = response.data[0];
-                        return imageUrl; // 서버에서 반환한 이미지 URL 배열
-                    });
-                });
-                Promise.all(uploadPromises)
-                    .then((uploadedImageUrlsArrays) => {
-                        // uploadedImageUrlsArrays는 배열 안에 배열이 있을 수 있으므로, 이를 평평하게(flatten) 만듭니다
-                        const flattenedImageUrls = [].concat(...uploadedImageUrlsArrays);
-                        console.log('업로드된 이미지 URLs:', flattenedImageUrls);
-                        let uploadedImageUrls: string[] = [];
+    //                 return axios({
+    //                     method: 'post',
+    //                     url: `${process.env.NEXT_PUBLIC_ROOT_API}/images/upload`,
+    //                     data: uploadFormData
+    //                 }).then((response) => {
+    //                     const imageUrl = response.data[0];
+    //                     return imageUrl; // 서버에서 반환한 이미지 URL 배열
+    //                 });
+    //             });
+    //             Promise.all(uploadPromises)
+    //                 .then((uploadedImageUrlsArrays) => {
+    //                     // uploadedImageUrlsArrays는 배열 안에 배열이 있을 수 있으므로, 이를 평평하게(flatten) 만듭니다
+    //                     const flattenedImageUrls = [].concat(...uploadedImageUrlsArrays);
+    //                     console.log('업로드된 이미지 URLs:', flattenedImageUrls);
+    //                     let uploadedImageUrls: string[] = [];
 
-                        if (imageUrls.length > 0) {
-                            uploadedImageUrls = [...flattenedImageUrls, ...imageUrls]; // 기존 imageUrls와 결합
-                        } else {
-                            uploadedImageUrls = flattenedImageUrls; // 단독으로 flattenedImageUrls만 사용
-                        }
-                        console.log('업로드된 이미지 URLs:', imageUrls);
-                        console.log('업로드된 이미지 URLs:', uploadedImageUrls);
-                        const data = {
-                            // communityKey: communityId,
-                            title: title,
-                            content: content,
-                            imageUrls: uploadedImageUrls,
-                            // likeCount: likeCount,
-                        }
-
-                        console.log('수정할 데이터:', data);
+    //                     if (imageUrls.length > 0) {
+    //                         uploadedImageUrls = [...flattenedImageUrls, ...imageUrls]; // 기존 imageUrls와 결합
+    //                     } else {
+    //                         uploadedImageUrls = flattenedImageUrls; // 단독으로 flattenedImageUrls만 사용
+    //                     }
+    //                     console.log('업로드된 이미지 URLs:', imageUrls);
+    //                     console.log('업로드된 이미지 URLs:', uploadedImageUrls);
+    //                     const data = {
+    //                         // communityKey: communityId,
+    //                         title: title,
+    //                         content: content,
+    //                         imageUrls: uploadedImageUrls,
+    //                         // likeCount: likeCount,
+    //                     }
 
 
-                        // 게시글 등록 API 호출
-                        axios({
-                            method: 'patch',
-                            url: `${process.env.NEXT_PUBLIC_ROOT_API}/community/${communityId}`,
-                            data: data,
-                            headers: {
-                                Authorization: `${localStorage.getItem('Authorization')}`
-                            }
-                        }).then((response) => {
-                            if (response.status === 200) {
-                                alert('Item successfully modified.');
-                                router.push(`/community/${communityId}`);
-                            }
-                        }).catch((error) => {
-                            console.error('게시글 수정 api 에러: ', error);
-                            console.log(post);
-                        })
-                    })
+    //                     // 게시글 등록 API 호출
+    //                     axios({
+    //                         method: 'patch',
+    //                         url: `${process.env.NEXT_PUBLIC_ROOT_API}/community/${communityId}`,
+    //                         data: data,
+    //                         headers: {
+    //                             Authorization: `${localStorage.getItem('Authorization')}`
+    //                         }
+    //                     }).then((response) => {
+    //                         if (response.status === 200) {
+    //                             console.log(response);
+    //                             alert('Item successfully modified.');
+    //                             router.push(`/community/${communityId}`);
+    //                         }
+    //                     }).catch((error) => {
+    //                         console.error('게시글 수정 api 에러: ', error);
+    //                         console.log(post);
+    //                     })
+    //                 })
 
-            }
-            else{
-                submitUpdateData(imageUrls);
-            }
-        }
+    //         }
+    //         else {
+    //             submitUpdateData();
+    //         }
+    //     }
+    // }
+    // function submitUpdateData() {
+    //     const data = {
+    //         title: title,
+    //     };
+
+    //     console.log('수정할 데이터:', data);
+
+    //     // 게시글 수정 API 호출
+    //     axios({
+    //         method: 'patch',
+    //         url: `${process.env.NEXT_PUBLIC_ROOT_API}/community/${communityId}`,
+    //         data: data,
+    //         headers: {
+    //             Authorization: `${localStorage.getItem('Authorization')}`
+    //         }
+    //     }).then((response) => {
+    //         if (response.status === 200) {
+    //             alert('Item successfully modified.');
+    //             router.push(`/community/${communityId}`);
+    //         }
+    //     }).catch((error) => {
+    //         console.error('게시글 수정 api 에러: ', error);
+    //     });
+    // }
+    interface UpdateData {
+        title?: string;
+        content?: string;
+        imageUrls?: string[]; // 혹은 File[]
+        category?: string;
     }
-    function submitUpdateData(uploadedImageUrls: string[]) {
-        const data = {
-            title: title,
-            content: content,
-            imageUrls: uploadedImageUrls,
-            likeCount: likeCount,
-            category: category
-        };
 
-        console.log('수정할 데이터:', data);
+    function UpDateHandler() {
+        const updateData: UpdateData = {};
 
-        // 게시글 수정 API 호출
+        if (title !== initTitle && title !== '') {
+            updateData.title = title;
+        }
+        if (content !== initContent && content !== '') {
+            updateData.content = content;
+        }
+        if (category !== initCategory && category !== '') {
+            updateData.category = category.toUpperCase();
+        }
+        if (updateImageUrls.length > 0) {
+            updateData.imageUrls = updateImageUrls;
+        }
+        console.log('수정할 데이터:', updateData);
         axios({
             method: 'patch',
             url: `${process.env.NEXT_PUBLIC_ROOT_API}/community/${communityId}`,
-            data: data,
+            data: updateData,
             headers: {
                 Authorization: `${localStorage.getItem('Authorization')}`
             }
@@ -147,7 +184,8 @@ export default function BoardDetail() {
             }
         }).catch((error) => {
             console.error('게시글 수정 api 에러: ', error);
-        });
+
+        })
     }
 
 
@@ -167,11 +205,11 @@ export default function BoardDetail() {
             )
                 .then((response) => {
                     if (response.status === 200) {
-                        setPost(response.data);
-                        setTitle(response.data.title);
-                        setContent(response.data.content);
-                        setCategory(response.data.category);
+                        setInitTile(response.data.title);
+                        setInitContent(response.data.content);
+                        setInitCategory(response.data.category);
                         setImageUrls(response.data.imageUrls);
+
                         setLoading(false);
                     }
                     if (response.status === 401) {
@@ -230,9 +268,12 @@ export default function BoardDetail() {
                 <div className="write-wrapper">
                     {/* 카테고리 드롭다운 */}
                     <CategorySelectDropdown
-                        defaultItem="Category" // 기본 선택 값 설정
+                        defaultItem={
+                            initCategory ?
+                                initCategory.charAt(0).toUpperCase() + initCategory.slice(1).toLowerCase()
+                                : 'Category'} // 기본 선택 값 설정
                         options={categoryList} // 드롭다운 옵션 전달
-                        onSelect={(item) => setCategory(item.toUpperCase())} // 선택된 항목 category로로 콜백
+                        onSelect={(item) => setCategory(item)} // 선택된 항목 category로로 콜백
                     />
                     {/* 타이틀 */}
                     <label htmlFor="title" className='flex auth-input-label' >
@@ -242,14 +283,14 @@ export default function BoardDetail() {
                             required
                             className='auth-placeholder grow text-left'
                             maxLength={20}
-                            value={title}
+                            defaultValue={initTitle}
                             onChange={titlehandleChange}
                         />
                     </label>
                     {/* 내용 입력 */}
                     <label htmlFor="contents">
                         <textarea
-                            value={content}
+                            defaultValue={initContent}
                             name="contents"
                             id="contents"
                             onChange={contentshandleChange}
@@ -262,7 +303,7 @@ export default function BoardDetail() {
                     </label>
 
                     {/* 이미지 추가 */}
-                    <AddImage />
+                    <AddImageUrl></AddImageUrl>
                 </div>
             </div>
         </>
