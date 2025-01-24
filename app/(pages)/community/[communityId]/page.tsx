@@ -121,13 +121,12 @@ export default function BoardDetail() {
                     Authorization: `${localStorage.getItem('Authorization')}`
                 }
             }).then((response) => {
-                if (response.status === 200) {
-                    alert('Item successfully deleted.');
-                    router.push('/community');
-                }
                 if (response.status === 401) {
                     alert('You do not have permission to delete this.')
                 }
+                alert('Item successfully deleted.');
+                router.push('/community');
+
             }).catch((error) => {
                 console.error('게시글 삭제 api 에러: ', error);
             })

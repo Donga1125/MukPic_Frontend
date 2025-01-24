@@ -202,10 +202,11 @@ export function PostComponents() {
     const fetchPosts = useCallback(() => {
         if (isLast) return; // 이미 마지막 페이지면 요청하지 않음
 
+        const categoryUpper=category.toUpperCase();
         axios
             .get<CommunityApiResponse>(`${process.env.NEXT_PUBLIC_ROOT_API}/community`, {
                 params: {
-                    category: category,
+                    category: categoryUpper,
                     sortBy: "latest",
                     page,
                     size: 1,
@@ -229,7 +230,7 @@ export function PostComponents() {
     }, [isLast, page, category]); // isLast와 page 상태만 의존성으로 사용
 
     const handleCategoryChange = (newCategory: string) => {
-        setCategory(newCategory.toUpperCase()); // 카테고리 변경
+        setCategory(newCategory); // 카테고리 변경
         setPosts([]); // 게시글 초기화
         setPage(0); // 페이지 초기화
         setIsLast(false); // 마지막 페이지 여부 초기화
@@ -291,23 +292,35 @@ export function PostComponents() {
     return (
         <>
             <div className="post-component-wrapper">
-                {posts.map((post, index) => (
-                    <div key={post.communityKey}>
-                        {/* 첫 번째 요소에만 CategorySelectDropdown 추가 */}
-                        {index === 0 && (
-                            <CategorySelectDropdown
-                                defaultItem="ALL" // 기본 선택 값 설정
-                                options={categoryList} // 드롭다운 옵션 전달
-                                onSelect={handleCategoryChange}
-                                value={category}
-                            />
-                        )}
-                        <PostContent key={post.communityKey} post={post} useManyImage={false} />
-                    </div>
-                ))}
-                {isLast && <p className='text-center'>no more post</p>}
-                <div ref={observerRef} className="loading-placeholder h-1" />
+                <div style={{ backgroundColor: 'white' }} className='pb-[1rem]'>
+                    <CategorySelectDropdown
+                        defaultItem="ALL" // 기본 선택 값 설정
+                        options={categoryList} // 드롭다운 옵션 전달
+                        onSelect={handleCategoryChange}
+                        value={category}
+                    />
+                </div>
+                {posts.length === 0 ? (
+                    null
+                ) : (
+
+                    posts.map((post) => (
+                        <div key={post.communityKey}>
+                            {/* 첫 번째 요소에만 CategorySelectDropdown 추가 */}
+
+                            <PostContent key={post.communityKey} post={post} useManyImage={false} />
+                        </div>
+                    ))
+
+                )}
+                <div ref={observerRef} className="loading-placeholder h-1"
+                />
+                <div className='flex flex-grow flex-1 justify-center'>
+                    {isLast && <p className='text-center'
+                    >no more post</p>}
+                </div>
             </div>
+
         </>
     );
 }
@@ -391,7 +404,7 @@ export function PostContent({ post, useManyImage, currentIndex, handleNext, hand
         <div className='post-contents-wrapper self-center gap-2'
             onClick={useManyImage ? undefined : DetailPostHandler}>
             {/* 프로필 부분 */}
-            <div className='post-profile-wrapper mt-2'>
+            <div className='post-profile-wrapper mt-2 relative'>
                 <div
                     style={{
                         width: "2.25rem",
@@ -407,7 +420,7 @@ export function PostContent({ post, useManyImage, currentIndex, handleNext, hand
                     }}
                 >
                     <Image
-                        src='https://mukpic-image.s3.ap-northeast-2.amazonaws.com/COMMUNITY/5d50d16a-c597-4722-9844-8fe66a5dccdc.png'
+                        src={post.profileImage}
                         onLoad={handleImageLoad}
                         alt="미리보기"
                         style={{ width: "100%", height: "100%", objectFit: "cover" }}

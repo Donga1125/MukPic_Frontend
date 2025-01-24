@@ -255,7 +255,7 @@ export function Write() {
                     id='title'
                     placeholder="Title"
                     required
-                    className='auth-placeholder grow text-left'
+                    className='auth-placeholder text-left'
                     maxLength={20}
                     value={title}
                     onChange={titlehandleChange}

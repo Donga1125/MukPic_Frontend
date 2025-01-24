@@ -36,6 +36,7 @@ export default function BoardDetail() {
     const setCategory = usePostStore((state) => state.setCategory);
     const setTitle = usePostStore((state) => state.setTitle);
     const setContent = usePostStore((state) => state.setContent);
+    const setImageUrls = usePostStore((state) => state.setImageUrls);
 
     const maxLength = 300; // 최대 글자 수
 
@@ -84,19 +85,22 @@ export default function BoardDetail() {
                         }
                         console.log('업로드된 이미지 URLs:', imageUrls);
                         console.log('업로드된 이미지 URLs:', uploadedImageUrls);
+                        const data = {
+                            // communityKey: communityId,
+                            title: title,
+                            content: content,
+                            imageUrls: uploadedImageUrls,
+                            // likeCount: likeCount,
+                        }
+
+                        console.log('수정할 데이터:', data);
 
 
                         // 게시글 등록 API 호출
                         axios({
                             method: 'patch',
                             url: `${process.env.NEXT_PUBLIC_ROOT_API}/community/${communityId}`,
-                            data: {
-                                communityKey: communityId,
-                                title: title,
-                                content: content,
-                                imageUrls: uploadedImageUrls,
-                                likecount: likeCount
-                            },
+                            data: data,
                             headers: {
                                 Authorization: `${localStorage.getItem('Authorization')}`
                             }
@@ -112,7 +116,38 @@ export default function BoardDetail() {
                     })
 
             }
+            else{
+                submitUpdateData(imageUrls);
+            }
         }
+    }
+    function submitUpdateData(uploadedImageUrls: string[]) {
+        const data = {
+            title: title,
+            content: content,
+            imageUrls: uploadedImageUrls,
+            likeCount: likeCount,
+            category: category
+        };
+
+        console.log('수정할 데이터:', data);
+
+        // 게시글 수정 API 호출
+        axios({
+            method: 'patch',
+            url: `${process.env.NEXT_PUBLIC_ROOT_API}/community/${communityId}`,
+            data: data,
+            headers: {
+                Authorization: `${localStorage.getItem('Authorization')}`
+            }
+        }).then((response) => {
+            if (response.status === 200) {
+                alert('Item successfully modified.');
+                router.push(`/community/${communityId}`);
+            }
+        }).catch((error) => {
+            console.error('게시글 수정 api 에러: ', error);
+        });
     }
 
 
@@ -135,6 +170,8 @@ export default function BoardDetail() {
                         setPost(response.data);
                         setTitle(response.data.title);
                         setContent(response.data.content);
+                        setCategory(response.data.category);
+                        setImageUrls(response.data.imageUrls);
                         setLoading(false);
                     }
                     if (response.status === 401) {
@@ -149,7 +186,8 @@ export default function BoardDetail() {
                 });
         }
 
-    }, [communityId, router, setTitle, setContent ]); // communityId가 변경될 때마다 호출
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [communityId, router]); // communityId가 변경될 때마다 호출
 
 
     const contentshandleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
