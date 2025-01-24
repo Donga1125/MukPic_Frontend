@@ -158,7 +158,7 @@ button:disabled {
 
 /* 메인 컨테이너 하단 여백 줄이기 */
 .mukpic-main-container {
-  max-width: 480px;
+  max-width: 24.375rem;
   width: 100%;
   padding: 16px;
   background-color: #ffffff;
