@@ -153,13 +153,29 @@ export default function BoardDetail() {
                 });
     }, [communityId]); // communityId가 변경될 때마다 호출
 
+
+    const [isAnimating, setIsAnimating] = useState<boolean>(false);
+
     const handlePrev = () => {
-        setCurrentIndex((prevIndex) => (prevIndex === 0 ? imageUrls.length - 1 : prevIndex - 1));
+        if (isAnimating) return;
+        setIsAnimating(true);
+
+        const prevIndex = (currentIndex - 1 + imageUrls.length) % imageUrls.length; // 순환 처리
+        setTimeout(() => {
+            setCurrentIndex(prevIndex);
+            setIsAnimating(false);
+        }, 300);
     };
     // 다음 이미지로 이동
     const handleNext = () => {
-        console.log(imageUrls.length);
-        setCurrentIndex((prevIndex) => (prevIndex === imageUrls.length - 1 ? 0 : prevIndex + 1));
+        if (isAnimating) return; // 애니메이션 중에는 버튼 막기
+        setIsAnimating(true);
+
+        const nextIndex = (currentIndex + 1) % imageUrls.length; // 순환 처리
+        setTimeout(() => {
+            setCurrentIndex(nextIndex);
+            setIsAnimating(false);
+        }, 300); // 슬라이드 애니메이션 시간
     };
 
     useEffect(() => {
