@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "@/app/globals.css";
 import TopNav from "@/app/components/TopNav";
 import { ReactNode } from "react";
-import { SearchButtonForNav } from "@/app/components/button";
+import { MainButtonForNav } from "@/app/components/button";
 import TextButtonForNavWrapper from "@/app/components/TextButtonForNavWrapper";
 
 export const metadata: Metadata = {
@@ -18,7 +18,7 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div className="root-wrapper">
       <TopNav
-        leftButton={<SearchButtonForNav />}
+        leftButton={<MainButtonForNav />}
         rightButton={<TextButtonForNavWrapper />}
       />
       <div className="info-main-container flex-1 bg-white">{children}</div>
