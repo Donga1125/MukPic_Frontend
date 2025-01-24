@@ -1,6 +1,6 @@
 'use client';
 import { SvgButtonForNav } from '@/app/components/button';
-import { PostContent } from '@/app/components/community/communityComponents';
+import { DetailPostContent } from '@/app/components/community/communityComponents';
 import TopNav from '@/app/components/TopNav';
 import axios from 'axios';
 import { usePathname, useRouter } from 'next/navigation';
@@ -194,12 +194,9 @@ export default function BoardDetail() {
                 />
                 <div className='flex justify-center ' style={{ width: '100%' }}>
                     <div className='post-component-wrapper' >
-                        {post && <PostContent key={communityId} post={post} useManyImage={true}
+                        {post && <DetailPostContent key={communityId} post={post} useManyImage={true}
                             currentIndex={currentIndex} handlePrev={handlePrev}
-                            handleNext={handleNext}></PostContent>}
-                        <div className='post-contents-wrapper content-text-wrapper self-center'>
-                            <span>{post?.content}</span>
-                        </div>
+                            handleNext={handleNext}></DetailPostContent>}
                     </div>
                 </div>
             </div>
