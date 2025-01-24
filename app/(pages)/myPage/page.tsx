@@ -83,8 +83,8 @@ const MyPage = () => {
 
       const endpoint =
         activeTab === 'liked'
-          ? `${process.env.NEXT_PUBLIC_ROOT_API}/community/likedCommunities?page=0&size=5`
-          : `${process.env.NEXT_PUBLIC_ROOT_API}/community/myCommunities?page=0&size=5`;
+          ? `${process.env.NEXT_PUBLIC_ROOT_API}/community/likedCommunities`
+          : `${process.env.NEXT_PUBLIC_ROOT_API}/community/myCommunities`;
 
       try {
         const response = await fetch(endpoint, {
@@ -162,17 +162,21 @@ const MyPage = () => {
 
         {/* 게시글 목록 */}
         <PostsGrid>
-          {postData.map((post) => (
-            <PostCard key={post.communityKey}>
-              <PostImage src={post.imageUrls[0]} alt={post.title} />
-              <PostContent>
-                <PostTitle>{post.title}</PostTitle>
-                <PostDescription>{post.content}</PostDescription>
-              </PostContent>
-            </PostCard>
-          ))}
-        </PostsGrid>
+    {postData.map((post) => (
+      <PostCard key={post.communityKey}>
+        <PostImage src={post.imageUrls[0]} alt={post.title} />
+        <PostContent>
+          <PostTitle>{post.title}</PostTitle>
+          <PostDescription>{post.content}</PostDescription>
+        </PostContent>
+      </PostCard>
+    ))}
 
+    {/* 플레이스홀더 카드 추가 */}
+    {Array.from({ length: Math.max(0, 4 - postData.length) }).map((_, index) => (
+      <PlaceholderCard key={`placeholder-${index}`}></PlaceholderCard>
+    ))}
+  </PostsGrid>
         <AddBotNav />
       </Container>
     </>
@@ -340,14 +344,20 @@ const PostsGrid = styled.div`
   gap: 0.75px;
   padding: 16px;
   width: 24.375rem;
-  height: 32.8125rem;
   flex-shrink: 0;
 `;
 
 const PostCard = styled.div`
-  border: 1px solid #ddd;
-  border-radius: 8px;
   overflow: hidden;
+  height: 200px; /* 일정한 높이를 설정 */
+`;
+
+const PlaceholderCard = styled(PostCard)`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #aaa;
+  font-size: 14px;
 `;
 
 const PostImage = styled.img`
