@@ -37,7 +37,7 @@ export default function Layout({ children }: LayoutProps) {
         </SvgButtonForNav>}
       />
       {/* 메인 */}
-      <div className="main-container mukpic-main-container">
+      <div>
         {/* 메인 페이지 내용 */}
         {children}
 
