@@ -12,7 +12,7 @@ export function BotNav({ searchButton, communityButton, mypageButton }: BotNavPr
 
     return (
         <>
-            <div className=" bottom-10 bot-nav z-index-25 fixed flex ">
+            <div className=" bottom-[1rem] left-[41.2%] bot-nav z-50 sticky flex ">
                 {searchButton}
                 {communityButton}
                 {mypageButton}
