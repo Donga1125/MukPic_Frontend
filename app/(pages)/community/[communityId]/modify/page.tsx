@@ -178,7 +178,7 @@ export default function BoardDetail() {
                 Authorization: `${localStorage.getItem('Authorization')}`
             }
         }).then((response) => {
-            if (response.status === 200) {
+            if (response.status == 200) {
                 alert('Item successfully modified.');
                 router.push(`/community/${communityId}`);
             }

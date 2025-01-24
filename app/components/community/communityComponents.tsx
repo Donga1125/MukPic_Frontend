@@ -149,6 +149,7 @@ type CommunityImageCarouselProps = {
     handleNext?: () => void;
 }
 
+
 const CommunityImageCarousel: React.FC<CommunityImageCarouselProps> = ({ imageUrls, handleImageLoad,
     currentIndex, handlePrev, handleNext
 }) => {
