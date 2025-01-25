@@ -6,6 +6,9 @@ import axios from "axios";
 import Image from "next/image";
 import { addHours, formatDistanceToNow, parseISO } from "date-fns";
 import { CategorySelectDropdown } from "./postComponents";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination } from "swiper/modules";
+import 'swiper/css/bundle';
 
 interface CommunityPost {
     communityKey: number;
@@ -141,48 +144,36 @@ export function CommunityImage({ imageUrls, handleImageLoad }: CommunityImagePro
         </div >
     );
 }
+
 type CommunityImageCarouselProps = {
     imageUrls: string[];
     handleImageLoad: () => void;
-    currentIndex?: number;
-    handlePrev?: () => void;
-    handleNext?: () => void;
 }
 
-
-const CommunityImageCarousel: React.FC<CommunityImageCarouselProps> = ({ imageUrls, handleImageLoad,
-    currentIndex, handlePrev, handleNext
+const CommunityImageCarousel: React.FC<CommunityImageCarouselProps> = ({
+    imageUrls,
+    handleImageLoad,
 }) => {
-
-    const Index: number = currentIndex ? currentIndex : 0;
-
-
     return (
-        <div className='post-img-wrapper'>
+        <Swiper className='post-img-wrapper flex' pagination={true} modules={[Pagination]}>
+                {imageUrls.map((url, index) => (
+                    <SwiperSlide key={index}
+                        className='self-center h-full'>
+                        {/* 이미지 */}
+                        <Image
+                            src={url}
+                            alt={`Slide ${index + 1}`}
+                            className="w-full object-cover display-block" // Tailwind CSS 클래스
+                            layout="responsive" // 이미지 비율을 유지하며 반응형 처리
+                            width={800} // 이미지 너비
+                            height={400} // 이미지 높이
+                            priority={index === 0} // 첫 번째 슬라이드 이미지는 우선 로드
+                            onLoad={handleImageLoad}
+                        />
+                    </SwiperSlide>
+                ))}
+        </Swiper >
 
-
-            <Image
-                key={Index}
-                src={imageUrls[Index]}
-                alt="img_error"
-                className="carousel-image"
-                onLoad={handleImageLoad}
-                style={{ objectFit: 'cover', width: '100%', height: 'auto' }}
-                width={400}
-                height={300}
-            />
-            {/* {imageLoaded && <ViewAiResearchButtonForCarousel />} */}
-            <button onClick={handlePrev} type='button' className="carousel-button-prev">
-                <svg width="14" height="24" viewBox="0 0 14 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12.6934 1.36002C12.1217 0.788358 11.2 0.788358 10.6284 1.36002L0.816714 11.1717C0.361714 11.6267 0.361714 12.3617 0.816714 12.8167L10.6284 22.6284C11.2 23.2 12.1217 23.2 12.6934 22.6284C13.265 22.0567 13.265 21.135 12.6934 20.5634L4.13005 12L12.705 3.42502C13.265 2.85336 13.265 1.93169 12.6934 1.36002Z" fill="black" />
-                </svg>
-            </button>
-            <button onClick={handleNext} type='button' className="carousel-button-next">
-                <svg width="14" height="24" viewBox="0 0 14 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12.6934 1.36002C12.1217 0.788358 11.2 0.788358 10.6284 1.36002L0.816714 11.1717C0.361714 11.6267 0.361714 12.3617 0.816714 12.8167L10.6284 22.6284C11.2 23.2 12.1217 23.2 12.6934 22.6284C13.265 22.0567 13.265 21.135 12.6934 20.5634L4.13005 12L12.705 3.42502C13.265 2.85336 13.265 1.93169 12.6934 1.36002Z" fill="black" />
-                </svg>
-            </button>
-        </div>
     );
 };
 
@@ -338,7 +329,7 @@ type CommunityPostProps = {
 
 }
 
-export function PostContent({ post, useManyImage, currentIndex, handleNext, handlePrev }: CommunityPostProps) {
+export function PostContent({ post, useManyImage }: CommunityPostProps) {
     const [imageLoaded, setImageLoaded] = useState<boolean>(false);
     const [like, setLike] = useState<boolean>(post.liked);
     const [likeCount, setLikeCount] = useState<number>(post.likeCount);
@@ -438,9 +429,6 @@ export function PostContent({ post, useManyImage, currentIndex, handleNext, hand
             {useManyImage ? <CommunityImageCarousel
                 imageUrls={imageUrls}
                 handleImageLoad={handleImageLoad}
-                currentIndex={currentIndex}
-                handlePrev={handlePrev}
-                handleNext={handleNext}
             ></CommunityImageCarousel>
                 :
                 <CommunityImage
@@ -507,7 +495,7 @@ export function PostContent({ post, useManyImage, currentIndex, handleNext, hand
     )
 }
 
-export function DetailPostContent({ post, useManyImage, currentIndex, handleNext, handlePrev }: CommunityPostProps) {
+export function DetailPostContent({ post, useManyImage }: CommunityPostProps) {
     const [imageLoaded, setImageLoaded] = useState<boolean>(false);
     const [like, setLike] = useState<boolean>(post.liked);
     const [likeCount, setLikeCount] = useState<number>(post.likeCount);
@@ -603,9 +591,6 @@ export function DetailPostContent({ post, useManyImage, currentIndex, handleNext
             {useManyImage ? <CommunityImageCarousel
                 imageUrls={imageUrls}
                 handleImageLoad={handleImageLoad}
-                currentIndex={currentIndex}
-                handlePrev={handlePrev}
-                handleNext={handleNext}
             ></CommunityImageCarousel>
                 :
                 <CommunityImage
@@ -613,8 +598,11 @@ export function DetailPostContent({ post, useManyImage, currentIndex, handleNext
                     handleImageLoad={handleImageLoad}
                     imageLoaded={imageLoaded} />
             }
-            <div>
-                <span style={{ color: 'black' }}>{post?.content}</span>
+            <div className='post-detail-content-wrapper'>
+                <span style={{
+                    color: 'black', whiteSpace: 'pre-wrap',
+                    wordWrap: 'break-word'
+                }}>{post?.content}</span>
             </div>
 
             <div className='post-contents-wrapper content-text-wrapper self-center'>
