@@ -16,7 +16,7 @@ export default function BoardDetail() {
     const [communityId, setCommunityId] = useState<string | null>(null);
     const [currentIndex, setCurrentIndex] = useState<number>(0);
     const [imageUrls, setImageUrls] = useState<string[]>([]);
-    const [userKey , setUserKey] = useState<number>(-5);
+    const [userKey, setUserKey] = useState<number>(-5);
     const [rightButtonVisible, setRightButtonVisible] = useState<boolean>(false);
 
 
@@ -193,7 +193,7 @@ export default function BoardDetail() {
         if (Number(userKey) === Number(getUserKey)) {
             setRightButtonVisible(true);
         }
-        else{
+        else {
             setRightButtonVisible(false);
         }
     }, [userKey]);
@@ -220,11 +220,12 @@ export default function BoardDetail() {
                     </SvgButtonForNav>}
 
                     // 임시로 넣은 아이콘
-                    rightButton={rightButtonVisible?<DropdownForNav />:null}
+                    rightButton={rightButtonVisible ? <DropdownForNav /> : null}
                 />
-                <div className='flex justify-center ' style={{ width: '100%' }}>
+                <div className='flex justify-center content-detail' style={{ width: '100%' }}>
                     <div className='post-component-wrapper' >
-                        {post && <DetailPostContent key={communityId} post={post} useManyImage={true}
+                        {post && <DetailPostContent key={communityId} post={post}
+                            useManyImage={true}
                             currentIndex={currentIndex} handlePrev={handlePrev}
                             handleNext={handleNext}></DetailPostContent>}
                     </div>

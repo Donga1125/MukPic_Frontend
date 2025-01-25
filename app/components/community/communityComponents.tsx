@@ -6,6 +6,9 @@ import axios from "axios";
 import Image from "next/image";
 import { addHours, formatDistanceToNow, parseISO } from "date-fns";
 import { CategorySelectDropdown } from "./postComponents";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination } from "swiper/modules";
+import 'swiper/css/bundle';
 
 interface CommunityPost {
     communityKey: number;
@@ -152,42 +155,25 @@ const CommunityImageCarousel: React.FC<CommunityImageCarouselProps> = ({
     handleImageLoad,
 }) => {
     return (
-        <div className="carousel w-full">
-            {imageUrls.map((url, index) => (
-                <div
-                    id={`slide${index + 1}`}
-                    key={index}
-                    className="carousel-item relative w-full"
-                >
-                    {/* 이미지 */}
-                    <Image
-                        src={url}
-                        alt={`Image ${index + 1}`}
-                        className="w-full"
-                        onLoad={handleImageLoad}
-                        style={{ objectFit: "cover" }}
-                        width={800}
-                        height={400}
-                    />
+        <Swiper className='post-img-wrapper flex' pagination={true} modules={[Pagination]}>
+                {imageUrls.map((url, index) => (
+                    <SwiperSlide key={index}
+                        className='self-center h-full'>
+                        {/* 이미지 */}
+                        <Image
+                            src={url}
+                            alt={`Slide ${index + 1}`}
+                            className="w-full object-cover display-block" // Tailwind CSS 클래스
+                            layout="responsive" // 이미지 비율을 유지하며 반응형 처리
+                            width={800} // 이미지 너비
+                            height={400} // 이미지 높이
+                            priority={index === 0} // 첫 번째 슬라이드 이미지는 우선 로드
+                            onLoad={handleImageLoad}
+                        />
+                    </SwiperSlide>
+                ))}
+        </Swiper >
 
-                    {/* 좌우 버튼 */}
-                    <div className="absolute left-5 right-5 top-1/2 flex -translate-y-1/2 transform justify-between">
-                        <a
-                            href={`#slide${(index === 0 ? imageUrls.length : index)}`}
-                            className="btn btn-circle"
-                        >
-                            ❮
-                        </a>
-                        <a
-                            href={`#slide${(index + 2 > imageUrls.length ? 1 : index + 2)}`}
-                            className="btn btn-circle"
-                        >
-                            ❯
-                        </a>
-                    </div>
-                </div>
-            ))}
-        </div>
     );
 };
 
@@ -509,7 +495,7 @@ export function PostContent({ post, useManyImage }: CommunityPostProps) {
     )
 }
 
-export function DetailPostContent({ post, useManyImage}: CommunityPostProps) {
+export function DetailPostContent({ post, useManyImage }: CommunityPostProps) {
     const [imageLoaded, setImageLoaded] = useState<boolean>(false);
     const [like, setLike] = useState<boolean>(post.liked);
     const [likeCount, setLikeCount] = useState<number>(post.likeCount);
@@ -612,7 +598,7 @@ export function DetailPostContent({ post, useManyImage}: CommunityPostProps) {
                     handleImageLoad={handleImageLoad}
                     imageLoaded={imageLoaded} />
             }
-            <div>
+            <div className='post-detail-content-wrapper'>
                 <span style={{
                     color: 'black', whiteSpace: 'pre-wrap',
                     wordWrap: 'break-word'
