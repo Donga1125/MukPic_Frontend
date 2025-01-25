@@ -140,9 +140,10 @@ export default function MainPage() {
   };
 
   return (
-    <main className="mukpic-main-container bg-white min-h-[calc(100vh-50px)] px-4 py-6 shadow-lg">
-      <section className="mb-4">
-        <div className="w-full flex justify-center items-center mb-4">
+    <main className="bg-white min-h-[calc(100vh-100px)] p-0">
+      {/* 검색바 */}
+      <section className="mb-6">
+        <div className="flex justify-center mb-4">
           <div className="relative w-full max-w-lg">
             {/* 돋보기 아이콘 */}
             <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -161,6 +162,7 @@ export default function MainPage() {
                 />
               </svg>
             </div>
+
             {/* 검색 입력란 */}
             <input
               type="text"
@@ -251,10 +253,8 @@ export default function MainPage() {
         </div>
       </section>
 
+      {/* 카테고리 */}
       <section className="mb-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Categories</h2>
-        </div>
         <div className="flex overflow-x-scroll space-x-3 pb-2">
           {categories.map((category, idx) => (
             <button
@@ -272,38 +272,28 @@ export default function MainPage() {
         </div>
       </section>
 
-      <section style={{ marginTop: "1.5rem" }}>
-        <div className="grid grid-cols-4 gap-4 justify-center">
-          {foodData[selectedCategory]?.map((food, idx) => (
-            <div
-              key={idx}
-              className="flex flex-col items-center cursor-pointer"
-              style={{
-                width: "5rem",
-                height: "6rem",
-              }}
-              onClick={() => handleFoodClick(food)}
-            >
-              <div
-                className="w-20 h-20 flex items-center justify-center rounded-lg mb-2 shadow-md bg-gray-200"
-                style={{
-                  overflow: "hidden",
-                }}
-              >
-                <Image
-                  src={foodImages[food] || "/images/default.jpg"}
-                  alt={food}
-                  width={80}
-                  height={80}
-                  className="rounded-lg object-cover"
-                />
-              </div>
-              <p className="text-sm text-gray-700 text-center truncate w-20">
-                {food}
-              </p>
+      {/* 음식 리스트 */}
+      <section className="grid grid-cols-4 gap-4">
+        {foodData[selectedCategory]?.map((food, idx) => (
+          <div
+            key={idx}
+            className="flex flex-col items-center cursor-pointer"
+            onClick={() => handleFoodClick(food)}
+          >
+            <div className="w-20 h-20 flex items-center justify-center rounded-lg mb-2 shadow-md bg-gray-200 overflow-hidden">
+              <Image
+                src={foodImages[food] || "/images/default.jpg"}
+                alt={food}
+                width={80}
+                height={80}
+                className="rounded-lg object-cover"
+              />
             </div>
-          ))}
-        </div>
+            <p className="text-sm text-gray-700 text-center truncate w-20">
+              {food}
+            </p>
+          </div>
+        ))}
       </section>
 
       {error && (
