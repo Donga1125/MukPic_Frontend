@@ -80,10 +80,16 @@ function InfoPageContent() {
       )}
 
       {!loading && error && (
-        <div className="text-red-500 text-center">
-          <p>Error: {error}</p>
+        <div className="flex flex-col justify-start items-center min-h-screen space-y-6 mt-16">
+          {/* 에러 메시지 디자인 */}
+          <div className="text-red-600 bg-red-100 border border-red-400 rounded-lg px-6 py-4 shadow-md max-w-lg text-center">
+            <p className="text-xl font-bold">Oops! Something went wrong.</p>
+            <p className="text-sm mt-2">{error}</p>
+          </div>
+
+          {/* "Go Back" 버튼 디자인 */}
           <button
-            className="mt-4 px-4 py-2 bg-gray-500 text-white font-bold rounded-md"
+            className="bg-gray-800 text-white font-semibold px-5 py-2 rounded-full"
             onClick={() => router.back()}
           >
             Go Back

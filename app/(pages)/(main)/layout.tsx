@@ -37,13 +37,14 @@ export default function Layout({ children }: LayoutProps) {
         </SvgButtonForNav>}
       />
       {/* 메인 */}
-      <div>
+      <div className="mukpic-main-container">
         {/* 메인 페이지 내용 */}
         {children}
-
       </div>
       {/* 하단 네비게이션 */}
-      <AddBotNav></AddBotNav>
+      <div className="fixed bottom-12 left-1/2 transform -translate-x-1/2 w-full max-w-md flex justify-center items-center">
+        <AddBotNav/>
+      </div>
     </div>
   );
 }
