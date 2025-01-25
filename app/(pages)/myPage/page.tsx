@@ -162,22 +162,22 @@ const MyPage = () => {
 
         {/* 게시글 목록 */}
         <PostsGrid>
-    {postData.map((post) => (
-      <PostCard key={post.communityKey}>
-        <PostImage src={post.imageUrls[0]} alt={post.title} />
-        <PostContent>
-          <PostTitle>{post.title}</PostTitle>
-          <PostDescription>{post.content}</PostDescription>
-        </PostContent>
-      </PostCard>
-    ))}
+          {postData.map((post) => (
+            <PostCard key={post.communityKey}>
+              <PostImage src={post.imageUrls[0]} alt={post.title} />
+              <PostContent>
+                <PostTitle>{post.title}</PostTitle>
+                <PostDescription>{post.content}</PostDescription>
+                </PostContent>
+                </PostCard>
+              ))}
 
-    {/* 플레이스홀더 카드 추가 */}
-    {Array.from({ length: Math.max(0, 4 - postData.length) }).map((_, index) => (
-      <PlaceholderCard key={`placeholder-${index}`}></PlaceholderCard>
-    ))}
-  </PostsGrid>
-        <AddBotNav />
+        {/* 플레이스홀더 카드 추가 */}
+        {Array.from({ length: Math.max(0, 4 - postData.length) }).map((_, index) => (
+          <PlaceholderCard key={`placeholder-${index}`}></PlaceholderCard>
+          ))}
+          </PostsGrid>
+          <AddBotNav />
       </Container>
     </>
   );
