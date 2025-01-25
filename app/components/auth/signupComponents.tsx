@@ -2,11 +2,12 @@
 import { emailSchema, userNameSchema, userSchema } from "@/schemas/auth";
 import { UseVaildate } from "@/app/hooks/useVaildate";
 import { EmailValidateError, UserNameValidateError, UserValidateError } from "@/app/types/signupValidate";
-import React, { useEffect, useRef, useState } from "react";
+import React, { use, useEffect, useRef, useState } from "react";
 import { useSignupStore } from "@/app/types/signupStore";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import Image from "next/image";
+import { privacyPolicy, termsOfService } from '@/app/components/auth/Policy.json';
 
 
 type Props = {
@@ -43,6 +44,14 @@ export function SignupStep() {
     const [termsAgree, settermsAgree] = useState<boolean>(false);
     const [isAgree, setIsAgree] = useState<boolean>(false);
     const setAgree = useSignupStore(state => state.setagree);
+    const [isPrivacyOpen, setIsPrivacyOpen] = useState<boolean>(false);
+    const [isTermsOpen, setIsTermsOpen] = useState<boolean>(false);
+    const termsData = {
+        privacyPolicy: privacyPolicy,
+        termsOfService: termsOfService
+    };
+
+
     const router = useRouter();
     useEffect(() => {
         setIsAgree(personalInfoAgree && termsAgree);
@@ -60,22 +69,92 @@ export function SignupStep() {
         router.push('/signup/step1');
     }
 
+    const handlePrivacy = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.stopPropagation();
+        setIsPrivacyOpen((prev) => !prev);
+    }
+    const handleTerms = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.stopPropagation();
+        setIsTermsOpen((prev) => !prev);
+    }
+
     return (
         <form onSubmit={handleSumbit} className='flex flex-col gap-[0.75rem] flex-grow' >
             <div className='card'>
                 <div className="form-control primary">
                     <label className="cursor-pointer label">
-                        <span className="label-text">개인정보 및 민감정보 사용 동의</span>
-                        <input type="checkbox" className='dropdown-checkbox'
-                            onChange={(e) => checkboxChange(e, setpersonalInfoAgree)} />
+                        <div className="flex flex-row gap-2 items-center">
+                            <input type="checkbox" className='dropdown-checkbox mr-0'
+                                onChange={(e) => checkboxChange(e, setpersonalInfoAgree)} />
+                            <span className="label-text">Privacy Policy</span>
+                        </div>
+                        <div className='flex justify-center'>
+                            <button
+                                onClick={handlePrivacy}
+                                type='button'>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="7" viewBox="0 0 10 7" fill="none">
+                                    <path d="M0.613336 2.61331L4.06667 6.06665C4.58667 6.58665 5.42667 6.58665 5.94667 6.06665L9.4 2.61331C10.24 1.77331 9.64 0.333313 8.45334 0.333313H1.54667C0.360002 0.333313 -0.226664 1.77331 0.613336 2.61331Z" fill="black" />
+                                </svg>
+                            </button>
+                        </div>
                     </label>
+                    {isPrivacyOpen && <div className='terms-wrapper'>
+                        <div className={`privacy-policy ${isPrivacyOpen ? 'open' : ''}`}>
+                            {termsData.privacyPolicy.sections.map((section, index) => (
+                                <div key={index}>
+                                    <br />
+                                    <h2 className='terms-h2'>{section.heading}</h2>
+                                    <br />
+                                    <p>{section.content}</p>
+                                    {section.list && (
+                                        <ul>
+                                            {section.list.map((item, listIndex) => (
+                                                <li key={listIndex}>- {item}</li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                    {section.footer && <p>{section.footer}</p>}
+                                </div>
+                            ))}
+                        </div>
+                    </div>}
                 </div>
                 <div className="form-control">
                     <label className="cursor-pointer label">
-                        <span className="label-text">이용 약관 동의</span>
-                        <input type="checkbox" className='dropdown-checkbox'
-                            onChange={(e) => checkboxChange(e, settermsAgree)} />
+                        <div className="flex flex-row gap-2 items-center">
+                            <input type="checkbox" className='dropdown-checkbox mr-0'
+                                onChange={(e) => checkboxChange(e, settermsAgree)} />
+                            <span className="label-text">Terms of Service</span>
+                        </div>
+                        <div className='flex justify-center'>
+                            <button
+                                type='button'
+                                onClick={handleTerms}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="7" viewBox="0 0 10 7" fill="none">
+                                    <path d="M0.613336 2.61331L4.06667 6.06665C4.58667 6.58665 5.42667 6.58665 5.94667 6.06665L9.4 2.61331C10.24 1.77331 9.64 0.333313 8.45334 0.333313H1.54667C0.360002 0.333313 -0.226664 1.77331 0.613336 2.61331Z" fill="black" />
+                                </svg>
+                            </button>
+                        </div>
                     </label>
+                    {isTermsOpen && <div className='terms-wrapper' style={{ color: 'black', textAlign: 'left' }}>
+                        <div className={`privacy-policy ${isTermsOpen ? 'open' : ''}`}>
+                            {termsData.termsOfService.sections.map((section, index) => (
+                                <div key={index}>
+                                    <br />
+                                    <h2 className='terms-h2'>{section.heading}</h2>
+                                    <br />
+                                    <p>{section.content}</p>
+                                    {section.list && (
+                                        <ul>
+                                            {section.list.map((item, listIndex) => (
+                                                <li key={listIndex}>- {item}</li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>}
                 </div>
             </div>
             <button
@@ -1010,9 +1089,9 @@ export function SignupStep4() {
     ];
     const religionList: string[] = ["Atheism", "Christianity", "Buddhism", "Catholicism", "Islam",
         "Hinduism"];
-    const dietaryPreferences: string[] = ["No food to cover", 'Halal', 'Kosher', "Vegetarian", "Vegan",
+    const dietaryPreferences: string[] = ['Halal', 'Kosher', "Vegetarian", "Vegan",
         "Pescatarian", "Low Spice tolerance", "No Alcohol", 'Gluten Free', 'Lactose Free', 'Low Carb'];
-    const chronicDiseaseList: string[] = ['No Disease', 'Cancer', 'Diabetes', 'Osteoporosis', 'Heart Disease'];
+    const chronicDiseaseList: string[] = ['Cancer', 'Diabetes', 'Osteoporosis', 'Heart Disease'];
     const isFormValid = selectedCountry && selectedReligions;
 
 
@@ -1085,10 +1164,10 @@ export function SignupStep5() {
     const [showDropdown, setShowDropdown] = useState<boolean>(false); // 드롭다운 표시 여부
     const inputRef = useRef<HTMLInputElement | null>(null);
 
-    const seaFoodAllergieList = ['Fish', 'Crab', 'Shrimp', 'Squid', 'Abalone', 'Mussel', 'Oyster', 'Shellfish'];
+    const seaFoodAllergieList = ['Abalone', 'Crab', 'Fish', 'Mussel', 'Oyster', 'Shellfish', 'Shrimp', 'Squid'];
     const fruitAllergieList = ['Peach', 'Tomato'];
-    const nutsAllergieList = ['Buck wheat', 'Wheat', 'Walnut', 'Pine nut', 'Peanut', 'Soybean'];
-    const meatAllergieList = ['Pork', 'Eggs', 'Milk', 'Chicken', 'Beef'];
+    const nutsAllergieList = ['Buck wheat', 'Peanut', 'Pine nut', 'Soybean', 'Walnut', 'Wheat'];
+    const meatAllergieList = ['Beef', 'Chicken', 'Eggs', 'Milk', 'Pork'];
     const etcAllergieList = ['Sulfurous'];
 
     const router = useRouter();
@@ -1163,7 +1242,8 @@ export function SignupStep5() {
 
     const filteredAllergies = AllergiesSearch
         ? allAllergies.filter(allergy => allergy.toLowerCase().includes(AllergiesSearch.toLowerCase()))
-        : allAllergies;
+            .sort()
+        : allAllergies.sort();
 
     return (
         <form onSubmit={handleSubmit} className='flex flex-col gap-10 flex-grow'>
@@ -1269,7 +1349,7 @@ export function SignupStep5() {
                 </div>
             </div>
             <div className="button-toggle-container flex flex-wrap gap-[1rem]">
-                <h1 className='allergies-title text-left gap-[0.75rem]'>Meat & Dairy</h1>
+                <h1 className='allergies-title text-left gap-[0.75rem] w-full'>Meat & Dairy</h1>
                 <div className='dropdown-badge-container'>
                     {meatAllergieList.map((allergie) => (
                         <button
@@ -1288,9 +1368,7 @@ export function SignupStep5() {
                 </div>
             </div>
             <div className="button-toggle-container flex flex-wrap gap-[1rem]">
-                <div>
-                    <h1 className='allergies-title text-left gap-[0.75rem]'>ETC</h1>
-                </div>
+                <h1 className='allergies-title text-left gap-[0.75rem] w-full'>ETC</h1>
                 <div className="dropdown-badge-container">
                     {etcAllergieList.map((allergie) => (
                         <button
