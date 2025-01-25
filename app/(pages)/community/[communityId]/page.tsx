@@ -1,6 +1,6 @@
 'use client';
 import { SvgButtonForNav } from '@/app/components/button';
-import { PostContent } from '@/app/components/community/communityComponents';
+import { DetailPostContent } from '@/app/components/community/communityComponents';
 import TopNav from '@/app/components/TopNav';
 import axios from 'axios';
 import { usePathname, useRouter } from 'next/navigation';
@@ -16,6 +16,8 @@ export default function BoardDetail() {
     const [communityId, setCommunityId] = useState<string | null>(null);
     const [currentIndex, setCurrentIndex] = useState<number>(0);
     const [imageUrls, setImageUrls] = useState<string[]>([]);
+    const [userKey, setUserKey] = useState<number>(-5);
+    const [rightButtonVisible, setRightButtonVisible] = useState<boolean>(false);
 
 
 
@@ -146,6 +148,7 @@ export default function BoardDetail() {
                 .then((response) => {
                     setPost(response.data);
                     setImageUrls(response.data.imageUrls);
+                    setUserKey(response.data.userKey);
                     setLoading(false);
                 })
                 .catch((error) => {
@@ -153,13 +156,29 @@ export default function BoardDetail() {
                 });
     }, [communityId]); // communityId가 변경될 때마다 호출
 
+
+    const [isAnimating, setIsAnimating] = useState<boolean>(false);
+
     const handlePrev = () => {
-        setCurrentIndex((prevIndex) => (prevIndex === 0 ? imageUrls.length - 1 : prevIndex - 1));
+        if (isAnimating) return;
+        setIsAnimating(true);
+
+        const prevIndex = (currentIndex - 1 + imageUrls.length) % imageUrls.length; // 순환 처리
+        setTimeout(() => {
+            setCurrentIndex(prevIndex);
+            setIsAnimating(false);
+        }, 300);
     };
     // 다음 이미지로 이동
     const handleNext = () => {
-        console.log(imageUrls.length);
-        setCurrentIndex((prevIndex) => (prevIndex === imageUrls.length - 1 ? 0 : prevIndex + 1));
+        if (isAnimating) return; // 애니메이션 중에는 버튼 막기
+        setIsAnimating(true);
+
+        const nextIndex = (currentIndex + 1) % imageUrls.length; // 순환 처리
+        setTimeout(() => {
+            setCurrentIndex(nextIndex);
+            setIsAnimating(false);
+        }, 300); // 슬라이드 애니메이션 시간
     };
 
     useEffect(() => {
@@ -167,6 +186,17 @@ export default function BoardDetail() {
             setCurrentIndex(0);
         }
     }, [imageUrls, currentIndex, setCurrentIndex]);
+
+    //유저 키 비교해서 버튼 활성화화
+    useEffect(() => {
+        const getUserKey = localStorage.getItem('userKey');
+        if (Number(userKey) === Number(getUserKey)) {
+            setRightButtonVisible(true);
+        }
+        else {
+            setRightButtonVisible(false);
+        }
+    }, [userKey]);
 
     // 로딩 상태와 에러 처리
     if (loading) return <div>Loading...</div>;
@@ -190,16 +220,14 @@ export default function BoardDetail() {
                     </SvgButtonForNav>}
 
                     // 임시로 넣은 아이콘
-                    rightButton={<DropdownForNav />}
+                    rightButton={rightButtonVisible ? <DropdownForNav /> : null}
                 />
-                <div className='flex justify-center ' style={{ width: '100%' }}>
+                <div className='flex justify-center content-detail' style={{ width: '100%' }}>
                     <div className='post-component-wrapper' >
-                        {post && <PostContent key={communityId} post={post} useManyImage={true}
+                        {post && <DetailPostContent key={communityId} post={post}
+                            useManyImage={true}
                             currentIndex={currentIndex} handlePrev={handlePrev}
-                            handleNext={handleNext}></PostContent>}
-                        <div className='post-contents-wrapper content-text-wrapper self-center'>
-                            <span>{post?.content}</span>
-                        </div>
+                            handleNext={handleNext}></DetailPostContent>}
                     </div>
                 </div>
             </div>

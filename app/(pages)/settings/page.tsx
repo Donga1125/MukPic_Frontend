@@ -35,7 +35,7 @@ const SettingsPage = () => {
     {
       category: 'Management',
       items: [
-        { label: 'Logout', path: '/logout' },
+        { label: 'Logout', path: '/account/logout' },
         { label: 'Withdraw membership', path: '/account/withdraw' },
       ],
     },

@@ -6,6 +6,9 @@ import axios from "axios";
 import Image from "next/image";
 import { addHours, formatDistanceToNow, parseISO } from "date-fns";
 import { CategorySelectDropdown } from "./postComponents";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination } from "swiper/modules";
+import 'swiper/css/bundle';
 
 interface CommunityPost {
     communityKey: number;
@@ -141,48 +144,36 @@ export function CommunityImage({ imageUrls, handleImageLoad }: CommunityImagePro
         </div >
     );
 }
+
 type CommunityImageCarouselProps = {
     imageUrls: string[];
     handleImageLoad: () => void;
-    imageLoaded: boolean;
-    currentIndex?: number;
-    handlePrev?: () => void;
-    handleNext?: () => void;
 }
 
-const CommunityImageCarousel: React.FC<CommunityImageCarouselProps> = ({ imageUrls, handleImageLoad, //imageLoaded,
-    currentIndex, handlePrev, handleNext
+const CommunityImageCarousel: React.FC<CommunityImageCarouselProps> = ({
+    imageUrls,
+    handleImageLoad,
 }) => {
-
-    const Index: number = currentIndex ? currentIndex : 0;
-
-
     return (
-        <div className='post-img-wrapper'>
+        <Swiper className='post-img-wrapper flex' pagination={true} modules={[Pagination]}>
+                {imageUrls.map((url, index) => (
+                    <SwiperSlide key={index}
+                        className='self-center h-full'>
+                        {/* 이미지 */}
+                        <Image
+                            src={url}
+                            alt={`Slide ${index + 1}`}
+                            className="w-full object-cover display-block" // Tailwind CSS 클래스
+                            layout="responsive" // 이미지 비율을 유지하며 반응형 처리
+                            width={800} // 이미지 너비
+                            height={400} // 이미지 높이
+                            priority={index === 0} // 첫 번째 슬라이드 이미지는 우선 로드
+                            onLoad={handleImageLoad}
+                        />
+                    </SwiperSlide>
+                ))}
+        </Swiper >
 
-
-            <Image
-                key={Index}
-                src={imageUrls[Index]}
-                alt="img_error"
-                className="carousel-image"
-                onLoad={handleImageLoad}
-                style={{ objectFit: 'cover', width: '100%', height: 'auto' }}
-                width={400}
-                height={300}
-            />
-            {/* {imageLoaded && <ViewAiResearchButtonForCarousel />} */}
-            <button onClick={handlePrev} type='button' className="carousel-button-prev">
-                <svg width="14" height="24" viewBox="0 0 14 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12.6934 1.36002C12.1217 0.788358 11.2 0.788358 10.6284 1.36002L0.816714 11.1717C0.361714 11.6267 0.361714 12.3617 0.816714 12.8167L10.6284 22.6284C11.2 23.2 12.1217 23.2 12.6934 22.6284C13.265 22.0567 13.265 21.135 12.6934 20.5634L4.13005 12L12.705 3.42502C13.265 2.85336 13.265 1.93169 12.6934 1.36002Z" fill="black" />
-                </svg>
-            </button>
-            <button onClick={handleNext} type='button' className="carousel-button-next">
-                <svg width="14" height="24" viewBox="0 0 14 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12.6934 1.36002C12.1217 0.788358 11.2 0.788358 10.6284 1.36002L0.816714 11.1717C0.361714 11.6267 0.361714 12.3617 0.816714 12.8167L10.6284 22.6284C11.2 23.2 12.1217 23.2 12.6934 22.6284C13.265 22.0567 13.265 21.135 12.6934 20.5634L4.13005 12L12.705 3.42502C13.265 2.85336 13.265 1.93169 12.6934 1.36002Z" fill="black" />
-                </svg>
-            </button>
-        </div>
     );
 };
 
@@ -338,7 +329,7 @@ type CommunityPostProps = {
 
 }
 
-export function PostContent({ post, useManyImage, currentIndex, handleNext, handlePrev }: CommunityPostProps) {
+export function PostContent({ post, useManyImage }: CommunityPostProps) {
     const [imageLoaded, setImageLoaded] = useState<boolean>(false);
     const [like, setLike] = useState<boolean>(post.liked);
     const [likeCount, setLikeCount] = useState<number>(post.likeCount);
@@ -438,10 +429,6 @@ export function PostContent({ post, useManyImage, currentIndex, handleNext, hand
             {useManyImage ? <CommunityImageCarousel
                 imageUrls={imageUrls}
                 handleImageLoad={handleImageLoad}
-                imageLoaded={imageLoaded}
-                currentIndex={currentIndex}
-                handlePrev={handlePrev}
-                handleNext={handleNext}
             ></CommunityImageCarousel>
                 :
                 <CommunityImage
@@ -501,6 +488,174 @@ export function PostContent({ post, useManyImage, currentIndex, handleNext, hand
                     }
 
                     <span className='like-text'>{likeCount}</span>
+                </div>
+            </div>
+            {/* 내용 부분 */}
+        </div>
+    )
+}
+
+export function DetailPostContent({ post, useManyImage }: CommunityPostProps) {
+    const [imageLoaded, setImageLoaded] = useState<boolean>(false);
+    const [like, setLike] = useState<boolean>(post.liked);
+    const [likeCount, setLikeCount] = useState<number>(post.likeCount);
+    const imageUrls: string[] = post.imageUrls;
+
+    const handleImageLoad = () => {
+        setImageLoaded(true); // 이미지가 정상적으로 로드되었음을 확인
+    };
+
+
+    // 일단 좋아요 요청 보내는것만.
+    const likeHandler = (event: React.MouseEvent) => {
+        event.stopPropagation(); //부모요소 이벤트 방지(div 클릭시 상세 페이지로 이동하는 것 방지)
+
+        if (like) {
+            axios({
+                method: 'delete',
+                url: `${process.env.NEXT_PUBLIC_ROOT_API}/community/${post.communityKey}/likes`,
+                headers: {
+                    Authorization: `${localStorage.getItem('Authorization')}`
+                }
+            }).then((response) => {
+                if (response.status === 200) {
+                    console.log('좋아요 취소 성공');
+                    setLike(false);
+                    setLikeCount(likeCount - 1);
+                }
+            }).catch((error) => {
+                console.log('좋아요 취소 실패', error);
+            })
+        }
+        if (!like) {
+            axios({
+                method: 'post',
+                url: `${process.env.NEXT_PUBLIC_ROOT_API}/community/${post.communityKey}/likes`,
+                headers: {
+                    Authorization: `${localStorage.getItem('Authorization')}`
+                }
+            }).then((response) => {
+                if (response.status === 200) {
+                    console.log('좋아요 성공');
+                    setLike(true);
+                    setLikeCount(likeCount + 1);
+                }
+            }).catch((error) => {
+                console.log('좋아요 실패', error);
+            })
+        }
+
+    }
+
+    function TimeAgo({ timestamp }: { timestamp: string }) {
+        const parsedDate = parseISO(timestamp);
+        // 시간대 보정 (UTC 기준에서 ±9시간 조정)
+        const adjustedDate = addHours(parsedDate, +9); // UTC+9를 위해 +9 (UTC-9면 -9로 설정)
+        const timeAgo = formatDistanceToNow(adjustedDate, { addSuffix: true });
+        const createTime = timeAgo.replace(/^about\s/, '');
+        return createTime;
+    }
+
+    return (
+        <div className='post-contents-wrapper self-center gap-2'>
+            {/* 프로필 부분 */}
+            <div className='post-profile-wrapper mt-2 relative'>
+                <div className='flex flex-1'>
+                    <span className='post-content-text' style={{ fontSize: '1.5rem' }}>{post.title}</span>
+                </div>
+                <div
+                    style={{
+                        width: "2.25rem",
+                        height: "2.25rem",
+                        borderRadius: "50%",
+                        backgroundColor: "#F1F3F6",
+                        display: "flex",
+                        justifyContent: "end",
+                        alignItems: "center",
+                        cursor: "pointer", // 클릭 시 커서 변경
+                        position: "relative",
+                        overflow: 'hidden'
+                    }}
+                >
+                    <Image
+                        src={post.profileImage}
+                        onLoad={handleImageLoad}
+                        alt="미리보기"
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        fill
+                    />
+                </div>
+                <span className='post-profile-text flex-none'>{post.userName}</span>
+            </div>
+            {/* 이미지 부분 */}
+            {useManyImage ? <CommunityImageCarousel
+                imageUrls={imageUrls}
+                handleImageLoad={handleImageLoad}
+            ></CommunityImageCarousel>
+                :
+                <CommunityImage
+                    imageUrls={imageUrls}
+                    handleImageLoad={handleImageLoad}
+                    imageLoaded={imageLoaded} />
+            }
+            <div className='post-detail-content-wrapper'>
+                <span style={{
+                    color: 'black', whiteSpace: 'pre-wrap',
+                    wordWrap: 'break-word'
+                }}>{post?.content}</span>
+            </div>
+
+            <div className='post-contents-wrapper content-text-wrapper self-center'>
+                <div className='post-contents-wrapper-row'>
+                    {/* 음식 카테고리 뱃지 입력받아서 넣기 */}
+                    <div className='post-contents-left'>
+                        <div className='flex-row flex gap-2 justify-between'>
+                            <FoodCategoryBadge>
+                                {ConvertToTitleCase(post.category)}
+                            </FoodCategoryBadge>
+                        </div>
+                        {/* 컨텐츠 제목 */}
+                        <div className='post-date-wrapper'>
+                            {/* 원래는 댓글 수 작성한 공간 */}
+                            {/* <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6.75 16.5C6.55109 16.5 6.36032 16.421 6.21967 16.2803C6.07902 16.1397 6 15.9489 6 15.75V13.5H3C2.60218 13.5 2.22064 13.342 1.93934 13.0607C1.65804 12.7794 1.5 12.3978 1.5 12V3C1.5 2.1675 2.175 1.5 3 1.5H15C15.3978 1.5 15.7794 1.65804 16.0607 1.93934C16.342 2.22064 16.5 2.60218 16.5 3V12C16.5 12.3978 16.342 12.7794 16.0607 13.0607C15.7794 13.342 15.3978 13.5 15 13.5H10.425L7.65 16.2825C7.5 16.425 7.3125 16.5 7.125 16.5H6.75ZM7.5 12V14.31L9.81 12H15V3H3V12H7.5Z" fill="#5A6E8C" />
+                        </svg>
+                        <span className='comment-date-text'>12</span> */}
+
+                            {/* <svg xmlns="http://www.w3.org/2000/svg" width="1" height="14" viewBox="0 0 1 14" fill="none">
+                            <path d="M1 0.5V13.5H0V0.5H1Z" fill="#5A6E8C" />
+                        </svg> */}
+
+                            {/* 몇분 전 등록했는지 등록시간 - 현재시간 */}
+                            <span className="comment-date-text"> <TimeAgo timestamp={post.createdAt} /></span>
+                        </div>
+                    </div>
+                    <div className='post-contents-right'>
+                        {/* 좋아요 수 */}
+                        {like ?
+                            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" fill="none"
+                                onClick={likeHandler}
+                                style={{ cursor: 'pointer' }}
+                            >
+                                <circle cx="18" cy="18" r="18" fill="#E0E4EB" />
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" x="9" y="9" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M15.3333 6.66663C15.3333 5.92663 14.7333 5.33329 14 5.33329H9.78663L10.4266 2.28663C10.44 2.21996 10.4466 2.14663 10.4466 2.07329C10.4466 1.79996 10.3333 1.54663 10.1533 1.36663L9.44663 0.666626L5.05996 5.05329C4.81329 5.29996 4.66663 5.63329 4.66663 5.99996V12.6666C4.66663 13.0202 4.8071 13.3594 5.05715 13.6094C5.3072 13.8595 5.64634 14 5.99996 14H12C12.5533 14 13.0266 13.6666 13.2266 13.1866L15.24 8.48663C15.3 8.33329 15.3333 8.17329 15.3333 7.99996V6.66663ZM0.666626 14H3.33329V5.99996H0.666626V14Z" fill="black" />
+                                </svg>
+                            </svg>
+                            :
+                            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" fill="none"
+                                onClick={likeHandler}
+                                style={{ cursor: 'pointer' }}
+                            >
+                                <circle cx="18" cy="18" r="18" fill="#E0E4EB" />
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" x="9" y="9">
+                                    <path d="M3.33334 5.99996V14H0.666672V5.99996H3.33334ZM6.00001 14C5.64638 14 5.30724 13.8595 5.0572 13.6094C4.80715 13.3594 4.66667 13.0202 4.66667 12.6666V5.99996C4.66667 5.63329 4.81334 5.29996 5.06001 5.05996L9.44667 0.666626L10.1533 1.37329C10.3333 1.55329 10.4467 1.79996 10.4467 2.07329L10.4267 2.28663L9.79334 5.33329H14C14.74 5.33329 15.3333 5.93329 15.3333 6.66663V7.99996C15.3333 8.17329 15.3 8.33329 15.24 8.48663L13.2267 13.1866C13.0267 13.6666 12.5533 14 12 14H6.00001ZM6.00001 12.6666H12.02L14 7.99996V6.66663H8.14001L8.89334 3.11996L6.00001 6.01996V12.6666Z" fill="#92A2B9" />
+                                </svg>
+                            </svg>
+                        }
+
+                        <span className='like-text'>{likeCount}</span>
+                    </div>
                 </div>
             </div>
             {/* 내용 부분 */}
