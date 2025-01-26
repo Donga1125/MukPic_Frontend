@@ -1,5 +1,6 @@
 'use client';
 import "@/app/globals.css";
+import '@/app/(css)/auth.css';
 import { ReactNode, useEffect } from "react";
 import { SvgButtonForNav } from "@/app/components/button";
 import TopNav from "@/app/components/TopNav";
@@ -52,7 +53,7 @@ export default function SignupLayout({ children }: LayoutProps) {
           </svg>
         </SvgButtonForNav>}
       />
-      <div className="auth-container bg-white rounded-lg shadow-md">
+      <div className="auth-container bg-white">
         {children}
       </div>
     </div>

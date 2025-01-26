@@ -12,6 +12,7 @@ button:disabled {
 }
 
 .root-wrapper {
+  width: 100%;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -47,6 +48,7 @@ button:disabled {
 /* 웹뷰 및 모바일 최적화 */
 @media {
   body {
+    width: 100%;
     font-size: 16px;
     font-family: "SUIT", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
       "Helvetica Neue", Arial, sans-serif;

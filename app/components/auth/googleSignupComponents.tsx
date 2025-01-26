@@ -759,10 +759,10 @@ export function GoogleSignupStep5() {
     const [showDropdown, setShowDropdown] = useState<boolean>(false); // 드롭다운 표시 여부
     const inputRef = useRef<HTMLInputElement | null>(null);
 
-    const seaFoodAllergieList = ['Fish', 'Crab', 'Shrimp', 'Squid', 'Abalone', 'Mussel', 'Oyster', 'Shellfish'];
+    const seaFoodAllergieList = ['Abalone', 'Crab', 'Fish', 'Mussel', 'Oyster', 'Shellfish', 'Shrimp', 'Squid'];
     const fruitAllergieList = ['Peach', 'Tomato'];
-    const nutsAllergieList = ['Buck wheat', 'Wheat', 'Walnut', 'Pine nut', 'Peanut', 'Soybean'];
-    const meatAllergieList = ['Pork', 'Eggs', 'Milk', 'Chicken', 'Beef'];
+    const nutsAllergieList = ['Buck wheat', 'Peanut', 'Pine nut', 'Soybean', 'Walnut', 'Wheat'];
+    const meatAllergieList = ['Beef', 'Chicken', 'Eggs', 'Milk', 'Pork'];
     const etcAllergieList = ['Sulfurous'];
 
     const router = useRouter();
@@ -855,7 +855,8 @@ export function GoogleSignupStep5() {
 
     const filteredAllergies = AllergiesSearch
         ? allAllergies.filter(allergy => allergy.toLowerCase().includes(AllergiesSearch.toLowerCase()))
-        : allAllergies;
+        .sort()
+        : allAllergies.sort();
 
     return (
         <form onSubmit={handleSubmit} className='flex flex-col gap-10 flex-grow'>
@@ -980,11 +981,10 @@ export function GoogleSignupStep5() {
                 </div>
             </div>
             <div className="button-toggle-container flex flex-wrap gap-[1rem]">
-                <div>
-                    <h1 className='allergies-title text-left gap-[0.75rem]'>ETC</h1>
-                </div>
+                <h1 className='allergies-title text-left gap-[0.75rem] w-full'>ETC</h1>
                 <div className="dropdown-badge-container">
                     {etcAllergieList.map((allergie) => (
+
                         <button
                             type='button'
                             key={allergie}
@@ -997,6 +997,7 @@ export function GoogleSignupStep5() {
                         >
                             {allergie}
                         </button>
+
                     ))}
                 </div>
             </div>

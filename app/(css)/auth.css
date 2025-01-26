@@ -280,7 +280,7 @@ input.auth-placeholder::placeholder {
 }
 
 .validate-error-text {
-  padding-left:1.25rem;
+  padding-left: 1.25rem;
   color: #fa0c38;
   font-size: 0.75rem;
   font-weight: 500;
@@ -333,7 +333,7 @@ input[type="checkbox"]:active {
 }
 
 .dropdown-checkbox {
-  margin-right: 1.5rem !important;
+  margin-right: 1.5rem;
 }
 
 .camera-circle {
@@ -342,7 +342,7 @@ input[type="checkbox"]:active {
   flex-shrink: 0;
   position: absolute;
   right: 0rem;
-  bottom:0.25rem;
+  bottom: 0.25rem;
   overflow: visible;
 }
 .camera-icon {
@@ -350,5 +350,35 @@ input[type="checkbox"]:active {
   height: 1rem;
   flex-shrink: 0;
   overflow: visible;
-  transform: translate(-50%, -50%); ;
+  transform: translate(-50%, -50%);
+}
+
+.label-text {
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.375rem; /* 137.5% */
+  letter-spacing: -0.01875rem;
+}
+
+.terms-h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-style: initial;
+}
+.terms-wrapper {
+  color: black;
+  text-align: left;
+  border-top: 1px solid #000;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  
+}
+.privacy-policy {
+  max-height: 0;
+  overflow-y:auto;
+  transition: height 0.5s ease-in-out;
+}
+.privacy-policy.open{
+  max-height:25rem;
 }
