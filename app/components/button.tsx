@@ -84,10 +84,13 @@ type SvgButtonForNavProps = {
     onClick?: () => void;
 }
 
-export function SvgButtonForNav({ children, onClick }: SvgButtonForNavProps) {
+export function SvgButtonForNav({ children }: SvgButtonForNavProps) {
+    const handleClick = () => {
+        alert("This feature is scheduled for update."); // 알럿 메시지 추가
+    };
 
     return (
-        <button onClick={onClick}>
+        <button onClick={handleClick}>
             {children}
         </button>
     );

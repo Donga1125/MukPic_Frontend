@@ -3,7 +3,6 @@ import "@/app/globals.css";
 import TopNav from "@/app/components/TopNav";
 import { ReactNode } from "react";
 import { MainButtonForNav } from "@/app/components/button";
-import TextButtonForNavWrapper from "@/app/components/TextButtonForNavWrapper";
 
 export const metadata: Metadata = {
   title: "MukPic-Keyword",
@@ -26,7 +25,6 @@ export default function Layout({ children }: LayoutProps) {
     <div className="root-wrapper">
       <TopNav
         leftButton={<MainButtonForNav />}
-        rightButton={<TextButtonForNavWrapper />}
       />
       <div className="info-main-container flex-1 bg-white">
         {/* 상단 내비게이션 필요한 버튼 넣어서 사용 */}
