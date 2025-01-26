@@ -144,7 +144,7 @@ function KeywordPageContent() {
 
         <div className="mt-8 flex justify-center">
           <button
-            className="px-6 py-3 bg-[#CFF7CA] text-black font-bold rounded-md"
+            className="bg-gray-800 text-white font-semibold px-5 py-2 rounded-full"
             onClick={handleConfirmClick}
           >
             OK

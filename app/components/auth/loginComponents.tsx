@@ -55,7 +55,7 @@ export default function LoginForm() {
                     if (response.status === 200) {
                         const Authorization = response.headers['authorization'];
                         localStorage.setItem('Authorization', Authorization);
-                        const maxAge = 100 * 365 * 24 * 60 * 60; // 100년(초 단위)
+                        const maxAge = 10 * 365 * 24 * 60 * 60; // 10년(초 단위)
                         document.cookie = `authCookie=${Authorization}; max-age=${maxAge}; path=/; secure; SameSite=Strict`;
                         // 로그인 성공시 메인페이지로
                         router.push('/');
