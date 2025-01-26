@@ -2,7 +2,7 @@
 import { emailSchema, userNameSchema, userSchema } from "@/schemas/auth";
 import { UseVaildate } from "@/app/hooks/useVaildate";
 import { EmailValidateError, UserNameValidateError, UserValidateError } from "@/app/types/signupValidate";
-import React, {useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSignupStore } from "@/app/types/signupStore";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -14,6 +14,7 @@ type Props = {
     message: string;
     error: boolean;
     className?: string;
+    color?: string;
 }
 type IconProps = {
     error: boolean;
@@ -25,13 +26,15 @@ export function ValidateIcon({ error }: IconProps) {
     );
 }
 
-export function ValidateSpan({ message, error, className }: Props) {
+export function ValidateSpan({ message, error, className, color }: Props) {
     return (
-        <span className={`label-text-alt text-left pl-[1.25rem] ${className}`} style={{ display: error ? 'block' : 'none' }}>
+        <span className={`label-text-alt text-left pl-[1.25rem] ${className}`} 
+        style={{ display: error ? 'block' : 'none', color: color }}>
             {message}
         </span>
     );
 }
+
 
 // 공백에 _를 추가하는 함수
 function FormatStringArray(input: string[]): string[] {
@@ -403,9 +406,12 @@ export function SignupStep2() {
     const [canUseId, setCanUseId] = useState<boolean>(false);
     const [idDuplicateMessage, setidDuplicateMessage] = useState<string>('');
     const [messageColor, setMessageColor] = useState<string>('');
+    const [userIdValidationMessages, setUserIdValidationMessages] = useState<string[]>([]);
+    const [passwordValidationMessages, setPasswordValidationMessages] = useState<string[]>([]);
 
     //재가입을 위한 유저 이메일 체크용 상태관리에서 이메일 받아오기
     const email = useSignupStore(state => state.email);
+   
 
 
     const userId = useSignupStore(state => state.userId);
@@ -420,10 +426,12 @@ export function SignupStep2() {
         validateField(name, value);
         if (name === 'userId') {
             setuserId(value);  // userId만 업데이트
+            validateUserId(value);
             setidDuplicateMessage(''); // userId가 변경되면 중복 메시지 초기화
             setCanUseId(false); // userId가 변경되면 중복 확인 여부 초기화화
         } else if (name === 'password') {
             setpassword(value);  // password만 업데이트
+            validatePassword(value);
         }
     };
 
@@ -449,8 +457,8 @@ export function SignupStep2() {
             }
             else {
                 setCanUseId(true);
-                setidDuplicateMessage('This ID is available');
-                setMessageColor('text-green-500');
+                setidDuplicateMessage('✓ This ID is available');
+                setMessageColor('text-green-1000');
             }
         }).catch(function () {
             setCanUseId(false);
@@ -481,6 +489,73 @@ export function SignupStep2() {
         router.push('/signup/step3');
     }
 
+    const validateUserId = (value: string) => {
+        const messages: string[] = [];
+
+        // 1. 최소 4자 이상, 최대 20자 이하
+        if (value.length < 4 || value.length > 20) {
+            messages.push('User ID must be between 4 and 20 characters.');
+        } else {
+            messages.push('✓ User ID length is valid.');
+        }
+
+        // 2. 숫자로 시작하지 않음
+        if (/^\d/.test(value)) {
+            messages.push('User ID cannot start with a number.');
+        } else {
+            messages.push('✓ User ID does not start with a number.');
+        }
+
+        // 3. 알파벳 포함
+        if (!/[a-zA-Z]/.test(value)) {
+            messages.push('User ID must contain at least one letter.');
+        } else {
+            messages.push('✓ User ID contains a letter.');
+        }
+
+        // 4. 문자와 숫자만 포함
+        if (!/^[a-zA-Z0-9]+$/.test(value)) {
+            messages.push('User ID can only contain letters and numbers.');
+        } else {
+            messages.push('✓ User ID contains only letters and numbers.');
+        }
+
+        setUserIdValidationMessages(messages);
+    };
+    const validatePassword = (value: string) => {
+        const messages: string[] = [];
+
+        // 1. 최소 8자 이상, 최대 20자 이하
+        if (value.length < 8 || value.length > 20) {
+            messages.push('Password must be between 8 and 20 characters.');
+        } else {
+            messages.push('✓ Password length is valid.');
+        }
+
+        // 2. 알파벳 포함
+        if (!/[a-zA-Z]/.test(value)) {
+            messages.push('Password must contain at least one letter.');
+        } else {
+            messages.push('✓ Password contains a letter.');
+        }
+
+        // 3. 숫자 포함
+        if (!/\d/.test(value)) {
+            messages.push('Password must contain at least one number.');
+        } else {
+            messages.push('✓ Password contains a number.');
+        }
+
+        // 4. 특수문자 포함
+        if (!/[!@#$%^&*(),.?":{}|<>]/.test(value)) {
+            messages.push('Password must contain at least one special character.');
+        } else {
+            messages.push('✓ Password contains a special character.');
+        }
+
+        setPasswordValidationMessages(messages);
+    };
+
 
 
     return (
@@ -504,9 +579,18 @@ export function SignupStep2() {
                 </button>
             </label>
             <div>
-                {errors?.userId && <ValidateSpan message={errors?.userId[0]} error={!!errors?.userId}></ValidateSpan>}
+                {userIdValidationMessages.map((message, index) => (
+                    <span className='label-text-alt text-left pl-[1.25rem]' key={index} style={{
+                        color: message.startsWith('✓') ? 'green' : 'red',
+                        display: 'block'
+                    }}>
+                        {message}
+                    </span>
+                ))}
+
+
                 {idDuplicateMessage && <ValidateSpan message={idDuplicateMessage} error={!!idDuplicateMessage}
-                    className={messageColor}></ValidateSpan>}
+                    color='green'></ValidateSpan>}
             </div>
 
             <label htmlFor="password" className="flex auth-input-label items-center">
@@ -537,7 +621,14 @@ export function SignupStep2() {
                 </button>
             </label>
             <div>
-                {errors?.password && <ValidateSpan message={errors?.password[0]} error={!!errors?.password}></ValidateSpan>}
+                {passwordValidationMessages.map((message, index) => (
+                    <span className='label-text-alt text-left pl-[1.25rem]' key={index} style={{
+                        color: message.startsWith('✓') ? 'green' : 'red',
+                        display: 'block'
+                    }}>
+                        {message}
+                    </span>
+                ))}
             </div>
             <button className='auth-button auth-button-id sign-up-button-text'
                 type='submit'
