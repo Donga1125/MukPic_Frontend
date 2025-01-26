@@ -10,7 +10,7 @@ type BotNavProps = {
 
 export function BotNav({ searchButton, communityButton, mypageButton }: BotNavProps) {
     return (
-        <div className="bottom-[1rem] left-[41.2%] bot-nav z-50 sticky flex">
+        <div className="bottom-[1rem] bot-nav z-50 sticky flex justify-center items-center">
             {searchButton}
             {communityButton}
             {mypageButton}

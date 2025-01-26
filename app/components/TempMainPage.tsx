@@ -140,7 +140,7 @@ export default function MainPage() {
   };
 
   return (
-    <main className="bg-white min-h-[calc(100vh-100px)] p-0">
+    <main className="bg-white min-h-[calc(100vh-170px)] p-0">
       {/* 검색바 */}
       <section className="mb-6">
         <div className="flex justify-center mb-4">
