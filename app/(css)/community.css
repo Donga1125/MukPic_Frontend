@@ -73,7 +73,6 @@
   position: relative;
   flex-shrink: 0;
   align-self: stretch;
-  border-bottom : 1px solid #d0d7e1;
   margin-bottom : 1rem;
 }
 
@@ -200,10 +199,16 @@ img {
   justify-content: center;
   align-items: flex-start;
 }
+.post-contents-wrapper-row-detail {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: flex-start;
+}
 
 .post-contents-left {
   display: flex;
-  width: 18.875rem;
+  width: 90%;
   height: 4.9375rem;
   flex-direction: column;
   align-items: flex-start;
@@ -212,7 +217,7 @@ img {
 }
 .post-contents-right {
   display: flex;
-  width: 2.25rem;
+  width: 10%;
   height: 4.9375rem;
   flex-direction: column;
   align-items: center;

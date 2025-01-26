@@ -140,6 +140,7 @@ export function AddImageUrl() {
                     // 성공적으로 업로드된 이미지 URL을 상태에 추가
                     setImageUrl([...imageUrl, ...response.data]);
                     setUpdateImageUrls([...updateImageUrls, ...response.data]);
+                    console.log('updateImageUrls:', updateImageUrls);
                 }
             }).catch((error) => {
                 console.log('upload error', error);
