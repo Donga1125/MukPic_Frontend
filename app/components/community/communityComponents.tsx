@@ -156,22 +156,22 @@ const CommunityImageCarousel: React.FC<CommunityImageCarouselProps> = ({
 }) => {
     return (
         <Swiper className='post-img-wrapper flex' pagination={true} modules={[Pagination]}>
-                {imageUrls.map((url, index) => (
-                    <SwiperSlide key={index}
-                        className='self-center h-full'>
-                        {/* 이미지 */}
-                        <Image
-                            src={url}
-                            alt={`Slide ${index + 1}`}
-                            className="w-full object-cover display-block" // Tailwind CSS 클래스
-                            layout="responsive" // 이미지 비율을 유지하며 반응형 처리
-                            width={800} // 이미지 너비
-                            height={400} // 이미지 높이
-                            priority={index === 0} // 첫 번째 슬라이드 이미지는 우선 로드
-                            onLoad={handleImageLoad}
-                        />
-                    </SwiperSlide>
-                ))}
+            {imageUrls.map((url, index) => (
+                <SwiperSlide key={index}
+                    className='self-center h-full'>
+                    {/* 이미지 */}
+                    <Image
+                        src={url}
+                        alt={`Slide ${index + 1}`}
+                        className="w-full object-cover display-block" // Tailwind CSS 클래스
+                        layout="responsive" // 이미지 비율을 유지하며 반응형 처리
+                        width={800} // 이미지 너비
+                        height={400} // 이미지 높이
+                        priority={index === 0} // 첫 번째 슬라이드 이미지는 우선 로드
+                        onLoad={handleImageLoad}
+                    />
+                </SwiperSlide>
+            ))}
         </Swiper >
 
     );
@@ -215,7 +215,6 @@ export function PostComponents() {
                 if (response.status === 200) {
                     const { content, last } = response.data;
                     setPosts((prevPosts) => [...prevPosts, ...content]);
-                    console.log('게시글 데이터', content);
                     setIsLast(last);
                     setPage((prevPage) => prevPage + 1);
                 }
@@ -288,7 +287,7 @@ export function PostComponents() {
     return (
         <>
             <div className="post-component-wrapper">
-                <div style={{ backgroundColor: 'white' }} className='pb-[1rem]'>
+                <div style={{ backgroundColor: 'white' }} className='pb-[1rem] pl-[1rem]'>
                     <CategorySelectDropdown
                         defaultItem="ALL" // 기본 선택 값 설정
                         options={categoryList} // 드롭다운 옵션 전달
@@ -309,12 +308,12 @@ export function PostComponents() {
                     ))
 
                 )}
-                <div ref={observerRef} className="loading-placeholder h-1"
+                <div ref={observerRef} className="loading-placeholder h-1 invisible"
                 />
-                <div className='flex flex-grow flex-1 justify-center'>
-                    {isLast && <p className='text-center'
-                    >no more post</p>}
-                </div>
+            </div>
+            <div className='flex justify-center' style={{ width: '100%',backgroundColor: 'white' }}>
+                {isLast && <span className='text-center'
+                >no more post</span>}
             </div>
 
         </>
@@ -560,9 +559,6 @@ export function DetailPostContent({ post, useManyImage }: CommunityPostProps) {
         <div className='post-contents-wrapper self-center gap-2'>
             {/* 프로필 부분 */}
             <div className='post-profile-wrapper mt-2 relative'>
-                <div className='flex flex-1'>
-                    <span className='post-content-text' style={{ fontSize: '1.5rem' }}>{post.title}</span>
-                </div>
                 <div
                     style={{
                         width: "2.25rem",
@@ -598,6 +594,9 @@ export function DetailPostContent({ post, useManyImage }: CommunityPostProps) {
                     handleImageLoad={handleImageLoad}
                     imageLoaded={imageLoaded} />
             }
+            <div className='flex flex-1 mb-[1rem]'>
+                <span className='post-content-text' style={{ fontSize: '1.5rem' }}>{post.title}</span>
+            </div>
             <div className='post-detail-content-wrapper'>
                 <span style={{
                     color: 'black', whiteSpace: 'pre-wrap',
@@ -606,7 +605,7 @@ export function DetailPostContent({ post, useManyImage }: CommunityPostProps) {
             </div>
 
             <div className='post-contents-wrapper content-text-wrapper self-center'>
-                <div className='post-contents-wrapper-row'>
+                <div className='post-contents-wrapper-row-detail'>
                     {/* 음식 카테고리 뱃지 입력받아서 넣기 */}
                     <div className='post-contents-left'>
                         <div className='flex-row flex gap-2 justify-between'>
