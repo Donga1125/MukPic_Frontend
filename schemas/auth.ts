@@ -24,16 +24,13 @@ export const userSchema = z.object({
     .max(20, { message: "Password must be at most 20 characters." })
     .refine((val) => /[a-zA-Z]/.test(val), {
       message: "Password must contain at least one letter.",
-      path: ['passwordLetter'],
     })
     .refine((val) => /\d/.test(val), {
       message: "Password must contain at least one number.",
-      path: ['passwordNumber'],
     })
     // Temporarily disallow special characters
     .refine((val) => /[!@#$%^&*(),.?":{}|<>]/.test(val), {
       message: "Password must contain at least one special character.",
-      path: ['passwordSpecialChar'],
     }),
 });
 

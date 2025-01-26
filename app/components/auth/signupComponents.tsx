@@ -453,17 +453,17 @@ export function SignupStep2() {
             if (response.data === true) {
                 setCanUseId(false);
                 setidDuplicateMessage('This ID is already exist');
-                setMessageColor('text-red-500');
+                setMessageColor('red');
             }
             else {
                 setCanUseId(true);
                 setidDuplicateMessage('✓ This ID is available');
-                setMessageColor('text-green-1000');
+                setMessageColor('green');
             }
         }).catch(function () {
             setCanUseId(false);
             setidDuplicateMessage('Failed to check ID');
-            setMessageColor('text-red-500');
+            setMessageColor('red');
         });
     }
 
@@ -590,7 +590,7 @@ export function SignupStep2() {
 
 
                 {idDuplicateMessage && <ValidateSpan message={idDuplicateMessage} error={!!idDuplicateMessage}
-                    color='green'></ValidateSpan>}
+                    color={messageColor}></ValidateSpan>}
             </div>
 
             <label htmlFor="password" className="flex auth-input-label items-center">
