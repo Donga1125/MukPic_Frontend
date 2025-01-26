@@ -430,15 +430,16 @@ export function Dropdown({ options, buttonName, isMultiSelect, onSelect }: Dropd
                                 className="dropdown-item flex"
                                 onClick={() => selectItem(option)}
                             >
-                                <span className="flex flex-1">{option}</span>
+                                <span className="flex">{option}</span>
                                 {/* 여기에 체크박스 추가 */}
                                 {isMultiSelect ? (
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedItems.includes(option)}
-                                        onChange={() => selectItem(option)}
-                                        className="dropdown-checkbox" />
-                                ) :
+                                    <span className='dropdown-checkbox'>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedItems.includes(option)}
+                                            onChange={() => selectItem(option)}
+                                        />
+                                    </span>) :
                                     (
                                         null
                                     )
@@ -809,6 +810,14 @@ export function GoogleSignupStep5() {
                         // 회원가입 성공 시 로컬스토리지 초기화 및 환영 메시지 출력
                         localStorage.removeItem('googleLoginToken');
                         alert('All set! Welcome aboard!');
+
+                        //구글 로그인 바로 보내기기
+                        // const googleAuthUrl = `${process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI}`;
+                        // // 구글 회원가입에서 사용한 토큰 혹시 있으면 삭제해줌
+                        // if (localStorage.getItem('googleLoginToken')) {
+                        //     localStorage.removeItem('googleLoginToken');
+                        // }
+                        // window.location.href = googleAuthUrl;
                         router.push('/login');
                     } else {
                         alert('Failed to sign up Please try again');
@@ -855,7 +864,7 @@ export function GoogleSignupStep5() {
 
     const filteredAllergies = AllergiesSearch
         ? allAllergies.filter(allergy => allergy.toLowerCase().includes(AllergiesSearch.toLowerCase()))
-        .sort()
+            .sort()
         : allAllergies.sort();
 
     return (

@@ -28,8 +28,8 @@ export function ValidateIcon({ error }: IconProps) {
 
 export function ValidateSpan({ message, error, className, color }: Props) {
     return (
-        <span className={`label-text-alt text-left pl-[1.25rem] ${className}`} 
-        style={{ display: error ? 'block' : 'none', color: color }}>
+        <span className={`label-text-alt text-left pl-[1.25rem] ${className}`}
+            style={{ display: error ? 'block' : 'none', color: color }}>
             {message}
         </span>
     );
@@ -87,7 +87,7 @@ export function SignupStep() {
                 <div className="form-control primary">
                     <label className="cursor-pointer label">
                         <div className="flex flex-row gap-2 items-center">
-                            <input type="checkbox" className='dropdown-checkbox mr-0'
+                            <input type="checkbox" className='dropdown-checkbox mr-1'
                                 onChange={(e) => checkboxChange(e, setpersonalInfoAgree)} />
                             <span className="label-text">Privacy Policy</span>
                         </div>
@@ -411,7 +411,7 @@ export function SignupStep2() {
 
     //재가입을 위한 유저 이메일 체크용 상태관리에서 이메일 받아오기
     const email = useSignupStore(state => state.email);
-   
+
 
 
     const userId = useSignupStore(state => state.userId);
@@ -974,15 +974,16 @@ export function Dropdown({ options, buttonName, isMultiSelect, onSelect }: Dropd
                                 className="dropdown-item flex"
                                 onClick={() => selectItem(option)}
                             >
-                                <span className="flex flex-1">{option}</span>
+                                <span className="flex">{option}</span>
                                 {/* 여기에 체크박스 추가 */}
                                 {isMultiSelect ? (
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedItems.includes(option)}
-                                        onChange={() => selectItem(option)}
-                                        className="dropdown-checkbox" />
-                                ) :
+                                    <span className='dropdown-checkbox'>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedItems.includes(option)}
+                                            onChange={() => selectItem(option)}
+                                            />
+                                    </span>) :
                                     (
                                         null
                                     )

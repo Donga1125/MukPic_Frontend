@@ -143,7 +143,7 @@ input.auth-placeholder::placeholder {
 .dropdown-item {
   display: flex;
   align-items: center; /* 세로 방향 가운데 정렬 */
-  justify-content: flex-start; /* 가로 방향 왼쪽 정렬 */
+  justify-content: space-between; /* 가로 방향 왼쪽 정렬 */
   padding-left: 1.53rem;
   width: 100%;
   height: 3.125rem;
@@ -282,10 +282,9 @@ input.auth-placeholder::placeholder {
 .validate-error-text {
   padding-left: 1.25rem;
   color: #fa0c38;
-  font-size: 0.75rem;
-  font-weight: 500;
-  line-height: 0.875rem; /* 116.667% */
-  letter-spacing: -0.01875rem;
+  font-size: 0.875rem;
+  font-style: normal;
+  font-weight: 400;
   text-align: left;
 }
 
@@ -294,6 +293,7 @@ input.auth-placeholder::placeholder {
   font-size: 0.875rem;
   font-style: normal;
   font-weight: 400;
+  text-align: right;
 }
 
 input[type="checkbox"] {
@@ -333,7 +333,7 @@ input[type="checkbox"]:active {
 }
 
 .dropdown-checkbox {
-  margin-right: 1.5rem;
+  padding-right:1rem;
 }
 
 .camera-circle {
@@ -372,13 +372,12 @@ input[type="checkbox"]:active {
   border-top: 1px solid #000;
   padding-top: 1rem;
   padding-bottom: 1rem;
-  
 }
 .privacy-policy {
   max-height: 0;
-  overflow-y:auto;
+  overflow-y: auto;
   transition: height 0.5s ease-in-out;
 }
-.privacy-policy.open{
-  max-height:25rem;
+.privacy-policy.open {
+  max-height: 25rem;
 }

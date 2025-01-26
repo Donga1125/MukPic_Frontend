@@ -38,13 +38,13 @@ function GoogleLoginContent() {
             router.push("/");
           } else {
             console.error("Authorization token is missing in the response headers.");
-            alert("로그인 토큰을 가져오지 못했습니다. 다시 시도해주세요.");
+            alert("login error please try again");
             router.push("/login");
           }
         }
       } catch (error) {
         console.error("Error fetching tokens:", error);
-        alert("로그인 중 오류가 발생했습니다. 다시 시도해주세요.");
+        alert("login error please try again");
         router.push("/login");
       }
     };
