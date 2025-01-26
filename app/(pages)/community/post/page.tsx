@@ -72,9 +72,27 @@ export default function Post() {
                     console.log('image upload error', error);
                     router.push('/community');
                 });
-        } else {
-            // 필수 항목이 누락되었을 경우
-            alert('Please fill in all the blanks');
+        }
+        else {
+            const missingFields = [];
+
+            if (images.length === 0) {
+                missingFields.push('image');
+            }
+            if (category === '') {
+                missingFields.push('category');
+            }
+            if (title === '') {
+                missingFields.push('title');
+            }
+            if (content === '') {
+                missingFields.push('content');
+            }
+
+            if (missingFields.length > 0) {
+                const message = `Please fill in the following fields - ${missingFields.join(', ')}`;
+                alert(message);
+            }
         }
     };
 

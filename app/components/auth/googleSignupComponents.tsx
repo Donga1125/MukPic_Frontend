@@ -808,6 +808,7 @@ export function GoogleSignupStep5() {
                     if (response.status === 200) {
                         // 회원가입 성공 시 로컬스토리지 초기화 및 환영 메시지 출력
                         localStorage.removeItem('googleLoginToken');
+                        
                         alert('All set! Welcome aboard!');
                         router.push('/login');
                     } else {
