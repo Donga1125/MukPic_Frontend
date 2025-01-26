@@ -3,7 +3,6 @@ import "@/app/globals.css";
 import TopNav from "@/app/components/TopNav";
 import { ReactNode } from "react";
 import { MainButtonForNav } from "@/app/components/button";
-import TextButtonForNavWrapper from "@/app/components/TextButtonForNavWrapper";
 
 export const metadata: Metadata = {
   title: "MukPic-Keyword",
