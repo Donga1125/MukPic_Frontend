@@ -77,7 +77,7 @@ export function AddBotNav() {
             communityButton={
                 <BotNavButton
                     text="community"
-                    onClick={() => handleButtonClick("/community")}
+                    onClick={() => location.href = "/community"} //현석 수정함
                     isActive={pathname === "/community"}
                     Image={
                         <svg

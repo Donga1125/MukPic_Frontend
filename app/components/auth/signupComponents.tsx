@@ -7,12 +7,14 @@ import { useSignupStore } from "@/app/types/signupStore";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import Image from "next/image";
+import jsonData from '@/app/components/auth/Policy.json';
 
 
 type Props = {
     message: string;
     error: boolean;
     className?: string;
+    color?: string;
 }
 type IconProps = {
     error: boolean;
@@ -24,13 +26,15 @@ export function ValidateIcon({ error }: IconProps) {
     );
 }
 
-export function ValidateSpan({ message, error, className }: Props) {
+export function ValidateSpan({ message, error, className, color }: Props) {
     return (
-        <span className={`label-text-alt text-left pl-[1.25rem] ${className}`} style={{ display: error ? 'block' : 'none' }}>
+        <span className={`label-text-alt text-left pl-[1.25rem] ${className}`} 
+        style={{ display: error ? 'block' : 'none', color: color }}>
             {message}
         </span>
     );
 }
+
 
 // 공백에 _를 추가하는 함수
 function FormatStringArray(input: string[]): string[] {
@@ -43,6 +47,14 @@ export function SignupStep() {
     const [termsAgree, settermsAgree] = useState<boolean>(false);
     const [isAgree, setIsAgree] = useState<boolean>(false);
     const setAgree = useSignupStore(state => state.setagree);
+    const [isPrivacyOpen, setIsPrivacyOpen] = useState<boolean>(false);
+    const [isTermsOpen, setIsTermsOpen] = useState<boolean>(false);
+    const termsData = {
+        privacyPolicy: jsonData.privacyPolicy,
+        termsOfService: jsonData.termsOfService
+    };
+
+
     const router = useRouter();
     useEffect(() => {
         setIsAgree(personalInfoAgree && termsAgree);
@@ -60,22 +72,92 @@ export function SignupStep() {
         router.push('/signup/step1');
     }
 
+    const handlePrivacy = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.stopPropagation();
+        setIsPrivacyOpen((prev) => !prev);
+    }
+    const handleTerms = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.stopPropagation();
+        setIsTermsOpen((prev) => !prev);
+    }
+
     return (
         <form onSubmit={handleSumbit} className='flex flex-col gap-[0.75rem] flex-grow' >
             <div className='card'>
                 <div className="form-control primary">
                     <label className="cursor-pointer label">
-                        <span className="label-text">개인정보 및 민감정보 사용 동의</span>
-                        <input type="checkbox" className='dropdown-checkbox'
-                            onChange={(e) => checkboxChange(e, setpersonalInfoAgree)} />
+                        <div className="flex flex-row gap-2 items-center">
+                            <input type="checkbox" className='dropdown-checkbox mr-0'
+                                onChange={(e) => checkboxChange(e, setpersonalInfoAgree)} />
+                            <span className="label-text">Privacy Policy</span>
+                        </div>
+                        <div className='flex justify-center'>
+                            <button
+                                onClick={handlePrivacy}
+                                type='button'>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="7" viewBox="0 0 10 7" fill="none">
+                                    <path d="M0.613336 2.61331L4.06667 6.06665C4.58667 6.58665 5.42667 6.58665 5.94667 6.06665L9.4 2.61331C10.24 1.77331 9.64 0.333313 8.45334 0.333313H1.54667C0.360002 0.333313 -0.226664 1.77331 0.613336 2.61331Z" fill="black" />
+                                </svg>
+                            </button>
+                        </div>
                     </label>
+                    {isPrivacyOpen && <div className='terms-wrapper'>
+                        <div className={`privacy-policy ${isPrivacyOpen ? 'open' : ''}`}>
+                            {termsData.privacyPolicy.sections.map((section, index) => (
+                                <div key={index}>
+                                    <br />
+                                    <h2 className='terms-h2'>{section.heading}</h2>
+                                    <br />
+                                    <p>{section.content}</p>
+                                    {section.list && (
+                                        <ul>
+                                            {section.list.map((item, listIndex) => (
+                                                <li key={listIndex}>- {item}</li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                    {section.footer && <p>{section.footer}</p>}
+                                </div>
+                            ))}
+                        </div>
+                    </div>}
                 </div>
                 <div className="form-control">
                     <label className="cursor-pointer label">
-                        <span className="label-text">이용 약관 동의</span>
-                        <input type="checkbox" className='dropdown-checkbox'
-                            onChange={(e) => checkboxChange(e, settermsAgree)} />
+                        <div className="flex flex-row gap-2 items-center">
+                            <input type="checkbox" className='dropdown-checkbox mr-0'
+                                onChange={(e) => checkboxChange(e, settermsAgree)} />
+                            <span className="label-text">Terms of Service</span>
+                        </div>
+                        <div className='flex justify-center'>
+                            <button
+                                type='button'
+                                onClick={handleTerms}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="7" viewBox="0 0 10 7" fill="none">
+                                    <path d="M0.613336 2.61331L4.06667 6.06665C4.58667 6.58665 5.42667 6.58665 5.94667 6.06665L9.4 2.61331C10.24 1.77331 9.64 0.333313 8.45334 0.333313H1.54667C0.360002 0.333313 -0.226664 1.77331 0.613336 2.61331Z" fill="black" />
+                                </svg>
+                            </button>
+                        </div>
                     </label>
+                    {isTermsOpen && <div className='terms-wrapper' style={{ color: 'black', textAlign: 'left' }}>
+                        <div className={`privacy-policy ${isTermsOpen ? 'open' : ''}`}>
+                            {termsData.termsOfService.sections.map((section, index) => (
+                                <div key={index}>
+                                    <br />
+                                    <h2 className='terms-h2'>{section.heading}</h2>
+                                    <br />
+                                    <p>{section.content}</p>
+                                    {section.list && (
+                                        <ul>
+                                            {section.list.map((item, listIndex) => (
+                                                <li key={listIndex}>- {item}</li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>}
                 </div>
             </div>
             <button
@@ -103,6 +185,15 @@ export function SignupStep1() {
     const [emailVerifyMessage, setEmailVerifyMessage] = useState<string>('');
     const [messageColor, setMessageColor] = useState<string>('');
     const [emailSendMessageColor, setEmailSendMessageColor] = useState<string>('text-green-500');
+    const [timer, setTimer] = useState<number>(180);
+    const [isTimerActive, setIsTimerActive] = useState<boolean>(false);
+    const [emailVerifyInputVisible, setEmailVerifyInputVisible] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    const startTimer = () => {
+        setTimer(180);
+        setIsTimerActive(true);
+    }
 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -114,7 +205,7 @@ export function SignupStep1() {
 
     // 이메일 전송 포스트 요청
     const sendEmail = async () => {
-
+        setIsLoading(true);
         axios.get(`${process.env.NEXT_PUBLIC_ROOT_API}/users/checkEmail`, //이메일 요청 엔드포인트 수정
             {
                 params: {
@@ -130,28 +221,39 @@ export function SignupStep1() {
                 setEmailSendMessageColor('text-green-500');
                 setemailSendMessage('Verification code has been sent to your email');
                 setSendMessageVisiblity(true);
+                setEmailVerifyInputVisible(true);
+                setIsSendButtonDisabled(true);
+                startTimer();
             }
             else if (response.status === 409) {
                 if (response.data.message === '재가입 유저입니다. 인증 메일을 발송했습니다.') {
                     setEmailSendMessageColor('text-green-500');
                     setemailSendMessage('Verification code has been successfully sent to the re-registered user');
                     setSendMessageVisiblity(true);
+                    setEmailVerifyInputVisible(true);
+                    setIsSendButtonDisabled(true);
+                    startTimer();
                 }
                 else {
                     setEmailSendMessageColor('text-red-500');
                     setemailSendMessage('Email already exists');
-                    setSendMessageVisiblity(false);
+                    setEmailVerifyInputVisible(false);
+                    setSendMessageVisiblity(true);
                 }
             }
             else {
                 setEmailSendMessageColor('text-red-500');
                 setemailSendMessage('Failed to send verification code please try again');
-                setSendMessageVisiblity(false);
+                setEmailVerifyInputVisible(false);
+                setSendMessageVisiblity(true);
             }
         }).catch(function () {
             setEmailSendMessageColor('text-red-500');
             setemailSendMessage('Failed to send verification code please try again');
+            setEmailVerifyInputVisible(false);
             setSendMessageVisiblity(false);
+        }).finally(() => {
+            setIsLoading(false)
         });
     }
 
@@ -175,6 +277,7 @@ export function SignupStep1() {
                 setEmailVerifyMessage('Email verification success!');
                 setInputBorderColor('border-green-500');
                 setIsNextButtonDisabled(false);
+                setIsTimerActive(false);
             } else {
                 setMessageColor('text-red-500');
                 setInputBorderColor('border-red-500 border-opacity-100');
@@ -191,6 +294,20 @@ export function SignupStep1() {
 
 
 
+    useEffect(() => {
+        let timerInterval: NodeJS.Timeout;
+        if (isTimerActive && timer > 0) {
+            timerInterval = setInterval(() => {
+                setTimer((prev) => prev - 1);
+            }, 1000);
+        } else if (timer === 0) {
+            setIsTimerActive(false);
+            setSendMessageVisiblity(false); // 메시지 숨김
+            setEmailVerifyInputVisible(false); // 인증번호 입력창 숨김
+            setIsSendButtonDisabled(false); // Send 버튼 다시 활성화
+        }
+        return () => clearInterval(timerInterval); // cleanup
+    }, [isTimerActive, timer]);
 
 
 
@@ -222,7 +339,7 @@ export function SignupStep1() {
                 <button
                     className='flex items-center justify-center verify-button-send verify-button nav-text-button'
                     onClick={sendEmail}
-                    disabled={isSendButtonDisabled}
+                    disabled={isSendButtonDisabled || isLoading}
                     type='button'
                 >
                     Send
@@ -235,7 +352,13 @@ export function SignupStep1() {
                 ></ValidateSpan>}
             </div>
 
-            {sendMessageVisiblity && (<label htmlFor="authNum"
+            {isLoading && (
+                <div className="flex items-center justify-center gap-2 mt-2">
+                    <p className="text-gray-500">Sending email, please wait...</p>
+                    <span className="loading loading-spinner loading-xs"></span>
+                </div>
+            )}
+            {emailVerifyInputVisible && (<label htmlFor="authNum"
                 className={`flex auth-input-label items-center ${inputBorderColor}`}>
                 <input
                     id="authNum"
@@ -254,10 +377,17 @@ export function SignupStep1() {
                 </button>
             </label>
             )}
+            {isTimerActive && (
+                <div className="text-gray-500 text-sm text-left pl-[1.25rem]">
+                    Verification code expires in: {Math.floor(timer / 60)}:{timer % 60 < 10 ? "0" : ""}
+                    {timer % 60} minutes
+                </div>
+            )}
             <div>
                 {emailVerifyMessage && <ValidateSpan message={emailVerifyMessage} error={!!emailVerifyMessage}
                     className={messageColor}></ValidateSpan>}
             </div>
+
             {/* 인증 메시지 처리 넣어줘야함 */}
             <button className='auth-button auth-button-id sign-up-button-text'
                 type='submit'
@@ -276,9 +406,12 @@ export function SignupStep2() {
     const [canUseId, setCanUseId] = useState<boolean>(false);
     const [idDuplicateMessage, setidDuplicateMessage] = useState<string>('');
     const [messageColor, setMessageColor] = useState<string>('');
+    const [userIdValidationMessages, setUserIdValidationMessages] = useState<string[]>([]);
+    const [passwordValidationMessages, setPasswordValidationMessages] = useState<string[]>([]);
 
     //재가입을 위한 유저 이메일 체크용 상태관리에서 이메일 받아오기
     const email = useSignupStore(state => state.email);
+   
 
 
     const userId = useSignupStore(state => state.userId);
@@ -293,10 +426,12 @@ export function SignupStep2() {
         validateField(name, value);
         if (name === 'userId') {
             setuserId(value);  // userId만 업데이트
+            validateUserId(value);
             setidDuplicateMessage(''); // userId가 변경되면 중복 메시지 초기화
             setCanUseId(false); // userId가 변경되면 중복 확인 여부 초기화화
         } else if (name === 'password') {
             setpassword(value);  // password만 업데이트
+            validatePassword(value);
         }
     };
 
@@ -318,17 +453,17 @@ export function SignupStep2() {
             if (response.data === true) {
                 setCanUseId(false);
                 setidDuplicateMessage('This ID is already exist');
-                setMessageColor('text-red-500');
+                setMessageColor('red');
             }
             else {
                 setCanUseId(true);
-                setidDuplicateMessage('This ID is available');
-                setMessageColor('text-green-500');
+                setidDuplicateMessage('✓ This ID is available');
+                setMessageColor('green');
             }
         }).catch(function () {
             setCanUseId(false);
             setidDuplicateMessage('Failed to check ID');
-            setMessageColor('text-red-500');
+            setMessageColor('red');
         });
     }
 
@@ -354,6 +489,73 @@ export function SignupStep2() {
         router.push('/signup/step3');
     }
 
+    const validateUserId = (value: string) => {
+        const messages: string[] = [];
+
+        // 1. 최소 4자 이상, 최대 20자 이하
+        if (value.length < 4 || value.length > 20) {
+            messages.push('User ID must be between 4 and 20 characters.');
+        } else {
+            messages.push('✓ User ID length is valid.');
+        }
+
+        // 2. 숫자로 시작하지 않음
+        if (/^\d/.test(value)) {
+            messages.push('User ID cannot start with a number.');
+        } else {
+            messages.push('✓ User ID does not start with a number.');
+        }
+
+        // 3. 알파벳 포함
+        if (!/[a-zA-Z]/.test(value)) {
+            messages.push('User ID must contain at least one letter.');
+        } else {
+            messages.push('✓ User ID contains a letter.');
+        }
+
+        // 4. 문자와 숫자만 포함
+        if (!/^[a-zA-Z0-9]+$/.test(value)) {
+            messages.push('User ID can only contain letters and numbers.');
+        } else {
+            messages.push('✓ User ID contains only letters and numbers.');
+        }
+
+        setUserIdValidationMessages(messages);
+    };
+    const validatePassword = (value: string) => {
+        const messages: string[] = [];
+
+        // 1. 최소 8자 이상, 최대 20자 이하
+        if (value.length < 8 || value.length > 20) {
+            messages.push('Password must be between 8 and 20 characters.');
+        } else {
+            messages.push('✓ Password length is valid.');
+        }
+
+        // 2. 알파벳 포함
+        if (!/[a-zA-Z]/.test(value)) {
+            messages.push('Password must contain at least one letter.');
+        } else {
+            messages.push('✓ Password contains a letter.');
+        }
+
+        // 3. 숫자 포함
+        if (!/\d/.test(value)) {
+            messages.push('Password must contain at least one number.');
+        } else {
+            messages.push('✓ Password contains a number.');
+        }
+
+        // 4. 특수문자 포함
+        if (!/[!@#$%^&*(),.?":{}|<>]/.test(value)) {
+            messages.push('Password must contain at least one special character.');
+        } else {
+            messages.push('✓ Password contains a special character.');
+        }
+
+        setPasswordValidationMessages(messages);
+    };
+
 
 
     return (
@@ -377,9 +579,18 @@ export function SignupStep2() {
                 </button>
             </label>
             <div>
-                {errors?.userId && <ValidateSpan message={errors?.userId[0]} error={!!errors?.userId}></ValidateSpan>}
+                {userIdValidationMessages.map((message, index) => (
+                    <span className='label-text-alt text-left pl-[1.25rem]' key={index} style={{
+                        color: message.startsWith('✓') ? 'green' : 'red',
+                        display: 'block'
+                    }}>
+                        {message}
+                    </span>
+                ))}
+
+
                 {idDuplicateMessage && <ValidateSpan message={idDuplicateMessage} error={!!idDuplicateMessage}
-                    className={messageColor}></ValidateSpan>}
+                    color={messageColor}></ValidateSpan>}
             </div>
 
             <label htmlFor="password" className="flex auth-input-label items-center">
@@ -410,7 +621,14 @@ export function SignupStep2() {
                 </button>
             </label>
             <div>
-                {errors?.password && <ValidateSpan message={errors?.password[0]} error={!!errors?.password}></ValidateSpan>}
+                {passwordValidationMessages.map((message, index) => (
+                    <span className='label-text-alt text-left pl-[1.25rem]' key={index} style={{
+                        color: message.startsWith('✓') ? 'green' : 'red',
+                        display: 'block'
+                    }}>
+                        {message}
+                    </span>
+                ))}
             </div>
             <button className='auth-button auth-button-id sign-up-button-text'
                 type='submit'
@@ -1010,9 +1228,9 @@ export function SignupStep4() {
     ];
     const religionList: string[] = ["Atheism", "Christianity", "Buddhism", "Catholicism", "Islam",
         "Hinduism"];
-    const dietaryPreferences: string[] = ["No food to cover", 'Halal', 'Kosher', "Vegetarian", "Vegan",
+    const dietaryPreferences: string[] = ['Halal', 'Kosher', "Vegetarian", "Vegan",
         "Pescatarian", "Low Spice tolerance", "No Alcohol", 'Gluten Free', 'Lactose Free', 'Low Carb'];
-    const chronicDiseaseList: string[] = ['No Disease', 'Cancer', 'Diabetes', 'Osteoporosis', 'Heart Disease'];
+    const chronicDiseaseList: string[] = ['Cancer', 'Diabetes', 'Osteoporosis', 'Heart Disease'];
     const isFormValid = selectedCountry && selectedReligions;
 
 
@@ -1085,10 +1303,10 @@ export function SignupStep5() {
     const [showDropdown, setShowDropdown] = useState<boolean>(false); // 드롭다운 표시 여부
     const inputRef = useRef<HTMLInputElement | null>(null);
 
-    const seaFoodAllergieList = ['Fish', 'Crab', 'Shrimp', 'Squid', 'Abalone', 'Mussel', 'Oyster', 'Shellfish'];
+    const seaFoodAllergieList = ['Abalone', 'Crab', 'Fish', 'Mussel', 'Oyster', 'Shellfish', 'Shrimp', 'Squid'];
     const fruitAllergieList = ['Peach', 'Tomato'];
-    const nutsAllergieList = ['Buck wheat', 'Wheat', 'Walnut', 'Pine nut', 'Peanut', 'Soybean'];
-    const meatAllergieList = ['Pork', 'Eggs', 'Milk', 'Chicken', 'Beef'];
+    const nutsAllergieList = ['Buck wheat', 'Peanut', 'Pine nut', 'Soybean', 'Walnut', 'Wheat'];
+    const meatAllergieList = ['Beef', 'Chicken', 'Eggs', 'Milk', 'Pork'];
     const etcAllergieList = ['Sulfurous'];
 
     const router = useRouter();
@@ -1163,7 +1381,8 @@ export function SignupStep5() {
 
     const filteredAllergies = AllergiesSearch
         ? allAllergies.filter(allergy => allergy.toLowerCase().includes(AllergiesSearch.toLowerCase()))
-        : allAllergies;
+            .sort()
+        : allAllergies.sort();
 
     return (
         <form onSubmit={handleSubmit} className='flex flex-col gap-10 flex-grow'>
@@ -1269,7 +1488,7 @@ export function SignupStep5() {
                 </div>
             </div>
             <div className="button-toggle-container flex flex-wrap gap-[1rem]">
-                <h1 className='allergies-title text-left gap-[0.75rem]'>Meat & Dairy</h1>
+                <h1 className='allergies-title text-left gap-[0.75rem] w-full'>Meat & Dairy</h1>
                 <div className='dropdown-badge-container'>
                     {meatAllergieList.map((allergie) => (
                         <button
@@ -1288,9 +1507,7 @@ export function SignupStep5() {
                 </div>
             </div>
             <div className="button-toggle-container flex flex-wrap gap-[1rem]">
-                <div>
-                    <h1 className='allergies-title text-left gap-[0.75rem]'>ETC</h1>
-                </div>
+                <h1 className='allergies-title text-left gap-[0.75rem] w-full'>ETC</h1>
                 <div className="dropdown-badge-container">
                     {etcAllergieList.map((allergie) => (
                         <button

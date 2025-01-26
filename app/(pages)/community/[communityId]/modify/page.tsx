@@ -39,13 +39,14 @@ export default function BoardDetail() {
     //이미지 url만 다른 컴포넌트로 처리해주므로 useStore 사용
     const setImageUrls = usePostStore((state) => state.setImageUrls);
     const updateImageUrls = useUpdateImageStore((state) => state.updateImageUrls);
+    const setUpdateImageUrls = useUpdateImageStore((state) => state.setUpdateImageUrls);
 
     const [loading, setLoading] = useState<boolean>(true);
-    
+
     interface UpdateData {
         title?: string;
         content?: string;
-        imageUrls?: string[]; // 혹은 File[]
+        imageUrl?: string[]; // 혹은 File[]
         category?: string;
     }
 
@@ -62,7 +63,7 @@ export default function BoardDetail() {
             updateData.category = category.toUpperCase();
         }
         if (updateImageUrls.length > 0) {
-            updateData.imageUrls = updateImageUrls;
+            updateData.imageUrl = updateImageUrls;
         }
         console.log('수정할 데이터:', updateData);
         axios({
@@ -75,6 +76,8 @@ export default function BoardDetail() {
         }).then((response) => {
             if (response.status == 200) {
                 alert('Item successfully modified.');
+                setImageUrls([]); // 이미지 url 초기화
+                setUpdateImageUrls([]); // 이미지 url 초기화
                 router.push(`/community/${communityId}`);
             }
         }).catch((error) => {
@@ -89,7 +92,6 @@ export default function BoardDetail() {
     useEffect(() => {
 
         if (communityId) {
-            console.log('use effect 작동 체크 communityId: ', communityId);
             axios.get(`${process.env.NEXT_PUBLIC_ROOT_API}/community/${communityId}`,
                 {
                     headers:
@@ -100,12 +102,19 @@ export default function BoardDetail() {
             )
                 .then((response) => {
                     if (response.status === 200) {
-                        setInitTile(response.data.title);
-                        setInitContent(response.data.content);
-                        setInitCategory(response.data.category);
-                        setImageUrls(response.data.imageUrls);
 
-                        setLoading(false);
+
+                        // 유저 키 비교해서 접근 허용/비허용 코드드
+                        // const userKeyFromLocalStorage = localStorage.getItem('userKey');
+                        // if (response.data.userKey !== userKeyFromLocalStorage) {
+                        //     alert('You do not have permission to view this.');
+                        //     router.push(`/community/${communityId}`);
+                        // }
+                            setInitTile(response.data.title);
+                            setInitContent(response.data.content);
+                            setInitCategory(response.data.category);
+                            setImageUrls(response.data.imageUrls);
+                            setLoading(false);
                     }
                     if (response.status === 401) {
                         alert('You do not have permission to view this.');

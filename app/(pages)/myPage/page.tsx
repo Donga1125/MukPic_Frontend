@@ -115,6 +115,11 @@ const MyPage = () => {
       <GlobalStyle />
       <Container>
         <CustomHeader>
+          <BackIcon onClick={() => router.back()}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6z" />
+    </svg>
+  </BackIcon>
           <Title>My Page</Title>
           <SettingsIcon onClick={() => router.push('/settings')}>
             <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" fill="none">
@@ -209,6 +214,17 @@ const CustomHeader = styled.header`
   width: 24.375rem;
   height: 3.5rem;
   flex-shrink: 0;
+`;
+
+const BackIcon = styled.div`
+  cursor: pointer;
+  position: absolute;
+  left: 16px;
+  svg {
+    width: 28px;
+    height: 28px;
+    fill: #1E252F;
+  }
 `;
 
 const Title = styled.h1`
