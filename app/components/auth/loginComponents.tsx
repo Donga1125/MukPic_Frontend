@@ -53,15 +53,17 @@ export default function LoginForm() {
                 })
                 .then(function (response) {
                     if (response.status === 200) {
-                        localStorage.setItem('Authorization', response.headers['authorization']);
-
+                        const Authorization = response.headers['authorization'];
+                        localStorage.setItem('Authorization', Authorization);
+                        const maxAge = 100 * 365 * 24 * 60 * 60; // 100년(초 단위)
+                        document.cookie = `authCookie=${Authorization}; max-age=${maxAge}; path=/; secure; SameSite=Strict`;
                         // 로그인 성공시 메인페이지로
                         router.push('/');
                     }
                 })
                 .catch(function () {
                     setErrorMessage('Id or Password is incorrect');
-                }) 
+                })
         }
 
     };
@@ -99,15 +101,14 @@ export default function LoginForm() {
                     </svg>
                 </button>
             </label>
-            {errorMessage && <div className="validate-error-text">{errorMessage}</div>}
-            <label className="login-form-text-sm flex justify-between items-center px-[1.25rem]">
-                <div className="flex items-center">
-                    <input type="checkbox" className="checkbox rememberme-checkbox" />
-                    <span className="label-text ml-[0.5rem]">Remember me</span>
-                </div>
-
-                <Link href='/forgotPassword' className='text-right'>Forgot Password?</Link>
-            </label>
+            <div className='flex justify-between items-center'>
+                {errorMessage && <span className="validate-error-text px-[1.25rem]">
+                    {errorMessage}
+                </span>}
+                <label className="login-form-text-sm ml-auto px-[1.25rem]">
+                    <Link href='/forgotPassword' className='text-right'>Forgot Password?</Link>
+                </label>
+            </div>
             <button
                 className="auth-button auth-button-id sign-up-button-text bottom-[8rem]"
                 type='submit'

@@ -430,15 +430,16 @@ export function Dropdown({ options, buttonName, isMultiSelect, onSelect }: Dropd
                                 className="dropdown-item flex"
                                 onClick={() => selectItem(option)}
                             >
-                                <span className="flex flex-1">{option}</span>
+                                <span className="flex">{option}</span>
                                 {/* 여기에 체크박스 추가 */}
                                 {isMultiSelect ? (
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedItems.includes(option)}
-                                        onChange={() => selectItem(option)}
-                                        className="dropdown-checkbox" />
-                                ) :
+                                    <span className='dropdown-checkbox'>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedItems.includes(option)}
+                                            onChange={() => selectItem(option)}
+                                        />
+                                    </span>) :
                                     (
                                         null
                                     )
@@ -855,7 +856,7 @@ export function GoogleSignupStep5() {
 
     const filteredAllergies = AllergiesSearch
         ? allAllergies.filter(allergy => allergy.toLowerCase().includes(AllergiesSearch.toLowerCase()))
-        .sort()
+            .sort()
         : allAllergies.sort();
 
     return (
