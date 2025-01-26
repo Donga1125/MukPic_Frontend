@@ -2,12 +2,12 @@
 import { emailSchema, userNameSchema, userSchema } from "@/schemas/auth";
 import { UseVaildate } from "@/app/hooks/useVaildate";
 import { EmailValidateError, UserNameValidateError, UserValidateError } from "@/app/types/signupValidate";
-import React, { use, useEffect, useRef, useState } from "react";
+import React, {useEffect, useRef, useState } from "react";
 import { useSignupStore } from "@/app/types/signupStore";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import Image from "next/image";
-import { privacyPolicy, termsOfService } from '@/app/components/auth/Policy.json';
+import jsonData from '@/app/components/auth/Policy.json';
 
 
 type Props = {
@@ -47,8 +47,8 @@ export function SignupStep() {
     const [isPrivacyOpen, setIsPrivacyOpen] = useState<boolean>(false);
     const [isTermsOpen, setIsTermsOpen] = useState<boolean>(false);
     const termsData = {
-        privacyPolicy: privacyPolicy,
-        termsOfService: termsOfService
+        privacyPolicy: jsonData.privacyPolicy,
+        termsOfService: jsonData.termsOfService
     };
 
 
@@ -182,6 +182,15 @@ export function SignupStep1() {
     const [emailVerifyMessage, setEmailVerifyMessage] = useState<string>('');
     const [messageColor, setMessageColor] = useState<string>('');
     const [emailSendMessageColor, setEmailSendMessageColor] = useState<string>('text-green-500');
+    const [timer, setTimer] = useState<number>(180);
+    const [isTimerActive, setIsTimerActive] = useState<boolean>(false);
+    const [emailVerifyInputVisible, setEmailVerifyInputVisible] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    const startTimer = () => {
+        setTimer(180);
+        setIsTimerActive(true);
+    }
 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -193,7 +202,7 @@ export function SignupStep1() {
 
     // 이메일 전송 포스트 요청
     const sendEmail = async () => {
-
+        setIsLoading(true);
         axios.get(`${process.env.NEXT_PUBLIC_ROOT_API}/users/checkEmail`, //이메일 요청 엔드포인트 수정
             {
                 params: {
@@ -209,28 +218,39 @@ export function SignupStep1() {
                 setEmailSendMessageColor('text-green-500');
                 setemailSendMessage('Verification code has been sent to your email');
                 setSendMessageVisiblity(true);
+                setEmailVerifyInputVisible(true);
+                setIsSendButtonDisabled(true);
+                startTimer();
             }
             else if (response.status === 409) {
                 if (response.data.message === '재가입 유저입니다. 인증 메일을 발송했습니다.') {
                     setEmailSendMessageColor('text-green-500');
                     setemailSendMessage('Verification code has been successfully sent to the re-registered user');
                     setSendMessageVisiblity(true);
+                    setEmailVerifyInputVisible(true);
+                    setIsSendButtonDisabled(true);
+                    startTimer();
                 }
                 else {
                     setEmailSendMessageColor('text-red-500');
                     setemailSendMessage('Email already exists');
-                    setSendMessageVisiblity(false);
+                    setEmailVerifyInputVisible(false);
+                    setSendMessageVisiblity(true);
                 }
             }
             else {
                 setEmailSendMessageColor('text-red-500');
                 setemailSendMessage('Failed to send verification code please try again');
-                setSendMessageVisiblity(false);
+                setEmailVerifyInputVisible(false);
+                setSendMessageVisiblity(true);
             }
         }).catch(function () {
             setEmailSendMessageColor('text-red-500');
             setemailSendMessage('Failed to send verification code please try again');
+            setEmailVerifyInputVisible(false);
             setSendMessageVisiblity(false);
+        }).finally(() => {
+            setIsLoading(false)
         });
     }
 
@@ -254,6 +274,7 @@ export function SignupStep1() {
                 setEmailVerifyMessage('Email verification success!');
                 setInputBorderColor('border-green-500');
                 setIsNextButtonDisabled(false);
+                setIsTimerActive(false);
             } else {
                 setMessageColor('text-red-500');
                 setInputBorderColor('border-red-500 border-opacity-100');
@@ -270,6 +291,20 @@ export function SignupStep1() {
 
 
 
+    useEffect(() => {
+        let timerInterval: NodeJS.Timeout;
+        if (isTimerActive && timer > 0) {
+            timerInterval = setInterval(() => {
+                setTimer((prev) => prev - 1);
+            }, 1000);
+        } else if (timer === 0) {
+            setIsTimerActive(false);
+            setSendMessageVisiblity(false); // 메시지 숨김
+            setEmailVerifyInputVisible(false); // 인증번호 입력창 숨김
+            setIsSendButtonDisabled(false); // Send 버튼 다시 활성화
+        }
+        return () => clearInterval(timerInterval); // cleanup
+    }, [isTimerActive, timer]);
 
 
 
@@ -301,7 +336,7 @@ export function SignupStep1() {
                 <button
                     className='flex items-center justify-center verify-button-send verify-button nav-text-button'
                     onClick={sendEmail}
-                    disabled={isSendButtonDisabled}
+                    disabled={isSendButtonDisabled || isLoading}
                     type='button'
                 >
                     Send
@@ -314,7 +349,13 @@ export function SignupStep1() {
                 ></ValidateSpan>}
             </div>
 
-            {sendMessageVisiblity && (<label htmlFor="authNum"
+            {isLoading && (
+                <div className="flex items-center justify-center gap-2 mt-2">
+                    <p className="text-gray-500">Sending email, please wait...</p>
+                    <span className="loading loading-spinner loading-xs"></span>
+                </div>
+            )}
+            {emailVerifyInputVisible && (<label htmlFor="authNum"
                 className={`flex auth-input-label items-center ${inputBorderColor}`}>
                 <input
                     id="authNum"
@@ -333,10 +374,17 @@ export function SignupStep1() {
                 </button>
             </label>
             )}
+            {isTimerActive && (
+                <div className="text-gray-500 text-sm text-left pl-[1.25rem]">
+                    Verification code expires in: {Math.floor(timer / 60)}:{timer % 60 < 10 ? "0" : ""}
+                    {timer % 60} minutes
+                </div>
+            )}
             <div>
                 {emailVerifyMessage && <ValidateSpan message={emailVerifyMessage} error={!!emailVerifyMessage}
                     className={messageColor}></ValidateSpan>}
             </div>
+
             {/* 인증 메시지 처리 넣어줘야함 */}
             <button className='auth-button auth-button-id sign-up-button-text'
                 type='submit'
