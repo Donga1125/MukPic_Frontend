@@ -5,11 +5,23 @@ import { useRouter } from 'next/navigation';
 import styled, { createGlobalStyle } from 'styled-components';
 import { AddBotNav } from "@/app/components/BotNav";
 
+
 const GlobalStyle = createGlobalStyle`
   html, body {
     background-color: #ffffff;
     width: 100%;
     height: 100%;
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+
+    @media (max-width: 768px) {
+      font-size: 14px; /* 태블릿 화면 크기 */
+    }
+
+    @media (max-width: 390px) {
+      font-size: 12px; /* 모바일 화면 크기 */
+    }
   }
 `;
 
@@ -196,8 +208,8 @@ const Container = styled.div`
   background-color: #ffffff;
   display: flex;
   flex-direction: column;
-  width: 24.375rem;
-  height: 52.75rem;
+  width: 390px;
+  //height: 52.75rem;
   padding-top: 3.5rem;
 `;
 
@@ -211,7 +223,7 @@ const CustomHeader = styled.header`
   position: fixed;
   top: 0;
   z-index: 10;
-  width: 24.375rem;
+  width: 390px;
   height: 3.5rem;
   flex-shrink: 0;
 `;
@@ -252,7 +264,7 @@ const ProfileSection = styled.div`
   align-items: flex-start;
   background-color: #FFF;
   border-bottom: 1px solid #E0E5EB;
-  width: 24.375rem;
+  width: 390px;
   padding: 16px; 
   box-sizing: border-box;
   flex-wrap: wrap; 
@@ -334,7 +346,7 @@ const TabBar = styled.div`
   padding: 1.5rem 0 1rem 1.5rem;
   font-weight: bold;
   border-bottom: 1px solid #ccc;
-  width: 24.375rem;
+  width: 390px;
   height: 3.75rem;
   flex-shrink: 0;
 `;
@@ -359,7 +371,7 @@ const PostsGrid = styled.div`
   grid-template-columns: repeat(2, 1fr);
   gap: 0.75px;
   padding: 16px;
-  width: 24.375rem;
+  width: 390px;
   flex-shrink: 0;
 `;
 
