@@ -55,9 +55,10 @@ export default function LoginForm() {
                     if (response.status === 200) {
                         const Authorization = response.headers['authorization'];
                         localStorage.setItem('Authorization', Authorization);
+                        
                         // 미들웨어를 위한 쿠키 설정
-                        // const maxAge = 10 * 365 * 24 * 60 * 60; // 10년(초 단위)
-                        // document.cookie = `authCookie=${Authorization}; max-age=${maxAge}; path=/; secure; SameSite=Strict`;
+                        const maxAge = 10 * 365 * 24 * 60 * 60; // 10년(초 단위)
+                        document.cookie = `authCookie=${Authorization}; max-age=${maxAge}; path=/; secure; SameSite=Strict`;
                         router.push('/');
                     }
                 })
