@@ -52,19 +52,41 @@ export default function BoardDetail() {
 
     function UpDateHandler() {
         const updateData: UpdateData = {};
+        if ((title === '' || content === '' || category === '')) {
+            const missingFields = [];
 
-        if (title !== initTitle && title !== '') {
+            if (category === '') {
+                missingFields.push('category');
+            }
+            if (title === '') {
+                missingFields.push('title');
+            }
+            if (content === '') {
+                missingFields.push('content');
+            }
+
+            if (missingFields.length > 0) {
+                const message = `Please fill in the following fields - ${missingFields.join(', ')}`;
+                alert(message);
+                return;
+            }
+        }
+
+        if (title !== initTitle) {
             updateData.title = title;
         }
-        if (content !== initContent && content !== '') {
+        if (content !== initContent) {
             updateData.content = content;
         }
-        if (category !== initCategory && category !== '') {
+        if (category !== initCategory) {
             updateData.category = category.toUpperCase();
         }
         if (updateImageUrls.length > 0) {
             updateData.imageUrl = updateImageUrls;
         }
+
+
+
         console.log('수정할 데이터:', updateData);
         axios({
             method: 'patch',
@@ -110,11 +132,14 @@ export default function BoardDetail() {
                         //     alert('You do not have permission to view this.');
                         //     router.push(`/community/${communityId}`);
                         // }
-                            setInitTile(response.data.title);
-                            setInitContent(response.data.content);
-                            setInitCategory(response.data.category);
-                            setImageUrls(response.data.imageUrls);
-                            setLoading(false);
+                        setInitTile(response.data.title);
+                        setInitContent(response.data.content);
+                        setInitCategory(response.data.category);
+                        setImageUrls(response.data.imageUrls);
+                        setTitle(response.data.title);
+                        setContent(response.data.content);
+                        setCategory(response.data.category);
+                        setLoading(false);
                     }
                     if (response.status === 401) {
                         alert('You do not have permission to view this.');
