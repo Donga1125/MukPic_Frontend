@@ -3,12 +3,18 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useUpdateImageStore } from "@/app/types/updateImgStore";
+import { usePostStore } from "@/app/types/postStore";
 
 export default function MainPage() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("Top picks");
   const router = useRouter();
+
+  // 현석 추가 작성
+  const setImageUrls = usePostStore((state) => state.setImageUrls);
+  const setUpdateImageUrls = useUpdateImageStore((state) => state.setUpdateImageUrls);
 
   const categories = ["Top picks", "Rice", "Noodle", "Snacks", "Cafe"];
 
@@ -119,6 +125,11 @@ export default function MainPage() {
 
           const uploadedUrls: string[] = await uploadResponse.json();
           const imageUrl = uploadedUrls[0];
+
+          // 현석 추가 작성
+          setUpdateImageUrls(uploadedUrls);
+          setImageUrls(uploadedUrls);
+
           router.push(`/info?imageUrl=${encodeURIComponent(imageUrl)}`);
         } catch (error: unknown) {
           if (error instanceof Error) {
@@ -259,11 +270,10 @@ export default function MainPage() {
           {categories.map((category, idx) => (
             <button
               key={idx}
-              className={`px-4 py-2 rounded-full whitespace-nowrap text-sm ${
-                selectedCategory === category
+              className={`px-4 py-2 rounded-full whitespace-nowrap text-sm ${selectedCategory === category
                   ? "bg-blue-500 text-white"
                   : "bg-gray-200 text-gray-700"
-              }`}
+                }`}
               onClick={() => setSelectedCategory(category)}
             >
               {category}

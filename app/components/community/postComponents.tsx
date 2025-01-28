@@ -160,7 +160,8 @@ export function AddImageUrl() {
                 imageUrl: imageUrl[index],
             }
         }).then((response) => {
-            if (response.status === 200) {
+
+            if (response.status === 204) {
                 console.log('delete success', response.data);
                 setImageUrl(imageUrl.filter((_, i) => i !== index));  // imageUrls에서 삭제
                 setUpdateImageUrls(updateImageUrls.filter((url) => url !== imageUrl[index]));
@@ -209,7 +210,7 @@ export function AddImageUrl() {
                                 width={400}
                                 height={300}
                             />
-                            <button className="remove-image-btn" onClick={() => removeImageModify(index)}>
+                            <button type='button' className="remove-image-btn" onClick={() => removeImageModify(index)}>
                                 <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <circle cx="13" cy="13" r="10" fill="#2E2E34" />
                                     <path d="M13 14.5166L9.85828 17.6583C9.65967 17.8569 9.4069 17.9562 9.09995 17.9562C8.79301 17.9562 8.54023 17.8569 8.34162 17.6583C8.14301 17.4597 8.0437 17.2069 8.0437 16.9C8.0437 16.593 8.14301 16.3402 8.34162 16.1416L11.4833 13L8.34162 9.88538C8.14301 9.68677 8.0437 9.434 8.0437 9.12705C8.0437 8.82011 8.14301 8.56733 8.34162 8.36872C8.54023 8.17011 8.79301 8.0708 9.09995 8.0708C9.4069 8.0708 9.65967 8.17011 9.85828 8.36872L13 11.5104L16.1145 8.36872C16.3131 8.17011 16.5659 8.0708 16.8729 8.0708C17.1798 8.0708 17.4326 8.17011 17.6312 8.36872C17.8479 8.58538 17.9562 8.84268 17.9562 9.14059C17.9562 9.43851 17.8479 9.68677 17.6312 9.88538L14.4895 13L17.6312 16.1416C17.8298 16.3402 17.9291 16.593 17.9291 16.9C17.9291 17.2069 17.8298 17.4597 17.6312 17.6583C17.4145 17.875 17.1572 17.9833 16.8593 17.9833C16.5614 17.9833 16.3131 17.875 16.1145 17.6583L13 14.5166Z" fill="white" />
@@ -223,111 +224,111 @@ export function AddImageUrl() {
     );
 }
 
-export function AddImage() {
+// export function AddImage() {
 
-    const images = usePostStore((state) => state.images);
-    const setImages = usePostStore((state) => state.setImages);
-    const imageUrl = usePostStore((state) => state.imageUrls);
-
-
-    // 이미지 추가 핸들러
-    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const files = event.target.files;
-        if (!files) return;
-
-        // 파일 유형 및 크기 제한
-        const allowedTypes = ["image/jpg", "image/jpeg", "image/JPG", "image/JPEG", "image/png", "image/PNG"];
-        const maxSize = 10 * 1024 * 1024; // 10MB
-
-        // 파일을 배열로 변환하여 순차적으로 검사
-        Array.from(files).forEach((file) => {
-            if (!allowedTypes.includes(file.type)) {
-                alert('jpg, jpeg, png 파일만 업로드 가능합니다.');
-                event.target.value = ''; // 파일 선택 초기화
-                return;
-            }
-
-            if (file.size > maxSize) {
-                alert('10MB 이하의 파일만 업로드 가능합니다.');
-                event.target.value = ''; // 파일 선택 초기화
-                return;
-            }
-        });
-
-        // 유효한 파일들을 이미지 배열에 추가
-
-        setImages([...images, ...Array.from(files)]);
-    };
+//     const images = usePostStore((state) => state.images);
+//     const setImages = usePostStore((state) => state.setImages);
+//     const imageUrl = usePostStore((state) => state.imageUrls);
 
 
-    // 이미지 삭제 핸들러
-    const removeImage = (index: number) => {
-        setImages(images.filter((_, i) => i !== (index - imageUrl.length)));  // images에서 삭제
-    };
+//     // 이미지 추가 핸들러
+//     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+//         const files = event.target.files;
+//         if (!files) return;
+
+//         // 파일 유형 및 크기 제한
+//         const allowedTypes = ["image/jpg", "image/jpeg", "image/JPG", "image/JPEG", "image/png", "image/PNG"];
+//         const maxSize = 10 * 1024 * 1024; // 10MB
+
+//         // 파일을 배열로 변환하여 순차적으로 검사
+//         Array.from(files).forEach((file) => {
+//             if (!allowedTypes.includes(file.type)) {
+//                 alert('jpg, jpeg, png 파일만 업로드 가능합니다.');
+//                 event.target.value = ''; // 파일 선택 초기화
+//                 return;
+//             }
+
+//             if (file.size > maxSize) {
+//                 alert('10MB 이하의 파일만 업로드 가능합니다.');
+//                 event.target.value = ''; // 파일 선택 초기화
+//                 return;
+//             }
+//         });
+
+//         // 유효한 파일들을 이미지 배열에 추가
+
+//         setImages([...images, ...Array.from(files)]);
+//     };
 
 
+//     // 이미지 삭제 핸들러
+//     const removeImage = (index: number) => {
+//         setImages(images.filter((_, i) => i !== (index - imageUrl.length)));  // images에서 삭제
+//     };
 
 
 
-    // 이미지 상태 확인용용
-    // useEffect(() => {
-    //     console.log('현재 이미지 상태 : ', images);
-    // }, [images]); // images 상태가 변경될 때마다 실행
 
-    return (
-        <div className='add-image-container'>
-            <div className="add-image-button">
-                {/* 업로드 버튼 */}
-                <label className="add-image-label">
-                    <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handleImageUpload}
-                        style={{ display: "none" }} // input을 숨기고 커스텀 스타일을 적용
-                    />
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
-                        <g clipPath="url(#clip0_112_1638)">
-                            <path d="M16 20C18.2091 20 20 18.2091 20 16C20 13.7909 18.2091 12 16 12C13.7909 12 12 13.7909 12 16C12 18.2091 13.7909 20 16 20Z" fill="#B1BDCD" />
-                            <path d="M26.667 5.33268H22.4403L20.787 3.53268C20.2937 2.98602 19.5737 2.66602 18.827 2.66602H13.1737C12.427 2.66602 11.707 2.98602 11.2003 3.53268L9.56033 5.33268H5.33366C3.86699 5.33268 2.66699 6.53268 2.66699 7.99935V23.9993C2.66699 25.466 3.86699 26.666 5.33366 26.666H26.667C28.1337 26.666 29.3337 25.466 29.3337 23.9993V7.99935C29.3337 6.53268 28.1337 5.33268 26.667 5.33268ZM16.0003 22.666C12.3203 22.666 9.33366 19.6793 9.33366 15.9993C9.33366 12.3193 12.3203 9.33268 16.0003 9.33268C19.6803 9.33268 22.667 12.3193 22.667 15.9993C22.667 19.6793 19.6803 22.666 16.0003 22.666Z" fill="#B1BDCD" />
-                        </g>
-                        <defs>
-                            <clipPath id="clip0_112_1638">
-                                <rect width="32" height="32" fill="white" />
-                            </clipPath>
-                        </defs>
-                    </svg>
-                    <span className="add-image-text">Add image</span>
-                </label>
-            </div>
 
-            {/* 이미지 미리보기 - images (로컬 파일) */}
-            {images.length > 0 && (
-                <>
-                    {images.map((image, index) => (
-                        <div className="image-preview relative" key={index}>
-                            <Image
-                                src={URL.createObjectURL(image)} // Object URL 생성
-                                alt={`preview-${index}`}
-                                className="preview-img"
-                                layout="intrinsic"
-                                width={400}
-                                height={300}
-                            />
-                            <button className="remove-image-btn" onClick={() => removeImage(index + imageUrl.length)}>
-                                <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <circle cx="13" cy="13" r="10" fill="#2E2E34" />
-                                    <path d="M13 14.5166L9.85828 17.6583C9.65967 17.8569 9.4069 17.9562 9.09995 17.9562C8.79301 17.9562 8.54023 17.8569 8.34162 17.6583C8.14301 17.4597 8.0437 17.2069 8.0437 16.9C8.0437 16.593 8.14301 16.3402 8.34162 16.1416L11.4833 13L8.34162 9.88538C8.14301 9.68677 8.0437 9.434 8.0437 9.12705C8.0437 8.82011 8.14301 8.56733 8.34162 8.36872C8.54023 8.17011 8.79301 8.0708 9.09995 8.0708C9.4069 8.0708 9.65967 8.17011 9.85828 8.36872L13 11.5104L16.1145 8.36872C16.3131 8.17011 16.5659 8.0708 16.8729 8.0708C17.1798 8.0708 17.4326 8.17011 17.6312 8.36872C17.8479 8.58538 17.9562 8.84268 17.9562 9.14059C17.9562 9.43851 17.8479 9.68677 17.6312 9.88538L14.4895 13L17.6312 16.1416C17.8298 16.3402 17.9291 16.593 17.9291 16.9C17.9291 17.2069 17.8298 17.4597 17.6312 17.6583C17.4145 17.875 17.1572 17.9833 16.8593 17.9833C16.5614 17.9833 16.3131 17.875 16.1145 17.6583L13 14.5166Z" fill="white" />
-                                </svg>
-                            </button>
-                        </div>
-                    ))}
-                </>
-            )}
-        </div>
+//     // 이미지 상태 확인용용
+//     // useEffect(() => {
+//     //     console.log('현재 이미지 상태 : ', images);
+//     // }, [images]); // images 상태가 변경될 때마다 실행
 
-    );
-}
+//     return (
+//         <div className='add-image-container'>
+//             <div className="add-image-button">
+//                 {/* 업로드 버튼 */}
+//                 <label className="add-image-label">
+//                     <input
+//                         type="file"
+//                         accept="image/*"
+//                         multiple
+//                         onChange={handleImageUpload}
+//                         style={{ display: "none" }} // input을 숨기고 커스텀 스타일을 적용
+//                     />
+//                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+//                         <g clipPath="url(#clip0_112_1638)">
+//                             <path d="M16 20C18.2091 20 20 18.2091 20 16C20 13.7909 18.2091 12 16 12C13.7909 12 12 13.7909 12 16C12 18.2091 13.7909 20 16 20Z" fill="#B1BDCD" />
+//                             <path d="M26.667 5.33268H22.4403L20.787 3.53268C20.2937 2.98602 19.5737 2.66602 18.827 2.66602H13.1737C12.427 2.66602 11.707 2.98602 11.2003 3.53268L9.56033 5.33268H5.33366C3.86699 5.33268 2.66699 6.53268 2.66699 7.99935V23.9993C2.66699 25.466 3.86699 26.666 5.33366 26.666H26.667C28.1337 26.666 29.3337 25.466 29.3337 23.9993V7.99935C29.3337 6.53268 28.1337 5.33268 26.667 5.33268ZM16.0003 22.666C12.3203 22.666 9.33366 19.6793 9.33366 15.9993C9.33366 12.3193 12.3203 9.33268 16.0003 9.33268C19.6803 9.33268 22.667 12.3193 22.667 15.9993C22.667 19.6793 19.6803 22.666 16.0003 22.666Z" fill="#B1BDCD" />
+//                         </g>
+//                         <defs>
+//                             <clipPath id="clip0_112_1638">
+//                                 <rect width="32" height="32" fill="white" />
+//                             </clipPath>
+//                         </defs>
+//                     </svg>
+//                     <span className="add-image-text">Add image</span>
+//                 </label>
+//             </div>
+
+//             {/* 이미지 미리보기 - images (로컬 파일) */}
+//             {images.length > 0 && (
+//                 <>
+//                     {images.map((image, index) => (
+//                         <div className="image-preview relative" key={index}>
+//                             <Image
+//                                 src={URL.createObjectURL(image)} // Object URL 생성
+//                                 alt={`preview-${index}`}
+//                                 className="preview-img"
+//                                 layout="intrinsic"
+//                                 width={400}
+//                                 height={300}
+//                             />
+//                             <button className="remove-image-btn" onClick={() => removeImage(index + imageUrl.length)}>
+//                                 <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+//                                     <circle cx="13" cy="13" r="10" fill="#2E2E34" />
+//                                     <path d="M13 14.5166L9.85828 17.6583C9.65967 17.8569 9.4069 17.9562 9.09995 17.9562C8.79301 17.9562 8.54023 17.8569 8.34162 17.6583C8.14301 17.4597 8.0437 17.2069 8.0437 16.9C8.0437 16.593 8.14301 16.3402 8.34162 16.1416L11.4833 13L8.34162 9.88538C8.14301 9.68677 8.0437 9.434 8.0437 9.12705C8.0437 8.82011 8.14301 8.56733 8.34162 8.36872C8.54023 8.17011 8.79301 8.0708 9.09995 8.0708C9.4069 8.0708 9.65967 8.17011 9.85828 8.36872L13 11.5104L16.1145 8.36872C16.3131 8.17011 16.5659 8.0708 16.8729 8.0708C17.1798 8.0708 17.4326 8.17011 17.6312 8.36872C17.8479 8.58538 17.9562 8.84268 17.9562 9.14059C17.9562 9.43851 17.8479 9.68677 17.6312 9.88538L14.4895 13L17.6312 16.1416C17.8298 16.3402 17.9291 16.593 17.9291 16.9C17.9291 17.2069 17.8298 17.4597 17.6312 17.6583C17.4145 17.875 17.1572 17.9833 16.8593 17.9833C16.5614 17.9833 16.3131 17.875 16.1145 17.6583L13 14.5166Z" fill="white" />
+//                                 </svg>
+//                             </button>
+//                         </div>
+//                     ))}
+//                 </>
+//             )}
+//         </div>
+
+//     );
+// }
 
 export function Write() {
     const categoryList: string[] = ['Rice', 'Noodle', 'Soup', 'Dessert', 'ETC', 'Streetfood', 'Kimchi']; // 드롭다운 옵션
@@ -388,7 +389,7 @@ export function Write() {
             </label>
 
             {/* 이미지 추가 */}
-            <AddImage />
+            <AddImageUrl />
         </div>
     );
 }
@@ -462,7 +463,7 @@ export function Modify({ initTitle, initContent, onDataChange }: ModifyProps) {
             </label>
 
             {/* 이미지 추가 */}
-            <AddImage />
+            <AddImageUrl />
         </div>
     );
 }
