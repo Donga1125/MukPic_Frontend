@@ -33,6 +33,10 @@ function GoogleLoginContent() {
             // 로컬 스토리지에 토큰 저장
             localStorage.setItem("Authorization", accessToken);
             console.log("Access token stored successfully:", accessToken);
+            
+            // 미들웨어를 위한 쿠키 설정
+            const maxAge = 10 * 365 * 24 * 60 * 60; // 10년(초 단위)
+            document.cookie = `authCookie=${accessToken}; max-age=${maxAge}; path=/; secure; SameSite=Strict`;
 
             // 메인 페이지로 리디렉션
             router.push("/");
