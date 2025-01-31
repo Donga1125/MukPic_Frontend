@@ -41,6 +41,7 @@ export default function SignupLayout({ children }: LayoutProps) {
             </svg>
           </SvgButtonForNav>
         }
+
       />
       <div className="auth-container bg-white rounded-lg shadow-md">
         {children}
