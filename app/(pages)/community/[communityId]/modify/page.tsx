@@ -52,19 +52,41 @@ export default function BoardDetail() {
 
     function UpDateHandler() {
         const updateData: UpdateData = {};
+        if ((title === '' || content === '' || category === '')) {
+            const missingFields = [];
 
-        if (title !== initTitle && title !== '') {
+            if (category === '') {
+                missingFields.push('category');
+            }
+            if (title === '') {
+                missingFields.push('title');
+            }
+            if (content === '') {
+                missingFields.push('content');
+            }
+
+            if (missingFields.length > 0) {
+                const message = `Please fill in the following fields - ${missingFields.join(', ')}`;
+                alert(message);
+                return;
+            }
+        }
+
+        if (title !== initTitle) {
             updateData.title = title;
         }
-        if (content !== initContent && content !== '') {
+        if (content !== initContent) {
             updateData.content = content;
         }
-        if (category !== initCategory && category !== '') {
+        if (category !== initCategory) {
             updateData.category = category.toUpperCase();
         }
         if (updateImageUrls.length > 0) {
             updateData.imageUrl = updateImageUrls;
         }
+
+
+
         console.log('수정할 데이터:', updateData);
         axios({
             method: 'patch',
@@ -110,11 +132,14 @@ export default function BoardDetail() {
                         //     alert('You do not have permission to view this.');
                         //     router.push(`/community/${communityId}`);
                         // }
-                            setInitTile(response.data.title);
-                            setInitContent(response.data.content);
-                            setInitCategory(response.data.category);
-                            setImageUrls(response.data.imageUrls);
-                            setLoading(false);
+                        setInitTile(response.data.title);
+                        setInitContent(response.data.content);
+                        setInitCategory(response.data.category);
+                        setImageUrls(response.data.imageUrls);
+                        setTitle(response.data.title);
+                        setContent(response.data.content);
+                        setCategory(response.data.category);
+                        setLoading(false);
                     }
                     if (response.status === 401) {
                         alert('You do not have permission to view this.');
@@ -151,7 +176,7 @@ export default function BoardDetail() {
                     <SvgButtonForNav
                         onClick={() => { router.back(); }}>
                         <svg width="24" height="24" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <g clip-path="url(#clip0_112_3051)">
+                            <g clipPath="url(#clip0_112_3051)">
                                 <path d="M19.6934 3.36002C19.1217 2.78836 18.2 2.78836 17.6284 3.36002L7.81671 13.1717C7.36171 13.6267 7.36171 14.3617 7.81671 14.8167L17.6284 24.6284C18.2 25.2 19.1217 25.2 19.6934 24.6284C20.265 24.0567 20.265 23.135 19.6934 22.5634L11.13 14L19.705 5.42502C20.265 4.85336 20.265 3.93169 19.6934 3.36002Z" fill="black" />
                             </g>
                             <defs>

@@ -53,15 +53,18 @@ export default function LoginForm() {
                 })
                 .then(function (response) {
                     if (response.status === 200) {
-                        localStorage.setItem('Authorization', response.headers['authorization']);
-
-                        // 로그인 성공시 메인페이지로
+                        const Authorization = response.headers['authorization'];
+                        localStorage.setItem('Authorization', Authorization);
+                        
+                        // 미들웨어를 위한 쿠키 설정
+                        const maxAge = 10 * 365 * 24 * 60 * 60; // 10년(초 단위)
+                        document.cookie = `authCookie=${Authorization}; max-age=${maxAge}; path=/; secure; SameSite=Strict`;
                         router.push('/');
                     }
                 })
                 .catch(function () {
                     setErrorMessage('Id or Password is incorrect');
-                }) 
+                })
         }
 
     };
@@ -88,7 +91,7 @@ export default function LoginForm() {
                     className='auth-placeholder grow text-left' />
                 <button type='button' className='flex items-center justify-center' onClick={passwordToggle}>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g clip-path="url(#clip0_112_3055)">
+                        <g clipPath="url(#clip0_112_3055)">
                             <path d="M12 4.5C7 4.5 2.73 7.61 1 12C2.73 16.39 7 19.5 12 19.5C17 19.5 21.27 16.39 23 12C21.27 7.61 17 4.5 12 4.5ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17ZM12 9C10.34 9 9 10.34 9 12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12C15 10.34 13.66 9 12 9Z" fill="#6A7784" />
                         </g>
                         <defs>
@@ -99,15 +102,14 @@ export default function LoginForm() {
                     </svg>
                 </button>
             </label>
-            {errorMessage && <div className="validate-error-text">{errorMessage}</div>}
-            <label className="login-form-text-sm flex justify-between items-center px-[1.25rem]">
-                <div className="flex items-center">
-                    <input type="checkbox" className="checkbox rememberme-checkbox" />
-                    <span className="label-text ml-[0.5rem]">Remember me</span>
-                </div>
-
-                <Link href='/forgotPassword' className='text-right'>Forgot Password?</Link>
-            </label>
+            <div className='flex justify-between items-center'>
+                {errorMessage && <span className="validate-error-text px-[1.25rem]">
+                    {errorMessage}
+                </span>}
+                <label className="login-form-text-sm ml-auto px-[1.25rem]">
+                    <Link href='/forgotPassword' className='text-right'>Forgot Password?</Link>
+                </label>
+            </div>
             <button
                 className="auth-button auth-button-id sign-up-button-text bottom-[8rem]"
                 type='submit'

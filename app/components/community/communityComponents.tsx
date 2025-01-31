@@ -45,7 +45,7 @@ interface CommunityApiResponse {
     totalElements: number;
     last: boolean; // 마지막 페이지 여부
     size: number; // 요청당 글 개수
-    number: number; // 현재 페이지 번호
+    number: number; // 현재 페이지 번호  
     sort: Sort; // 정렬 정보
     numberOfElements: number; // 현재 페이지에서 가져온 게시글 수
     first: boolean; // 첫 페이지 여부
@@ -76,7 +76,7 @@ export function ViewAiResearchButton() {
     return (
         <button className='view-ai-research-button'>
             <span className='view-ai-research-button-text'>View Ai Research <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <g clip-path="url(#clip0_113_5030)">
+                <g clipPath="url(#clip0_113_5030)">
                     <path d="M12.9167 11.6667H12.2583L12.025 11.4417C13.025 10.275 13.5417 8.68337 13.2583 6.9917C12.8667 4.67503 10.9333 2.82503 8.6 2.5417C5.075 2.10837 2.10834 5.07503 2.54167 8.60003C2.825 10.9334 4.675 12.8667 6.99167 13.2584C8.68334 13.5417 10.275 13.025 11.4417 12.025L11.6667 12.2584V12.9167L15.2083 16.4584C15.55 16.8 16.1083 16.8 16.45 16.4584C16.7917 16.1167 16.7917 15.5584 16.45 15.2167L12.9167 11.6667ZM7.91667 11.6667C5.84167 11.6667 4.16667 9.9917 4.16667 7.9167C4.16667 5.8417 5.84167 4.1667 7.91667 4.1667C9.99167 4.1667 11.6667 5.8417 11.6667 7.9167C11.6667 9.9917 9.99167 11.6667 7.91667 11.6667Z" fill="white" />
                 </g>
                 <defs>
@@ -100,7 +100,7 @@ export function ViewAiResearchButtonForCarousel() {
     return (
         <button className='view-ai-research-button-carousel'>
             <span className='view-ai-research-button-text'>View Ai Research <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <g clip-path="url(#clip0_113_5030)">
+                <g clipPath="url(#clip0_113_5030)">
                     <path d="M12.9167 11.6667H12.2583L12.025 11.4417C13.025 10.275 13.5417 8.68337 13.2583 6.9917C12.8667 4.67503 10.9333 2.82503 8.6 2.5417C5.075 2.10837 2.10834 5.07503 2.54167 8.60003C2.825 10.9334 4.675 12.8667 6.99167 13.2584C8.68334 13.5417 10.275 13.025 11.4417 12.025L11.6667 12.2584V12.9167L15.2083 16.4584C15.55 16.8 16.1083 16.8 16.45 16.4584C16.7917 16.1167 16.7917 15.5584 16.45 15.2167L12.9167 11.6667ZM7.91667 11.6667C5.84167 11.6667 4.16667 9.9917 4.16667 7.9167C4.16667 5.8417 5.84167 4.1667 7.91667 4.1667C9.99167 4.1667 11.6667 5.8417 11.6667 7.9167C11.6667 9.9917 9.99167 11.6667 7.91667 11.6667Z" fill="white" />
                 </g>
                 <defs>
@@ -189,8 +189,10 @@ export function PostComponents() {
     const [posts, setPosts] = useState<CommunityPost[]>([]);
     const [page, setPage] = useState<number>(0);
     const [isLast, setIsLast] = useState<boolean>(false);
-    const [category, setCategory] = useState<string>('ALL');
-    const categoryList = ['ALL', 'Rice', 'Noodle', 'Soup', 'Dessert', 'ETC', 'Streetfood', 'Kimchi'];
+    const [category, setCategory] = useState<string>('All');
+    const categoryList = ['All', 'Rice', 'Noodle', 'Soup', 'Dessert', 'Streetfood', 'Kimchi','ETC'];
+    const [sortBy, setSortBy] = useState<string>('Latest');
+    const sortByList = ['Latest', 'Popular'];
 
     // 감지할 마지막 요소 Ref
     const observerRef = useRef<HTMLDivElement | null>(null);
@@ -199,13 +201,15 @@ export function PostComponents() {
         if (isLast) return; // 이미 마지막 페이지면 요청하지 않음
 
         const categoryUpper = category.toUpperCase();
+        const sortByLower = sortBy.toLowerCase();
+        console.log('sortby : ', sortByLower);
         axios
             .get<CommunityApiResponse>(`${process.env.NEXT_PUBLIC_ROOT_API}/community`, {
                 params: {
                     category: categoryUpper,
-                    sortBy: "latest",
+                    sortBy: sortByLower,
                     page,
-                    size: 1,
+                    size: 2,
                 },
                 headers: {
                     Authorization: `${localStorage.getItem('Authorization')}`
@@ -222,7 +226,7 @@ export function PostComponents() {
             .catch((error) => {
                 console.error("데이터를 가져오는 중 오류가 발생했습니다: catch", error);
             });
-    }, [isLast, page, category]); // isLast와 page 상태만 의존성으로 사용
+    }, [isLast, page, category, sortBy]); // isLast와 page 상태만 의존성으로 사용
 
     const handleCategoryChange = (newCategory: string) => {
         setCategory(newCategory); // 카테고리 변경
@@ -231,6 +235,12 @@ export function PostComponents() {
         setIsLast(false); // 마지막 페이지 여부 초기화
     }
 
+    const handleSortByChange = (newSortBy: string) => {
+        setSortBy(newSortBy); // 정렬 변경
+        setPosts([]); // 게시글 초기화
+        setPage(0); // 페이지 초기화
+        setIsLast(false); // 마지막 페이지 여부 초기화
+    }
     // 초기 데이터 로드
     useEffect(() => {
         if (page === 0) {
@@ -287,12 +297,18 @@ export function PostComponents() {
     return (
         <>
             <div className="post-component-wrapper">
-                <div style={{ backgroundColor: 'white' }} className='pb-[1rem] pl-[1rem]'>
+                <div style={{ backgroundColor: 'white' }} className='pb-[1rem] pl-[1rem] flex gap-[1rem]'>
                     <CategorySelectDropdown
-                        defaultItem="ALL" // 기본 선택 값 설정
+                        defaultItem="All" // 기본 선택 값 설정
                         options={categoryList} // 드롭다운 옵션 전달
                         onSelect={handleCategoryChange}
                         value={category}
+                    />
+                    <CategorySelectDropdown
+                        defaultItem="latest" // 기본 선택 값 설정
+                        options={sortByList} // 드롭다운 옵션 전달
+                        onSelect={handleSortByChange}
+                        value={sortBy}
                     />
                 </div>
                 {posts.length === 0 ? (
@@ -311,7 +327,7 @@ export function PostComponents() {
                 <div ref={observerRef} className="loading-placeholder h-1 invisible"
                 />
             </div>
-            <div className='flex justify-center' style={{ width: '100%',backgroundColor: 'white' }}>
+            <div className='flex justify-center' style={{ width: '100%', backgroundColor: 'white' }}>
                 {isLast && <span className='text-center'
                 >no more post</span>}
             </div>
