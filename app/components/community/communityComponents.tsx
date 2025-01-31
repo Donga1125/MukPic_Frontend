@@ -10,7 +10,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
 import 'swiper/css/bundle';
 
-interface CommunityPost {
+export interface CommunityPost {
     communityKey: number;
     title: string;
     content: string;

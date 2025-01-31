@@ -33,7 +33,7 @@ button:disabled {
   flex-direction: column;
   flex-grow: 1;
   background-color: white;
-  width: 94%;
+  width: 100%;
   justify-content: center;
   margin: 0 auto;
   padding: 0;
