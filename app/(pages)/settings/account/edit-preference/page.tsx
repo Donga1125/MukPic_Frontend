@@ -10,6 +10,7 @@ interface UserInfoData {
     religion: string;
     allergies: string[];
     chronicDiseases: string[];
+    chronicDiseaseTypes: string[];
     dietaryPreferences: string[];
   }
 
@@ -295,7 +296,7 @@ const EditPreference = () => {
                 updatedData.dietaryPreferences = selectedDietaryPreferences;
             }
             if (JSON.stringify(selectedChronicDisease) !== JSON.stringify(userInfo?.chronicDiseases)) {
-                updatedData.chronicDiseases = selectedChronicDisease;
+                updatedData.chronicDiseaseTypes = selectedChronicDisease; 
             }
 
         if (Object.keys(updatedData).length > 0) {
