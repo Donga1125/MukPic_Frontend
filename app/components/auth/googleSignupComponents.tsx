@@ -196,7 +196,6 @@ export function GoogleSignupStep3() {
             }).then(function (response) {
                 if (response.status === 200) {
                     setImage(response.data[0]);
-                    console.log('이미지 업로드 성공', response.data[0]);
                     router.push('/signup/google/step4');
                 }
             }).catch(function () {
@@ -794,7 +793,6 @@ export function GoogleSignupStep5() {
 
             const token = localStorage.getItem('googleLoginToken');
             const requestData = signupData;
-            console.log(requestData)
 
             axios.patch(
                 `${process.env.NEXT_PUBLIC_ROOT_API}/users/editUserInfo`,
@@ -812,19 +810,16 @@ export function GoogleSignupStep5() {
                         
                         alert('All set! Welcome aboard!');
 
-                        //구글 로그인 바로 보내기기
-                        // const googleAuthUrl = `${process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI}`;
-                        // // 구글 회원가입에서 사용한 토큰 혹시 있으면 삭제해줌
-                        // if (localStorage.getItem('googleLoginToken')) {
-                        //     localStorage.removeItem('googleLoginToken');
-                        // }
-                        // location.href = googleAuthUrl;
-                        router.push('/login');
+                        const googleAuthUrl = `${process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI}`;
+                        // 구글 회원가입에서 사용한 토큰 혹시 있으면 삭제해줌
+                        if (localStorage.getItem('googleLoginToken')) {
+                            localStorage.removeItem('googleLoginToken');
+                        }
+                        location.href = googleAuthUrl;
+                        router.push(googleAuthUrl);
                     } else {
                         alert('Failed to sign up Please try again');
-                        console.log(response.status);
-                        console.log(response);
-                        // router.push('/login');
+                        router.push('/login');
                     }
 
                 })
