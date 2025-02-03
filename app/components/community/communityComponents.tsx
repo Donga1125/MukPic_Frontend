@@ -192,7 +192,7 @@ export function PostComponents() {
     const [category, setCategory] = useState<string>('All');
     const categoryList = ['All', 'Rice', 'Noodle', 'Soup', 'Dessert', 'Streetfood', 'Kimchi','ETC'];
     const [sortBy, setSortBy] = useState<string>('Latest');
-    const sortByList = ['Latest', 'Popular'];
+    const sortByList = ['Latest', 'Likes'];
 
     // 감지할 마지막 요소 Ref
     const observerRef = useRef<HTMLDivElement | null>(null);
