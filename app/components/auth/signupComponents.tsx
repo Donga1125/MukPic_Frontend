@@ -8,7 +8,8 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import Image from "next/image";
 import jsonData from '@/app/components/auth/Policy.json';
-import { addUserKey } from "./authFunctions";
+import { addUserKey, createAuthCookie } from "./authFunctions";
+import { create } from "domain";
 
 
 type Props = {
@@ -1344,8 +1345,7 @@ export function SignupStep5() {
                                 const Authorization = response.headers['authorization'];
                                 localStorage.setItem('Authorization', Authorization);
                                 // 미들웨어를 위한 쿠키 설정
-                                const maxAge = 10 * 365 * 24 * 60 * 60; // 10년(초 단위)
-                                document.cookie = `authCookie=${Authorization}; max-age=${maxAge}; path=/; secure; SameSite=Strict`;
+                                createAuthCookie(Authorization);
 
                                 //userKey 추가
                                 addUserKey(response.data.userKey);
