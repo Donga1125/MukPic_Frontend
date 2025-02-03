@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { Suspense } from "react";
+import { addUserKey } from "@/app/components/auth/authFunctions";
 
 function GoogleLoginContent() {
   const searchParams = useSearchParams();
@@ -37,6 +38,10 @@ function GoogleLoginContent() {
             // 미들웨어를 위한 쿠키 설정
             const maxAge = 10 * 365 * 24 * 60 * 60; // 10년(초 단위)
             document.cookie = `authCookie=${accessToken}; max-age=${maxAge}; path=/; secure; SameSite=Strict`;
+
+            //userKey 저장
+            const userKey = response.data.userKey;
+            addUserKey(userKey);
 
             // 메인 페이지로 리디렉션
             router.push("/");

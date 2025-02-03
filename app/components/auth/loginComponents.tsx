@@ -6,6 +6,7 @@ import Link from "next/link";
 import '@/app/globals.css'
 import '@/app/(css)/auth.css'
 import { useRouter } from "next/navigation";
+import { addUserKey } from "@/app/components/auth/authFunctions";
 
 
 
@@ -59,6 +60,12 @@ export default function LoginForm() {
                         // 미들웨어를 위한 쿠키 설정
                         const maxAge = 10 * 365 * 24 * 60 * 60; // 10년(초 단위)
                         document.cookie = `authCookie=${Authorization}; max-age=${maxAge}; path=/; secure; SameSite=Strict`;
+
+                        //userKey 저장 필요
+                        const userKey = response.data.userKey;
+                        addUserKey(userKey);
+
+
                         router.push('/');
                     }
                 })

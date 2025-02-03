@@ -114,7 +114,7 @@ export default function BoardDetail() {
     }
 
     function DeleteHandler() {
-        const isConfirmed = window.confirm('정말 삭제하시겠습니까?');
+        const isConfirmed = window.confirm('Are you sure you want to delete it?');
         if (isConfirmed) {
             axios({
                 method: 'delete',
@@ -187,7 +187,7 @@ export default function BoardDetail() {
         }
     }, [imageUrls, currentIndex, setCurrentIndex]);
 
-    //유저 키 비교해서 버튼 활성화화
+    //유저 키 비교해서 버튼 활성화
     useEffect(() => {
         const getUserKey = localStorage.getItem('userKey');
         if (Number(userKey) === Number(getUserKey)) {
