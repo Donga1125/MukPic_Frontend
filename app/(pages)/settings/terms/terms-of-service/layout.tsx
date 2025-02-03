@@ -21,7 +21,7 @@ export default function EditProfileLayout({ children }: LayoutProps) {
         leftButton={
           <SvgButtonForNav
             onClick={() => {
-              router.back();
+              router.push('/settings');
             }}
           >
             <svg
@@ -47,7 +47,7 @@ export default function EditProfileLayout({ children }: LayoutProps) {
         }
       />
       <div className="flex justify-center items-center logo-box">
-        <span className="login-logo">Change Password</span>
+        <span className="login-logo">Terms of Service</span>
       </div>
       <div className="auth-container bg-white rounded-lg">
         {children}

@@ -1,16 +1,9 @@
 'use client';
 
 import React from 'react';
-import styled, { createGlobalStyle } from 'styled-components';
+import styled from 'styled-components';
 import { useRouter } from 'next/navigation';
 
-const GlobalStyle = createGlobalStyle`
-  html, body {
-    background-color: #ffffff;
-    width: 100%;
-    height: 100%;
-  }
-`;
 
 const SettingsPage = () => {
   const router = useRouter();
@@ -47,10 +40,9 @@ const SettingsPage = () => {
 
   return (
     <>
-      <GlobalStyle />
       <Container>
         <Header>
-          <BackButton onClick={() => router.back()}>&lt;</BackButton>
+          <BackButton onClick={() => router.push('/myPage')}>&lt;</BackButton>
           <Title>Settings</Title>
         </Header>
         <MenuList>
@@ -78,8 +70,9 @@ const Container = styled.div`
   background-color: #ffffff;
   display: flex;
   flex-direction: column;
-  width: 24.375rem;
+  width: 100%;
   height: 100vh;
+  min-height: 300px; /* 최소 높이 설정 */
 `;
 
 const Header = styled.header`

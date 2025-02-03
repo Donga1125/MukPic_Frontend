@@ -47,7 +47,7 @@ export default function EditProfileLayout({ children }: LayoutProps) {
         }
       />
       <div className="flex justify-center items-center logo-box">
-        <span className="login-logo">Change Password</span>
+        <span className="login-logo">Delete Account</span>
       </div>
       <div className="auth-container bg-white rounded-lg">
         {children}

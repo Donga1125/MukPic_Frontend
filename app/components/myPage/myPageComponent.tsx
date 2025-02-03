@@ -205,6 +205,8 @@ const Container = styled.div`
   flex-direction: column;
   width: 100%;
   //height: 52.75rem;
+  min-height: 300px; /* 최소 높이 설정 */
+  justify-content: flex-start; /* 게시글이 없을 때도 상단 유지 */
   align-items: center;
   padding-top: 3.5rem;
 `;
@@ -369,6 +371,9 @@ const PostContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  flex-grow: 1; 
+  min-height: 52.75rem; 
+  justify-content: flex-start;
 `;
 
 const PostsGrid = styled.div`
@@ -411,4 +416,5 @@ const PostDescription = styled.p`
 const NoPostsMessage = styled.p`
   text-align: center;
   color: #666;
+   margin-top: 20px; /* 기본 여백 추가 */
 `;
