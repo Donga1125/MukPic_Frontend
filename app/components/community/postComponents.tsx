@@ -136,11 +136,9 @@ export function AddImageUrl() {
                 data: formData,
             }).then((response) => {
                 if (response.status === 200) {
-                    console.log('upload success', response.data);
                     // 성공적으로 업로드된 이미지 URL을 상태에 추가
                     setImageUrl([...imageUrl, ...response.data]);
                     setUpdateImageUrls([...updateImageUrls, ...response.data]);
-                    console.log('updateImageUrls:', updateImageUrls);
                 }
             }).catch((error) => {
                 console.log('upload error', error);
@@ -162,7 +160,6 @@ export function AddImageUrl() {
         }).then((response) => {
 
             if (response.status === 204) {
-                console.log('delete success', response.data);
                 setImageUrl(imageUrl.filter((_, i) => i !== index));  // imageUrls에서 삭제
                 setUpdateImageUrls(updateImageUrls.filter((url) => url !== imageUrl[index]));
             }

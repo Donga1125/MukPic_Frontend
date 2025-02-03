@@ -202,7 +202,6 @@ export function PostComponents() {
 
         const categoryUpper = category.toUpperCase();
         const sortByLower = sortBy.toLowerCase();
-        console.log('sortby : ', sortByLower);
         axios
             .get<CommunityApiResponse>(`${process.env.NEXT_PUBLIC_ROOT_API}/community`, {
                 params: {
@@ -224,7 +223,7 @@ export function PostComponents() {
                 }
             })
             .catch((error) => {
-                console.error("데이터를 가져오는 중 오류가 발생했습니다: catch", error);
+                console.error("error", error);
             });
     }, [isLast, page, category, sortBy]); // isLast와 page 상태만 의존성으로 사용
 
@@ -263,7 +262,6 @@ export function PostComponents() {
     useEffect(() => {
         if (isLast) return; // 마지막 페이지면 Intersection Observer 설정하지 않음
 
-        console.log('useEffect  observer실행행');
         const observer = new IntersectionObserver(
             (entries) => {
                 // 마지막 게시글이 반 정도 보이면 페이지 증가
@@ -356,7 +354,6 @@ export function PostContent({ post, useManyImage }: CommunityPostProps) {
 
 
     const DetailPostHandler = () => {
-        console.log('게시글 상세보기 페이지로 이동');
         //뒤로가기 시 제대로 작동 안하는 것 때문에 임시로 이렇게 해놓음
         location.href = `/community/${post.communityKey}`;
     }
@@ -374,12 +371,11 @@ export function PostContent({ post, useManyImage }: CommunityPostProps) {
                 }
             }).then((response) => {
                 if (response.status === 200) {
-                    console.log('좋아요 취소 성공');
                     setLike(false);
                     setLikeCount(likeCount - 1);
                 }
             }).catch((error) => {
-                console.log('좋아요 취소 실패', error);
+                console.log('error', error);
             })
         }
         if (!like) {
@@ -391,12 +387,11 @@ export function PostContent({ post, useManyImage }: CommunityPostProps) {
                 }
             }).then((response) => {
                 if (response.status === 200) {
-                    console.log('좋아요 성공');
                     setLike(true);
                     setLikeCount(likeCount + 1);
                 }
             }).catch((error) => {
-                console.log('좋아요 실패', error);
+                console.log('error', error);
             })
         }
 
@@ -534,12 +529,11 @@ export function DetailPostContent({ post, useManyImage }: CommunityPostProps) {
                 }
             }).then((response) => {
                 if (response.status === 200) {
-                    console.log('좋아요 취소 성공');
                     setLike(false);
                     setLikeCount(likeCount - 1);
                 }
             }).catch((error) => {
-                console.log('좋아요 취소 실패', error);
+                console.log('error', error);
             })
         }
         if (!like) {
@@ -551,12 +545,11 @@ export function DetailPostContent({ post, useManyImage }: CommunityPostProps) {
                 }
             }).then((response) => {
                 if (response.status === 200) {
-                    console.log('좋아요 성공');
                     setLike(true);
                     setLikeCount(likeCount + 1);
                 }
             }).catch((error) => {
-                console.log('좋아요 실패', error);
+                console.log('error', error);
             })
         }
 

@@ -1,42 +1,29 @@
 import React from "react";
-// import { ProfileStep } from "@/app/components/settings/profileStep";
-// import { PreferencesStep } from "@/app/components/settings/preferencesStep";
-// import { AllergiesStep } from "@/app/components/settings/allergiesStep";
+import policyData from "@/app/components/auth/Policy.json";
 
-export default function EditProfilePage() {
-//   const handleProfileSave = (data: { image: string; userName: string }) => {
-//     console.log("Profile saved:", data);
-//   };
-
-//   const handlePreferencesSave = (data: {
-//     country: string;
-//     religion: string;
-//     dietaryPreferences: string[];
-//     chronicDiseases: string[];
-//   }) => {
-//     console.log("Preferences saved:", data);
-//   };
-
-//   const handleAllergiesSave = (allergies: string[]) => {
-//     console.log("Allergies saved:", allergies);
-//   };
+const PrivacyPolicy = () => {
+  const { privacyPolicy } = policyData;
 
   return (
-    <div>
-      <h1>Edit Profile</h1>
-      {/* <ProfileStep
-        initialImage="/default-profile.jpg"
-        initialUserName="John Doe"
-        onSave={handleProfileSave}
-      />
-      <PreferencesStep
-        initialCountry="USA"
-        initialReligion="Christianity"
-        initialDietaryPreferences={["Vegan"]}
-        initialChronicDiseases={["Diabetes"]}
-        onSave={handlePreferencesSave}
-      />
-      <AllergiesStep initialAllergies={["Peanut"]} onSave={handleAllergiesSave} /> */}
+    <div>   
+      {privacyPolicy.sections.map((section, index) => (
+        <div key={index} className="mb-6">
+          <h2 className="text-xl font-semibold mb-2">{section.heading}</h2>
+          <p className="text-sm">{section.content}</p>
+
+          {section.list && (
+            <ul className="mt-2 list-disc pl-5">
+              {section.list.map((item, idx) => (
+                <li key={idx} className="text-sm">{item}</li>
+              ))}
+            </ul>
+          )}
+
+          {section.footer && <p className="mt-2 text-sm font-semibold">{section.footer}</p>}
+        </div>
+      ))}
     </div>
   );
-}
+};
+
+export default PrivacyPolicy;
