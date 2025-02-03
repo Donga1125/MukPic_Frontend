@@ -2,7 +2,7 @@
 import { userLoginStore } from "@/app/types/loginStore";
 import axios from 'axios';
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
+//import Link from "next/link";
 import '@/app/globals.css'
 import '@/app/(css)/auth.css'
 import { useRouter } from "next/navigation";
@@ -106,9 +106,7 @@ export default function LoginForm() {
                 {errorMessage && <span className="validate-error-text px-[1.25rem]">
                     {errorMessage}
                 </span>}
-                <label className="login-form-text-sm ml-auto px-[1.25rem]">
-                    <Link href='/forgotPassword' className='text-right'>Forgot Password?</Link>
-                </label>
+                
             </div>
             <button
                 className="auth-button auth-button-id sign-up-button-text bottom-[8rem]"
