@@ -721,11 +721,9 @@ export function SignupStep3() {
             }).then(function (response) {
                 if (response.status === 200) {
                     setImage(response.data[0]);
-                    console.log('이미지 업로드 성공', response.data[0]);
                     router.push('/signup/step4');
                 }
             }).catch(function (error) {
-                console.log('프로필 이미지 등록 실패', profileImage?.type, profileImage);
                 console.log('failed image upload catch', error);
             });
         }
@@ -982,7 +980,7 @@ export function Dropdown({ options, buttonName, isMultiSelect, onSelect }: Dropd
                                             type="checkbox"
                                             checked={selectedItems.includes(option)}
                                             onChange={() => selectItem(option)}
-                                            />
+                                        />
                                     </span>) :
                                     (
                                         null
@@ -1249,7 +1247,6 @@ export function SignupStep4() {
         setDietaryPreferences(FormatStringArray(selectedDietaryPreferences));  // 식습관 설정
         setChronicDiseaseTypes(FormatStringArray(selectedChronicDisease)); // 만성질환 설정
 
-        console.log(selectedCountry, selectedReligions, selectedDietaryPreferences, selectedChronicDisease);
 
         router.push('/signup/step5');
     }
@@ -1333,20 +1330,35 @@ export function SignupStep5() {
         };
 
 
-        console.log(signupData);
 
         axios.post(`${process.env.NEXT_PUBLIC_ROOT_API}/users/register`, signupData)
             .then(response => {
                 if (response.status === 200) {
                     alert('All set! Welcome aboard!');
-                    router.push('/login');
+                    //회원가입 후 바로 로그인 하고 메인 페이지로 이동
+                    axios.post(`${process.env.NEXT_PUBLIC_ROOT_API}/auth/login`,
+                        { userId, password })
+                        .then(function (response) {
+                            if (response.status === 200) {
+                                const Authorization = response.headers['authorization'];
+                                localStorage.setItem('Authorization', Authorization);
+                                // 미들웨어를 위한 쿠키 설정
+                                const maxAge = 10 * 365 * 24 * 60 * 60; // 10년(초 단위)
+                                document.cookie = `authCookie=${Authorization}; max-age=${maxAge}; path=/; secure; SameSite=Strict`;
+                                router.push('/');
+                            }
+                        }).catch(function () {
+                            router.push('/login');
+                        }
+                        );
+
+                    // router.push('/login');
                 } else {
                     alert('The error occurred. Please try again from the beginning.');
                 }
             })
-            .catch(error => {
+            .catch(function () {
                 alert('The error occurred. Please try again from the beginning.');
-                console.log('catch error : ', error);
             });
     };
 
