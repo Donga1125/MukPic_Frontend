@@ -335,11 +335,12 @@ export function Write() {
     const contents = usePostStore((state) => state.content);
     const setContents = usePostStore((state) => state.setContent);
 
+    const titleMaxLength = 30;
     // 내용 입력 최대 글자 수
-    const maxLength = 300;
+    const contentMaxLength = 300;
 
     const contentshandleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        if (e?.target.value.length <= maxLength) {
+        if (e?.target.value.length <= contentMaxLength) {
             setContents(e.target.value);
         }
     }
@@ -365,7 +366,7 @@ export function Write() {
                     placeholder="Title"
                     required
                     className='auth-placeholder text-left'
-                    maxLength={20}
+                    maxLength={titleMaxLength}
                     value={title}
                     onChange={titlehandleChange}
                 />
@@ -381,7 +382,7 @@ export function Write() {
                 >
                 </textarea>
                 <div>
-                    <span className='contents-length-span'>({contents.length}/{maxLength})</span>
+                    <span className='contents-length-span'>({contents.length}/{contentMaxLength})</span>
                 </div>
             </label>
 

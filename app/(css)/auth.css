@@ -11,6 +11,7 @@ input {
   line-height: 1.375rem; /* 137.5% */
   letter-spacing: -0.01875rem;
   background: #f1f3f6;
+  width:100%;
 }
 
 input:-webkit-autofill {
@@ -369,7 +370,6 @@ input[type="checkbox"]:active {
 .terms-wrapper {
   color: black;
   text-align: left;
-  border-top: 1px solid #000;
   padding-top: 1rem;
   padding-bottom: 1rem;
 }
