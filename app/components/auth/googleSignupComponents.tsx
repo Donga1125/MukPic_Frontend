@@ -350,10 +350,10 @@ type DropdownProps = {
     buttonName: string;
     isMultiSelect?: boolean;
     onSelect: (selected: string | string[]) => void;
-    buttonColor?:string;
+    buttonColor?: string;
 }
 
-export function Dropdown({ options, buttonName, isMultiSelect, onSelect,buttonColor }: DropdownProps) {
+export function Dropdown({ options, buttonName, isMultiSelect, onSelect, buttonColor }: DropdownProps) {
     const [isOpen, setIsOpen] = useState(false); // 드롭다운 열림 상태
     const [selectedItems, setSelectedItems] = useState<string[]>([]); // 선택된 항목 리스트
     const [selectedItem, setSelectedItem] = useState<string | null>(null); // 단일 선택용
@@ -458,7 +458,7 @@ export function Dropdown({ options, buttonName, isMultiSelect, onSelect,buttonCo
                         key={item}
                         className="dropdown-badge dropdown-badge-green"
                         onClick={() => removeBadge(item)}
-                        style={{backgroundColor: buttonColor}}
+                        style={{ backgroundColor: buttonColor }}
                     >
                         {item} ×
                     </button>
@@ -468,7 +468,7 @@ export function Dropdown({ options, buttonName, isMultiSelect, onSelect,buttonCo
                             key={selectedItem}
                             className="dropdown-badge dropdown-badge-green"
                             onClick={() => removeBadge(selectedItem)}
-                            style={{backgroundColor: buttonColor}}
+                            style={{ backgroundColor: buttonColor }}
                         >
                             {selectedItem} ×
                         </button>
@@ -826,23 +826,21 @@ export function GoogleSignupStep5() {
                             data: {
                                 email: email
                             },
-                        }).then(response => {
-                            const Authorization = response.headers['authorization'];
-                            localStorage.setItem('Authorization', Authorization);
-                            // 미들웨어를 위한 쿠키 설정
-                            createAuthCookie(Authorization);
-                            //userKey 추가
-                            addUserKey(response.data.userKey);
-                            router.push('/');
-                        }).catch(() =>{
+                        }).then(response => { 
+                                const Authorization = response.headers['authorization'];
+                                localStorage.setItem('Authorization', Authorization);
+                                // 미들웨어를 위한 쿠키 설정
+                                createAuthCookie(Authorization);
+                                //userKey 추가
+                                addUserKey(response.data.userKey);
+                                router.push('/');
+                        }).catch(() => {
                             router.push('/login');
                         });
 
-                        // 구글 회원가입에서 사용한 토큰 혹시 있으면 삭제해줌
-
-                        location.href = googleAuthUrl;
-                        router.push(googleAuthUrl);
-                    } else {
+                        // location.href = googleAuthUrl;
+                        // router.push(googleAuthUrl);
+                    }else {
                         alert('Failed to sign up Please try again');
                         router.push('/login');
                     }

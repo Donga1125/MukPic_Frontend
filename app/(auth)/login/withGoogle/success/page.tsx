@@ -33,7 +33,6 @@ function GoogleLoginContent() {
           if (accessToken) {
             // 로컬 스토리지에 토큰 저장
             localStorage.setItem("Authorization", accessToken);
-            console.log("Access token stored successfully:", accessToken);
             
             // 미들웨어를 위한 쿠키 설정
             createAuthCookie(accessToken);
