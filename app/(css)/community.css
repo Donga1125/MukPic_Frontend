@@ -69,7 +69,7 @@
 
 .post-img-wrapper {
   width: 100%;
-  height: auto;
+  height: 30rem;
   position: relative;
   flex-shrink: 0;
   align-self: stretch;

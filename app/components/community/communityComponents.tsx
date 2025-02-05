@@ -133,13 +133,16 @@ export function CommunityImage({ imageUrls, handleImageLoad }: CommunityImagePro
 
     return (
         <div className='post-img-wrapper'>
-
-            <Image src={imageUrls[0]} alt="img_error" className="img"
+            <Image
+                src={imageUrls[0]} alt="img_error" className="img"
                 onLoad={handleImageLoad}
-                width={400}
-                height={300}
-                style={{ objectFit: 'cover', width: '100%', height: 'auto' }}
-            ></Image>
+                fill={true}
+                style={{objectFit:'cover'}}
+                sizes='100vh'
+                priority
+            />
+            {/* objectfit - cover 할지 contain할지 정해야함 */}
+
             {/* {imageLoaded && <ViewAiResearchButton></ViewAiResearchButton>} */}
         </div >
     );
@@ -155,7 +158,7 @@ const CommunityImageCarousel: React.FC<CommunityImageCarouselProps> = ({
     handleImageLoad,
 }) => {
     return (
-        <Swiper className='post-img-wrapper flex' pagination={true} modules={[Pagination]}>
+        <Swiper className='post-img-wrapper' pagination={true} modules={[Pagination]}>
             {imageUrls.map((url, index) => (
                 <SwiperSlide key={index}
                     className='self-center h-full'>
@@ -164,11 +167,13 @@ const CommunityImageCarousel: React.FC<CommunityImageCarouselProps> = ({
                         src={url}
                         alt={`Slide ${index + 1}`}
                         className="w-full object-cover display-block" // Tailwind CSS 클래스
-                        layout="responsive" // 이미지 비율을 유지하며 반응형 처리
-                        width={800} // 이미지 너비
-                        height={400} // 이미지 높이
+                        // width={800} // 이미지 너비
+                        // height={400} // 이미지 높이
                         priority={index === 0} // 첫 번째 슬라이드 이미지는 우선 로드
                         onLoad={handleImageLoad}
+                        sizes="100vh"
+                        fill={true}
+                        style={{ objectFit: 'contain' }}
                     />
                 </SwiperSlide>
             ))}
@@ -190,9 +195,9 @@ export function PostComponents() {
     const [page, setPage] = useState<number>(0);
     const [isLast, setIsLast] = useState<boolean>(false);
     const [category, setCategory] = useState<string>('All');
-    const categoryList = ['All', 'Rice', 'Noodle', 'Soup', 'Dessert', 'Streetfood', 'Kimchi','ETC'];
+    const categoryList = ['All', 'Rice', 'Noodle', 'Soup', 'Dessert', 'Streetfood', 'Kimchi', 'ETC'];
     const [sortBy, setSortBy] = useState<string>('Latest');
-    const sortByList = ['Latest', 'Popular'];
+    const sortByList = ['Latest', 'Likes'];
 
     // 감지할 마지막 요소 Ref
     const observerRef = useRef<HTMLDivElement | null>(null);
@@ -429,8 +434,10 @@ export function PostContent({ post, useManyImage }: CommunityPostProps) {
                         src={post.profileImage}
                         onLoad={handleImageLoad}
                         alt="미리보기"
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        style={{objectFit: "cover" }}
                         fill
+                        priority
+                        sizes='100vh'
                     />
                 </div>
                 <span className='post-profile-text flex-none'>{post.userName}</span>
@@ -585,9 +592,11 @@ export function DetailPostContent({ post, useManyImage }: CommunityPostProps) {
                     <Image
                         src={post.profileImage}
                         onLoad={handleImageLoad}
-                        alt="미리보기"
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        alt="preview"
+                        style={{objectFit: "cover" }}
                         fill
+                        sizes='100vh'
+                        priority
                     />
                 </div>
                 <span className='post-profile-text flex-none'>{post.userName}</span>

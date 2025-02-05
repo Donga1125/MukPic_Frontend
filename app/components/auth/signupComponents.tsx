@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import Image from "next/image";
 import jsonData from '@/app/components/auth/Policy.json';
+import { addUserKey, createAuthCookie } from "./authFunctions";
 
 
 type Props = {
@@ -892,9 +893,10 @@ type DropdownProps = {
     options: string[];
     buttonName: string;
     isMultiSelect?: boolean;
+    buttonColor?: string;
     onSelect: (selected: string | string[]) => void;
 }
-export function Dropdown({ options, buttonName, isMultiSelect, onSelect }: DropdownProps) {
+export function Dropdown({ options, buttonName, isMultiSelect, onSelect,buttonColor }: DropdownProps) {
     const [isOpen, setIsOpen] = useState(false); // 드롭다운 열림 상태
     const [selectedItems, setSelectedItems] = useState<string[]>([]); // 선택된 항목 리스트
     const [selectedItem, setSelectedItem] = useState<string | null>(null); // 단일 선택용
@@ -999,6 +1001,7 @@ export function Dropdown({ options, buttonName, isMultiSelect, onSelect }: Dropd
                         key={item}
                         className="dropdown-badge dropdown-badge-green"
                         onClick={() => removeBadge(item)}
+                        style={{ backgroundColor: buttonColor }}
                     >
                         {item} ×
                     </button>
@@ -1008,6 +1011,7 @@ export function Dropdown({ options, buttonName, isMultiSelect, onSelect }: Dropd
                             key={selectedItem}
                             className="dropdown-badge dropdown-badge-green"
                             onClick={() => removeBadge(selectedItem)}
+                            style={{ backgroundColor: buttonColor }}
                         >
                             {selectedItem} ×
                         </button>
@@ -1260,6 +1264,7 @@ export function SignupStep4() {
                     buttonName="Select Your Country"
                     isMultiSelect={false}
                     onSelect={(selected) => setSelectedCountry(selected as string | null)}
+                    buttonColor='#E0E4EB'
                 />
             </div>
             <div>
@@ -1284,6 +1289,7 @@ export function SignupStep4() {
                     buttonName="Select Your Chronic Disease"
                     isMultiSelect={true}
                     onSelect={(selected) => setSelectedChronicDisease(selected as string[])}
+                    buttonColor="#FFC4B3"
                 />
             </div>
             <button className='auth-button auth-button-id sign-up-button-text'
@@ -1343,8 +1349,11 @@ export function SignupStep5() {
                                 const Authorization = response.headers['authorization'];
                                 localStorage.setItem('Authorization', Authorization);
                                 // 미들웨어를 위한 쿠키 설정
-                                const maxAge = 10 * 365 * 24 * 60 * 60; // 10년(초 단위)
-                                document.cookie = `authCookie=${Authorization}; max-age=${maxAge}; path=/; secure; SameSite=Strict`;
+                                createAuthCookie(Authorization);
+
+                                //userKey 추가
+                                addUserKey(response.data.userKey);
+
                                 router.push('/');
                             }
                         }).catch(function () {
