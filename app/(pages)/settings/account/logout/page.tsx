@@ -63,7 +63,7 @@ const LogoutPage = () => {
         backgroundColor: '#f8f9fa',
       }}
     >
-      <h1>로그아웃 중입니다...</h1>
+      <h1>Logging out...</h1>
     </div>
   );
 };
