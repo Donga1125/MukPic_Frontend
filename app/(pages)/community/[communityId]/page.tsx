@@ -222,7 +222,7 @@ export default function BoardDetail() {
                     // 임시로 넣은 아이콘
                     rightButton={rightButtonVisible ? <DropdownForNav /> : null}
                 />
-                <div className='flex justify-center content-detail' style={{ width: '100%' }}>
+                <div className='flex justify-center' style={{ width: '100%' }}>
                     <div className='post-component-wrapper' >
                         {post && <DetailPostContent key={communityId} post={post}
                             useManyImage={true}
