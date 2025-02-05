@@ -33,6 +33,7 @@ const LogoutPage = () => {
           localStorage.removeItem('Authorization');
 
           // 현석 추가 코드 (미들웨어를 위한 쿠키 삭제)
+          localStorage.removeItem('userKey');
           const cookieName = 'authCookie';
           const cookies = document.cookie.split(';').find(cookie => cookie.startsWith(`${cookieName}=`));
           if (cookies) {
