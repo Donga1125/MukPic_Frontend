@@ -7,6 +7,7 @@ import axios from "axios";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { addUserKey, createAuthCookie } from "./authFunctions";
 
 
 type Props = {
@@ -349,9 +350,10 @@ type DropdownProps = {
     buttonName: string;
     isMultiSelect?: boolean;
     onSelect: (selected: string | string[]) => void;
+    buttonColor?:string;
 }
 
-export function Dropdown({ options, buttonName, isMultiSelect, onSelect }: DropdownProps) {
+export function Dropdown({ options, buttonName, isMultiSelect, onSelect,buttonColor }: DropdownProps) {
     const [isOpen, setIsOpen] = useState(false); // 드롭다운 열림 상태
     const [selectedItems, setSelectedItems] = useState<string[]>([]); // 선택된 항목 리스트
     const [selectedItem, setSelectedItem] = useState<string | null>(null); // 단일 선택용
@@ -456,6 +458,7 @@ export function Dropdown({ options, buttonName, isMultiSelect, onSelect }: Dropd
                         key={item}
                         className="dropdown-badge dropdown-badge-green"
                         onClick={() => removeBadge(item)}
+                        style={{backgroundColor: buttonColor}}
                     >
                         {item} ×
                     </button>
@@ -465,6 +468,7 @@ export function Dropdown({ options, buttonName, isMultiSelect, onSelect }: Dropd
                             key={selectedItem}
                             className="dropdown-badge dropdown-badge-green"
                             onClick={() => removeBadge(selectedItem)}
+                            style={{backgroundColor: buttonColor}}
                         >
                             {selectedItem} ×
                         </button>
@@ -718,6 +722,7 @@ export function GoogleSignupStep4() {
                     buttonName="Select Your Country"
                     isMultiSelect={false}
                     onSelect={(selected) => setSelectedCountry(selected as string | null)}
+                    buttonColor='#E0E4EB'
                 />
             </div>
             <div>
@@ -742,6 +747,7 @@ export function GoogleSignupStep4() {
                     buttonName="Select Your Chronic Disease"
                     isMultiSelect={true}
                     onSelect={(selected) => setSelectedChronicDisease(selected as string[])}
+                    buttonColor="#FFC4B3"
                 />
             </div>
             <button className='auth-button auth-button-id sign-up-button-text'
@@ -764,7 +770,7 @@ export function GoogleSignupStep5() {
     const nutsAllergieList = ['Buck wheat', 'Peanut', 'Pine nut', 'Soybean', 'Walnut', 'Wheat'];
     const meatAllergieList = ['Beef', 'Chicken', 'Eggs', 'Milk', 'Pork'];
     const etcAllergieList = ['Sulfurous'];
-
+    const email = useSignupStore.getState().email;
     const router = useRouter();
     const setAllergyTypes = useSignupStore(state => state.setAllergyTypes);
     // 최종 회원 가입을 위한 상태 가져오기
@@ -807,14 +813,33 @@ export function GoogleSignupStep5() {
                     if (response.status === 200) {
                         // 회원가입 성공 시 로컬스토리지 초기화 및 환영 메시지 출력
                         localStorage.removeItem('googleLoginToken');
-                        
-                        alert('All set! Welcome aboard!');
 
-                        const googleAuthUrl = `${process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI}`;
-                        // 구글 회원가입에서 사용한 토큰 혹시 있으면 삭제해줌
+                        alert('All set! Welcome aboard!');
                         if (localStorage.getItem('googleLoginToken')) {
                             localStorage.removeItem('googleLoginToken');
                         }
+                        const googleAuthUrl = `${process.env.NEXT_PUBLIC_ROOT_API}/auth/email-login`;
+
+                        axios({
+                            url: googleAuthUrl,
+                            method: 'post',
+                            data: {
+                                email: email
+                            },
+                        }).then(response => {
+                            const Authorization = response.headers['authorization'];
+                            localStorage.setItem('Authorization', Authorization);
+                            // 미들웨어를 위한 쿠키 설정
+                            createAuthCookie(Authorization);
+                            //userKey 추가
+                            addUserKey(response.data.userKey);
+                            router.push('/');
+                        }).catch(() =>{
+                            router.push('/login');
+                        });
+
+                        // 구글 회원가입에서 사용한 토큰 혹시 있으면 삭제해줌
+
                         location.href = googleAuthUrl;
                         router.push(googleAuthUrl);
                     } else {

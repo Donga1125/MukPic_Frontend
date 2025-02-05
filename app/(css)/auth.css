@@ -185,7 +185,7 @@ input.auth-placeholder::placeholder {
 }
 .dropdown-badge-green {
   background: #cff7ca;
-  padding-right: 0.5rem;
+  padding-right: 1rem;
 }
 .dropdown-badge-red {
   background: #ffc4b3;

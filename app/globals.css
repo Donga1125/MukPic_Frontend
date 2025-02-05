@@ -165,8 +165,10 @@ button:disabled {
   margin: 0 auto; /* 중앙 정렬 */
   padding: 8px; /* 내부 여백 */
   background-color: white; /* 흰 배경 */
+
+  /* 현석 수정 0204 */
   border-radius: 8px; /* 모서리 둥글기 */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* 기존 shadow-md */
+  /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); 기존 shadow-md */
 }
 
 /* TempMainPage 전용 스타일 */
