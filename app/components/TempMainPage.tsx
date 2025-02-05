@@ -236,7 +236,7 @@ export default function MainPage() {
           </div>
           <button
             className="temp-page-button bg-gray-800 text-white font-semibold px-5 py-2 rounded-full flex items-center absolute bottom-4 left-1/2 transform -translate-x-1/2"
-            onClick={() => router.push("/community")}
+            onClick={() => router.push("/community/post")}
           >
             <span className="mr-2">
               <svg
