@@ -5,6 +5,11 @@ export function middleware(request: NextRequest) {
   console.log(pathname);
   const token = request.cookies.get("authCookie");
 
+  // OAuth 콜백 URL은 미들웨어에서 제외
+  if (pathname.startsWith("/auth/google/callback")) {
+    return NextResponse.next();
+  }
+
   // 토큰이 없을 경우 로그인과 회원가입 페이지 외의 페이지에는 접근할 수 없음
   if (
     !token &&
@@ -27,5 +32,6 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|auth/google/callback).*)",
+  ],
 };
