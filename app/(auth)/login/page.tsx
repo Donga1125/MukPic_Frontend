@@ -11,8 +11,8 @@ export default function LoginPage() {
     if(localStorage.getItem('googleLoginToken')) {
       localStorage.removeItem('googleLoginToken');
     }
-    window.open(googleAuthUrl,'_blank');
-    // window.location.href = googleAuthUrl;
+    
+    window.location.href = googleAuthUrl;
   };
 
   return (
