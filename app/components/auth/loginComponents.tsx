@@ -6,7 +6,7 @@ import React, { useEffect, useState } from "react";
 import '@/app/globals.css'
 import '@/app/(css)/auth.css'
 import { useRouter } from "next/navigation";
-import { addUserKey, createAuthCookie } from "@/app/components/auth/authFunctions";
+import { addUserKey} from "@/app/components/auth/authFunctions";
 
 
 
@@ -58,7 +58,7 @@ export default function LoginForm() {
                         localStorage.setItem('Authorization', Authorization);
 
                         // 미들웨어를 위한 쿠키 설정
-                        createAuthCookie(Authorization);
+                       // createAuthCookie(Authorization);
 
                         //userKey 저장 필요
                         const userKey = response.data.userKey;

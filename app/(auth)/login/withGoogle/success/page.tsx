@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { Suspense } from "react";
-import { addUserKey, createAuthCookie } from "@/app/components/auth/authFunctions";
+import { addUserKey} from "@/app/components/auth/authFunctions";
 
 function GoogleLoginContent() {
   const searchParams = useSearchParams();
@@ -35,7 +35,7 @@ function GoogleLoginContent() {
             localStorage.setItem("Authorization", accessToken);
             
             // 미들웨어를 위한 쿠키 설정
-            createAuthCookie(accessToken);
+            //createAuthCookie(accessToken);
 
             //userKey 저장
             const userKey = response.data.userKey;

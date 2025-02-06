@@ -32,14 +32,14 @@ const LogoutPage = () => {
         if (response.ok) {
           localStorage.removeItem('Authorization');
 
-          // 현석 추가 코드 (미들웨어를 위한 쿠키 삭제)
-          localStorage.removeItem('userKey');
-          const cookieName = 'authCookie';
-          const cookies = document.cookie.split(';').find(cookie => cookie.startsWith(`${cookieName}=`));
-          if (cookies) {
-            // authCookie 삭제
-            document.cookie = `${cookieName}=; max-age=0; path=/; secure; SameSite=Strict`;
-          }
+          // // 현석 추가 코드 (미들웨어를 위한 쿠키 삭제)
+          // localStorage.removeItem('userKey');
+          // const cookieName = 'authCookie';
+          // const cookies = document.cookie.split(';').find(cookie => cookie.startsWith(`${cookieName}=`));
+          // if (cookies) {
+          //   // authCookie 삭제
+          //   document.cookie = `${cookieName}=; max-age=0; path=/; secure; SameSite=Strict`;
+          // }
 
           // 로그인 페이지로 리다이렉트
           router.push('/login');
