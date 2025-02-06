@@ -40,6 +40,8 @@ const AccountDeletion = () => {
       if (response.ok) {
         alert("Your account has been successfully deleted.");
         localStorage.removeItem("Authorization"); // 토큰 삭제
+        // 현석 추가
+        localStorage.removeItem("userKey"); // 유저정보 삭제
         deleteCookies(); //쿠키삭제
 
         router.push("/login");
