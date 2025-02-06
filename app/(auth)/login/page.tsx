@@ -6,7 +6,11 @@ import Link from "next/link";
 export default function LoginPage() {
 
   const handleGoogleLogin = () => {
-    const googleAuthUrl = `${process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI}`;
+    const googleAuthUrl = "https://accounts.google.com/o/oauth2/auth" + 
+    `?client_id=${process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}` +
+    `&redirect_uri=${process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI}` +
+    `&response_type=code` +
+    `&scope=profile email`;
     // 구글 회원가입에서 사용한 토큰 혹시 있으면 삭제해줌
     if(localStorage.getItem('googleLoginToken')) {
       localStorage.removeItem('googleLoginToken');
